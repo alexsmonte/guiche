@@ -22,3 +22,6 @@
 Thumbs.db
 *.log
 /.user.ini
+
+# Documentação interna de planejamento
+/docs/
