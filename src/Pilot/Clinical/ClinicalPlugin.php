@@ -173,13 +173,33 @@ final class ClinicalPlugin implements PluginInterface
             );
         }
 
-        return new ToolRegistration(
-            $tool,
+        $toolSafety = $this->config['tool_safety'] ?? [];
+        $safety = [];
+
+        if (is_array($toolSafety)) {
+            $candidate = $toolSafety[$tool->name()] ?? [];
+
+            if (is_array($candidate)) {
+                $safety = $candidate;
+            }
+        }
+
+        /*
+         * Metadados estruturais do Plugin não podem ser
+         * sobrescritos pela configuração de Safety.
+         */
+        $metadata = array_merge(
+            $safety,
             [
                 'plugin' => self::class,
                 'domain' => 'clinical',
                 'operation' => $operation,
             ]
+        );
+
+        return new ToolRegistration(
+            $tool,
+            $metadata
         );
     }
 
@@ -321,34 +341,65 @@ final class ClinicalPlugin implements PluginInterface
     private function registerResultProjections(
         GuicheBuilder $builder
     ): void {
-        $projections =
+        $excludeMap =
             $this->config['ai_tool_result_exclude_paths']
             ?? [];
 
-        if (!is_array($projections)) {
-            return;
+        $includeMap =
+            $this->config['ai_tool_result_include_paths']
+            ?? [];
+
+        if (!is_array($excludeMap)) {
+            $excludeMap = [];
         }
 
-        foreach (
-            $projections
-            as $toolName => $excludePaths
-        ) {
+        if (!is_array($includeMap)) {
+            $includeMap = [];
+        }
+
+        $toolNames = array_values(
+            array_unique(
+                array_merge(
+                    array_keys($excludeMap),
+                    array_keys($includeMap)
+                )
+            )
+        );
+
+        foreach ($toolNames as $toolName) {
             $toolName = trim(
                 (string)$toolName
             );
 
-            if (
-                $toolName === ''
-                || !is_array($excludePaths)
-            ) {
+            if ($toolName === '') {
+                continue;
+            }
+
+            $definition = [];
+
+            $excludePaths = $excludeMap[$toolName]
+                ?? [];
+
+            if (is_array($excludePaths)) {
+                $definition['exclude_paths'] =
+                    $excludePaths;
+            }
+
+            $includePaths = $includeMap[$toolName]
+                ?? [];
+
+            if (is_array($includePaths)) {
+                $definition['include_paths'] =
+                    $includePaths;
+            }
+
+            if ($definition === []) {
                 continue;
             }
 
             $builder->registerResultProjection(
                 $toolName,
-                [
-                    'exclude_paths' => $excludePaths,
-                ]
+                $definition
             );
         }
     }

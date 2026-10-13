@@ -90,6 +90,32 @@ return [
             'meta.datas_encontradas',
             'meta.linhas_brutas',
         ],
+
+        'CriarAgendamento' => [
+            'input',
+            'meta',
+        ],
+    ],
+
+    /*
+     * Whitelist explícita para a Tool WRITE.
+     * O payload HTTP completo continua no histórico interno,
+     * mas a IA recebe somente dados necessários para confirmar
+     * a efetivação.
+     */
+    'ai_tool_result_include_paths' => [
+        'CriarAgendamento' => [
+            'success',
+            'tool',
+            'data.agendamento_id',
+            'data.paciente_id',
+            'data.data_inicio',
+            'data.hora_inicio',
+            'data.profissional_id',
+            'data.servico_id',
+            'data.titulo',
+            'error',
+        ],
     ],
 
     'agent_context' => [
@@ -99,6 +125,81 @@ return [
 
     'reusable_tools' => [
         'DisponibilidadeConvenios',
+    ],
+
+    /*
+     * Safety Layer v0.4.
+     *
+     * ToolPolicy controla visibilidade/autorização por etapa.
+     * Estes metadados adicionam preconditions independentes
+     * e são revalidados imediatamente antes do execute().
+     */
+    'tool_safety' => [
+        'DisponibilidadeConvenios' => [
+            'stage_path' => 'state.etapa',
+        ],
+
+        'ConsultarProfissional' => [
+            'stage_path' => 'state.etapa',
+            'allowed_stages' => [
+                'aguardando_profissional',
+            ],
+            'requires_state' => [
+                ['path' => 'state.convenio.nome'],
+                ['path' => 'state.procedimento.nome'],
+            ],
+        ],
+
+        'ConsultarHorarios' => [
+            'stage_path' => 'state.etapa',
+            'allowed_stages' => [
+                'aguardando_data',
+                'consultando_horarios',
+                'aguardando_horario',
+                'aguardando_data_horario',
+            ],
+            'requires_state' => [
+                ['path' => 'state.profissional.id'],
+            ],
+        ],
+
+        'ConsultarPaciente' => [
+            'stage_path' => 'state.etapa',
+            'allowed_stages' => [
+                'aguardando_cpf',
+            ],
+            'requires_state' => [
+                ['path' => 'state.cpf'],
+            ],
+        ],
+
+        'CriarAgendamento' => [
+            'stage_path' => 'state.etapa',
+            'allowed_stages' => [
+                'pronto_para_agendar',
+            ],
+            'requires_state' => [
+                [
+                    'path' => 'state.confirmado_pelo_usuario',
+                    'value' => true,
+                ],
+                [
+                    'path' => 'state.paciente_validado',
+                    'value' => true,
+                ],
+                ['path' => 'state.paciente_id'],
+                ['path' => 'state.profissional.id'],
+                ['path' => 'state.data_agendamento'],
+                ['path' => 'state.horario'],
+            ],
+            'forbids_state' => [
+                ['path' => 'state.agendamento_id'],
+            ],
+            'confirmation' => [
+                'path' => 'state.confirmado_pelo_usuario',
+                'value' => true,
+            ],
+        ],
     ],
 
     'tool_policy' => [

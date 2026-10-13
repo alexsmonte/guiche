@@ -142,7 +142,7 @@ final class ContextStore
         $context['tool_history'][] = [
             'tool' => $tool,
             'arguments' => $arguments,
-            'fingerprint' => $this->toolFingerprint($tool, $arguments),
+            'fingerprint' => $this->toolFingerprint($sessionId, $tool, $arguments),
             'result' => $result,
             'created_at' => $this->now(),
         ];
@@ -156,7 +156,7 @@ final class ContextStore
     {
         $context = $this->load($sessionId);
         $history = $context['tool_history'] ?? [];
-        $fingerprint = $this->toolFingerprint($tool, $arguments);
+        $fingerprint = $this->toolFingerprint($sessionId, $tool, $arguments);
 
         for ($i = count($history) - 1; $i >= 0; $i--) {
             $entry = $history[$i];
@@ -229,15 +229,25 @@ final class ContextStore
         return (new DateTimeImmutable('now', $this->timezone))->format(DATE_ATOM);
     }
 
-    private function toolFingerprint(string $tool, array $arguments): string
-    {
+    public function toolFingerprint(
+        string $sessionId,
+        string $tool,
+        array $arguments
+    ): string {
         $normalized = $this->normalizeForFingerprint($arguments);
 
         return hash(
             'sha256',
-            mb_strtolower(trim($tool), 'UTF-8')
+            trim($sessionId)
             . '|'
-            . json_encode($normalized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
+            . mb_strtolower(trim($tool), 'UTF-8')
+            . '|'
+            . json_encode(
+                $normalized,
+                JSON_UNESCAPED_UNICODE
+                    | JSON_UNESCAPED_SLASHES
+                    | JSON_THROW_ON_ERROR
+            )
         );
     }
 
