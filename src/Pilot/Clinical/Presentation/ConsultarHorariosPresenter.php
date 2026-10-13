@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Asmpkg\Guiche\Pilot\Clinical\Presentation;
 
-use DateTimeImmutable;
 
-final class ConsultarHorariosPresenter
+
+use Asmpkg\Guiche\Contracts\ResultPresenterInterface;use DateTimeImmutable;
+
+final class ConsultarHorariosPresenter implements ResultPresenterInterface
 {
     public function present(array $result): ?string
     {

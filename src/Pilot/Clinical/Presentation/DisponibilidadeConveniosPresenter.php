@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Asmpkg\Guiche\Pilot\Clinical\Presentation;
 
-final class DisponibilidadeConveniosPresenter
+
+
+use Asmpkg\Guiche\Contracts\ResultPresenterInterface;final class DisponibilidadeConveniosPresenter implements ResultPresenterInterface
 {
     public function present(array $result): ?string
     {

@@ -2,19 +2,16 @@
 
 declare(strict_types=1);
 
+use Asmpkg\Guiche\GuicheBuilder;
+use Asmpkg\Guiche\Pilot\Clinical\ClinicalPlugin;
 use Asmpkg\Guiche\ContextStore;
-use Asmpkg\Guiche\Guiche;
+
 use Asmpkg\Guiche\Infrastructure\Database\PdoFactory;
 use Asmpkg\Guiche\Infrastructure\Database\PdoSqlExecutor;
 use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Asmpkg\Guiche\RuntimeContext;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager;
-use Asmpkg\Guiche\ToolRegistry;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarHorariosTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarProfissionalTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\DisponibilidadeConveniosTool;
 
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarPacienteTool;
+
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 function loadEnvFile(string $file): void
@@ -86,102 +83,60 @@ $coreConfig = require dirname(__DIR__) . '/config/guiche.php';
 $pilotConfig = require dirname(__DIR__) . '/config/pilot-clinical.php';
 $prompt = require dirname(__DIR__) . '/config/pilot-clinical-prompt.php';
 
-$pdo = PdoFactory::fromConfig($pilotConfig['database']);
-$sql = new PdoSqlExecutor($pdo);
-
-$registry = new ToolRegistry();
-
-$registry
-    ->register(
-        new DisponibilidadeConveniosTool(
-            $sql,
-            $pilotConfig['procedures']['disponibilidade_convenios']
-        )
-    )
-    ->register(
-        new ConsultarProfissionalTool(
-            $sql,
-            $pilotConfig['procedures']['consultar_profissional']
-        )
-    )
-    ->register(
-        new ConsultarHorariosTool(
-            $sql,
-            $pilotConfig['procedures']['consultar_horarios'],
-            $pilotConfig['horarios_por_data']
-        )
-    );
-
-$consultarPacienteProcedure = trim(
-    (string)($pilotConfig['procedures']['consultar_paciente'] ?? '')
+$pdo = PdoFactory::fromConfig(
+    $config['database']
 );
 
-if ($consultarPacienteProcedure !== '') {
-    $registry->register(
-        new ConsultarPacienteTool(
-            $sql,
-            $consultarPacienteProcedure
-        )
-    );
-}
-
-$agendamentoApiUrl = trim(
-    (string)($pilotConfig['agendamento_api']['url'] ?? '')
+$sql = new PdoSqlExecutor(
+    $pdo
 );
 
-if ($agendamentoApiUrl !== '') {
-    $registry->register(
-        new \Asmpkg\Guiche\Pilot\Clinical\Tools\CriarAgendamentoTool(
-            new \Asmpkg\Guiche\Infrastructure\Http\CurlHttpClient(),
-            $agendamentoApiUrl,
-            (string)($pilotConfig['agendamento_api']['token'] ?? ''),
-            (int)($pilotConfig['agendamento_api']['timeout'] ?? 15)
+$guiche = (new GuicheBuilder())
+    ->withContextStore(
+        new ContextStore(
+            $config['context_path'],
+            $config['timezone']
         )
-    );
-}
-
-$guiche = new Guiche(
-    tools: $registry,
-    context: new ContextStore(
-        $coreConfig['context_path'],
-        $coreConfig['timezone']
-    ),
-    ai: new \Asmpkg\Guiche\Providers\TerminalToolOutputAiProvider(
-        new OpenAiResponsesProvider(
-                $coreConfig['ai']['api_key'],
-                $coreConfig['ai']['model']
+    )
+    ->withAiProvider(
+        new \Asmpkg\Guiche\Providers\TerminalToolOutputAiProvider(
+            new OpenAiResponsesProvider(
+                $config['ai']['api_key'],
+                $config['ai']['model']
             )
-    ),
-    instructions: $prompt,
-    agentContext: $pilotConfig['agent_context'],
-    runtime: new RuntimeContext($coreConfig['timezone']),
-    stateManager: new ClinicalStateManager(),
-    reusableTools: $pilotConfig['reusable_tools'],
-    completionGuards: $pilotConfig['completion_guards'] ?? [],
-    historyMessagesLimit: $coreConfig['history_messages_limit'] ?? 8,
-    aiStateExcludePaths: $pilotConfig['ai_state_exclude_paths'] ?? [],
-    aiToolResultExcludePaths: $pilotConfig['ai_tool_result_exclude_paths'] ?? []
-);
-
-$toolPolicyConfig = $pilotConfig['tool_policy'] ?? [];
-
-$guiche->setToolPolicy(
-    new \Asmpkg\Guiche\ToolPolicy(
-        is_array($toolPolicyConfig['stages'] ?? null)
-            ? $toolPolicyConfig['stages']
-            : [],
-        is_array($toolPolicyConfig['default'] ?? null)
-            ? $toolPolicyConfig['default']
-            : [],
-        is_array($toolPolicyConfig['bootstrap'] ?? null)
-            ? $toolPolicyConfig['bootstrap']
-            : [],
-        is_string($toolPolicyConfig['context_path'] ?? null)
-            ? $toolPolicyConfig['context_path']
-            : 'state.stage'
+        )
     )
-);
-
+    ->withAgentContext(
+        $config['agent_context'] ?? []
+    )
+    ->withRuntime(
+        new RuntimeContext(
+            $config['timezone']
+        )
+    )
+    ->withReusableTools(
+        $config['reusable_tools'] ?? []
+    )
+    ->withHistoryMessagesLimit(
+        (int)($config['history_messages_limit'] ?? 8)
+    )
+    ->withAiStateExcludePaths(
+        $config['ai_state_exclude_paths'] ?? []
+    )
+    ->withMaxToolRounds(
+        max(
+            1,
+            (int)($config['max_tool_rounds'] ?? 5)
+        )
+    )
+    ->registerPlugin(
+        new ClinicalPlugin(
+            $sql,
+            $config,
+            $prompt
+        )
+    )
+    ->build();
 
 $sessionId = $argv[1] ?? 'piloto-cli-ia';
 

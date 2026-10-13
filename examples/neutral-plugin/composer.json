@@ -1,0 +1,14 @@
+{
+    "name": "example/guiche-neutral-plugin",
+    "description": "Plugin neutro de referência para validar a API de plugins do Guichê v0.3",
+    "type": "library",
+    "require": {
+        "php": "^8.4",
+        "asmpkg/guiche": "^0.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Example\\GuicheNeutral\\": "src/"
+        }
+    }
+}
