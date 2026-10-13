@@ -82,10 +82,11 @@ function printDebugEvents(array $events): void
 
 loadEnvFile(dirname(__DIR__) . '/.env');
 
-$config = require dirname(__DIR__) . '/config/guiche.php';
-$prompt = require dirname(__DIR__) . '/config/prompt.php';
+$coreConfig = require dirname(__DIR__) . '/config/guiche.php';
+$pilotConfig = require dirname(__DIR__) . '/config/pilot-clinical.php';
+$prompt = require dirname(__DIR__) . '/config/pilot-clinical-prompt.php';
 
-$pdo = PdoFactory::fromConfig($config['database']);
+$pdo = PdoFactory::fromConfig($pilotConfig['database']);
 $sql = new PdoSqlExecutor($pdo);
 
 $registry = new ToolRegistry();
@@ -94,25 +95,25 @@ $registry
     ->register(
         new DisponibilidadeConveniosTool(
             $sql,
-            $config['procedures']['disponibilidade_convenios']
+            $pilotConfig['procedures']['disponibilidade_convenios']
         )
     )
     ->register(
         new ConsultarProfissionalTool(
             $sql,
-            $config['procedures']['consultar_profissional']
+            $pilotConfig['procedures']['consultar_profissional']
         )
     )
     ->register(
         new ConsultarHorariosTool(
             $sql,
-            $config['procedures']['consultar_horarios'],
-            $config['horarios_por_data']
+            $pilotConfig['procedures']['consultar_horarios'],
+            $pilotConfig['horarios_por_data']
         )
     );
 
 $consultarPacienteProcedure = trim(
-    (string)($config['procedures']['consultar_paciente'] ?? '')
+    (string)($pilotConfig['procedures']['consultar_paciente'] ?? '')
 );
 
 if ($consultarPacienteProcedure !== '') {
@@ -125,7 +126,7 @@ if ($consultarPacienteProcedure !== '') {
 }
 
 $agendamentoApiUrl = trim(
-    (string)($config['agendamento_api']['url'] ?? '')
+    (string)($pilotConfig['agendamento_api']['url'] ?? '')
 );
 
 if ($agendamentoApiUrl !== '') {
@@ -133,8 +134,8 @@ if ($agendamentoApiUrl !== '') {
         new \Asmpkg\Guiche\Tools\CriarAgendamentoTool(
             new \Asmpkg\Guiche\Infrastructure\Http\CurlHttpClient(),
             $agendamentoApiUrl,
-            (string)($config['agendamento_api']['token'] ?? ''),
-            (int)($config['agendamento_api']['timeout'] ?? 15)
+            (string)($pilotConfig['agendamento_api']['token'] ?? ''),
+            (int)($pilotConfig['agendamento_api']['timeout'] ?? 15)
         )
     );
 }
@@ -142,27 +143,27 @@ if ($agendamentoApiUrl !== '') {
 $guiche = new Guiche(
     tools: $registry,
     context: new ContextStore(
-        $config['context_path'],
-        $config['timezone']
+        $coreConfig['context_path'],
+        $coreConfig['timezone']
     ),
     ai: new \Asmpkg\Guiche\Providers\TerminalToolOutputAiProvider(
         new OpenAiResponsesProvider(
-                $config['ai']['api_key'],
-                $config['ai']['model']
+                $coreConfig['ai']['api_key'],
+                $coreConfig['ai']['model']
             )
     ),
     instructions: $prompt,
-    agentContext: $config['agent_context'],
-    runtime: new RuntimeContext($config['timezone']),
+    agentContext: $pilotConfig['agent_context'],
+    runtime: new RuntimeContext($coreConfig['timezone']),
     stateManager: new StateManager(),
-    reusableTools: $config['reusable_tools'],
-    completionGuards: $config['completion_guards'] ?? [],
-    historyMessagesLimit: $config['history_messages_limit'] ?? 8,
-    aiStateExcludePaths: $config['ai_state_exclude_paths'] ?? [],
-    aiToolResultExcludePaths: $config['ai_tool_result_exclude_paths'] ?? []
+    reusableTools: $pilotConfig['reusable_tools'],
+    completionGuards: $pilotConfig['completion_guards'] ?? [],
+    historyMessagesLimit: $coreConfig['history_messages_limit'] ?? 8,
+    aiStateExcludePaths: $pilotConfig['ai_state_exclude_paths'] ?? [],
+    aiToolResultExcludePaths: $pilotConfig['ai_tool_result_exclude_paths'] ?? []
 );
 
-$toolPolicyConfig = $config['tool_policy'] ?? [];
+$toolPolicyConfig = $pilotConfig['tool_policy'] ?? [];
 
 $guiche->setToolPolicy(
     new \Asmpkg\Guiche\ToolPolicy(
@@ -188,9 +189,9 @@ echo "==================================================" . PHP_EOL;
 echo "Sessão: {$sessionId}" . PHP_EOL;
 echo "DisponibilidadeConvenios: REAL" . PHP_EOL;
 echo "ConsultarProfissional: REAL" . PHP_EOL;
-echo "ConsultarHorarios: REAL / {$config['horarios_por_data']} horários por data" . PHP_EOL;
-echo "Timezone: {$config['timezone']}" . PHP_EOL;
-echo "Histórico enviado à IA: últimas {$config['history_messages_limit']} mensagens" . PHP_EOL;
+echo "ConsultarHorarios: REAL / {$pilotConfig['horarios_por_data']} horários por data" . PHP_EOL;
+echo "Timezone: {$coreConfig['timezone']}" . PHP_EOL;
+echo "Histórico enviado à IA: últimas {$coreConfig['history_messages_limit']} mensagens" . PHP_EOL;
 echo "State enviado à IA: compactado (estado completo permanece salvo)" . PHP_EOL;
 echo PHP_EOL;
 echo "Comandos: /context /usage /runtime /tools /reset /sair" . PHP_EOL . PHP_EOL;
@@ -227,7 +228,7 @@ while (true) {
         $context = $guiche->context($sessionId);
 
         printJson([
-            'timezone' => $config['timezone'],
+            'timezone' => $coreConfig['timezone'],
             'updated_at' => $context['updated_at'] ?? null,
         ]);
 
@@ -254,7 +255,7 @@ while (true) {
     try {
         $result = $guiche->handle($sessionId, $input);
 
-        if ($config['debug']) {
+        if ($coreConfig['debug']) {
             printDebugEvents($result['events'] ?? []);
         }
 
