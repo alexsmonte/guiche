@@ -8,7 +8,7 @@ use Asmpkg\Guiche\Infrastructure\Database\PdoFactory;
 use Asmpkg\Guiche\Infrastructure\Database\PdoSqlExecutor;
 use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Asmpkg\Guiche\RuntimeContext;
-use Asmpkg\Guiche\StateManager;
+use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager;
 use Asmpkg\Guiche\ToolRegistry;
 use Asmpkg\Guiche\Tools\ConsultarHorariosTool;
 use Asmpkg\Guiche\Tools\ConsultarProfissionalTool;
@@ -155,7 +155,7 @@ $guiche = new Guiche(
     instructions: $prompt,
     agentContext: $pilotConfig['agent_context'],
     runtime: new RuntimeContext($coreConfig['timezone']),
-    stateManager: new StateManager(),
+    stateManager: new ClinicalStateManager(),
     reusableTools: $pilotConfig['reusable_tools'],
     completionGuards: $pilotConfig['completion_guards'] ?? [],
     historyMessagesLimit: $coreConfig['history_messages_limit'] ?? 8,

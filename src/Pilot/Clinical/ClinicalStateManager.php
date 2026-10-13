@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche;
+namespace Asmpkg\Guiche\Pilot\Clinical;
 
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use DateTimeImmutable;
 
-final class StateManager implements StateManagerInterface
+final class ClinicalStateManager implements StateManagerInterface
 {
     public function onUserMessage(array $context, string $message): array
     {

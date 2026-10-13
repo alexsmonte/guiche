@@ -6,7 +6,7 @@ use Asmpkg\Guiche\ContextStore;
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use Asmpkg\Guiche\Guiche;
-use Asmpkg\Guiche\StateManager;
+use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager as StateManager;
 use Asmpkg\Guiche\ToolRegistry;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
