@@ -32,10 +32,8 @@ final class TerminalToolOutputAiProvider implements AiProviderInterface
     ): array {
         /*
          * terminal_message:
-         * não precisamos perguntar mais nada à IA.
-         *
-         * Exemplo atual:
-         * ConsultarHorarios -> lista pronta em PHP.
+         * a Tool já produziu a resposta final e não precisamos
+         * consultar novamente o provider de IA.
          */
         $terminalMessage = $this->findGuicheMessage(
             $toolOutputs,
@@ -52,17 +50,9 @@ final class TerminalToolOutputAiProvider implements AiProviderInterface
         /*
          * presentation_message:
          * ainda deixamos a IA decidir se precisa encadear
-         * outra Tool.
-         *
-         * Exemplo:
-         * "limpeza com Larissa"
-         *
-         * DisponibilidadeConvenios roda primeiro.
-         * A IA pode decidir chamar ConsultarProfissional.
-         *
-         * Se ela NÃO chamar outra Tool e apenas responder
-         * em texto, descartamos o texto dela e usamos a
-         * apresentação determinística do PHP.
+         * outra Tool. Se não houver novo tool call e vier
+         * apenas texto livre, preservamos a apresentação
+         * determinística produzida pela Tool.
          */
         $presentationMessage = $this->findGuicheMessage(
             $toolOutputs,
