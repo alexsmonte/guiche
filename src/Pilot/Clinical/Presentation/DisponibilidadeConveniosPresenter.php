@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Presentation;
+namespace Asmpkg\Guiche\Pilot\Clinical\Presentation;
 
 final class DisponibilidadeConveniosPresenter
 {

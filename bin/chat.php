@@ -10,11 +10,11 @@ use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Asmpkg\Guiche\RuntimeContext;
 use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager;
 use Asmpkg\Guiche\ToolRegistry;
-use Asmpkg\Guiche\Tools\ConsultarHorariosTool;
-use Asmpkg\Guiche\Tools\ConsultarProfissionalTool;
-use Asmpkg\Guiche\Tools\DisponibilidadeConveniosTool;
+use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarHorariosTool;
+use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarProfissionalTool;
+use Asmpkg\Guiche\Pilot\Clinical\Tools\DisponibilidadeConveniosTool;
 
-use Asmpkg\Guiche\Tools\ConsultarPacienteTool;
+use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarPacienteTool;
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 function loadEnvFile(string $file): void
@@ -131,7 +131,7 @@ $agendamentoApiUrl = trim(
 
 if ($agendamentoApiUrl !== '') {
     $registry->register(
-        new \Asmpkg\Guiche\Tools\CriarAgendamentoTool(
+        new \Asmpkg\Guiche\Pilot\Clinical\Tools\CriarAgendamentoTool(
             new \Asmpkg\Guiche\Infrastructure\Http\CurlHttpClient(),
             $agendamentoApiUrl,
             (string)($pilotConfig['agendamento_api']['token'] ?? ''),

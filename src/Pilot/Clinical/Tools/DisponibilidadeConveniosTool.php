@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Tools;
+namespace Asmpkg\Guiche\Pilot\Clinical\Tools;
 
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\Contracts\ToolInterface;
-use Asmpkg\Guiche\Presentation\DisponibilidadeConveniosPresenter;
+use Asmpkg\Guiche\Pilot\Clinical\Presentation\DisponibilidadeConveniosPresenter;
 use InvalidArgumentException;
 
 final class DisponibilidadeConveniosTool implements ToolInterface
