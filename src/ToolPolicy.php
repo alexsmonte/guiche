@@ -9,13 +9,14 @@ final class ToolPolicy
     public function __construct(
         private readonly array $stages = [],
         private readonly array $defaultTools = [],
-        private readonly array $bootstrapTools = []
+        private readonly array $bootstrapTools = [],
+        private readonly string $contextPath = 'state.stage'
     ) {
     }
 
     public function allowedToolNames(array $context): array
     {
-        $stage = trim((string)($context['state']['etapa'] ?? ''));
+        $stage = trim((string)$this->readContextValue($context));
 
         if ($stage === '') {
             return $this->normalizeTools($this->bootstrapTools);
@@ -48,6 +49,33 @@ final class ToolPolicy
                 return $name !== '' && isset($allowed[$name]);
             }
         ));
+    }
+
+    private function readContextValue(array $context): mixed
+    {
+        $path = trim($this->contextPath);
+
+        if ($path === '') {
+            return null;
+        }
+
+        $value = $context;
+
+        foreach (explode('.', $path) as $segment) {
+            $segment = trim($segment);
+
+            if (
+                $segment === ''
+                || !is_array($value)
+                || !array_key_exists($segment, $value)
+            ) {
+                return null;
+            }
+
+            $value = $value[$segment];
+        }
+
+        return $value;
     }
 
     private function normalizeTools(mixed $tools): array

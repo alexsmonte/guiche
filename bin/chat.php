@@ -175,7 +175,10 @@ $guiche->setToolPolicy(
             : [],
         is_array($toolPolicyConfig['bootstrap'] ?? null)
             ? $toolPolicyConfig['bootstrap']
-            : []
+            : [],
+        is_string($toolPolicyConfig['context_path'] ?? null)
+            ? $toolPolicyConfig['context_path']
+            : 'state.stage'
     )
 );
 

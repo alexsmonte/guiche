@@ -102,6 +102,8 @@ return [
     ],
 
     'tool_policy' => [
+        'context_path' => 'state.etapa',
+
         'bootstrap' => [
             'DisponibilidadeConvenios',
         ],
