@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Asmpkg\Guiche;
 
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
+use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use RuntimeException;
 use Throwable;
 
@@ -18,7 +19,7 @@ final class Guiche
         private readonly string $instructions = '',
         private readonly array $agentContext = [],
         private readonly ?RuntimeContext $runtime = null,
-        private readonly ?StateManager $stateManager = null,
+        private readonly ?StateManagerInterface $stateManager = null,
         private readonly array $reusableTools = [],
         private readonly array $completionGuards = [],
         private readonly int $historyMessagesLimit = 8,

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Asmpkg\Guiche;
 
+use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use DateTimeImmutable;
 
-final class StateManager
+final class StateManager implements StateManagerInterface
 {
     public function onUserMessage(array $context, string $message): array
     {
