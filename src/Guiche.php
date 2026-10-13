@@ -6,6 +6,9 @@ namespace Asmpkg\Guiche;
 
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
+use Asmpkg\Guiche\Safety\ToolBlockedException;
+use Asmpkg\Guiche\Safety\ToolExecutionGate;
+use Asmpkg\Guiche\Safety\ToolSafetyMetadata;
 use RuntimeException;
 use Throwable;
 
@@ -25,7 +28,8 @@ final class Guiche
         private readonly int $historyMessagesLimit = 8,
         private readonly array $aiStateExcludePaths = [],
         private readonly array $aiToolResultExcludePaths = [],
-        private readonly int $maxToolRounds = 5
+        private readonly int $maxToolRounds = 5,
+        private readonly array $aiToolResultIncludePaths = []
     ) {
     }
 
@@ -34,9 +38,67 @@ final class Guiche
         return $this->tools->definitions();
     }
 
-    public function executeTool(string $name, array $arguments = []): array
-    {
-        return $this->tools->execute($name, $arguments);
+    public function executeTool(
+        string $name,
+        array $arguments = [],
+        ?string $sessionId = null
+    ): array {
+        $normalizedSessionId = $sessionId !== null
+            ? trim($sessionId)
+            : '';
+
+        $context = $normalizedSessionId !== ''
+            ? $this->context->load($normalizedSessionId)
+            : [];
+
+        $registration = $this->executionGate()->assertCanExecute(
+            $name,
+            $arguments,
+            $context
+        );
+
+        $operation = ToolSafetyMetadata::operation(
+            $registration->metadata()
+        );
+
+        if ($operation === ToolSafetyMetadata::OPERATION_WRITE) {
+            if ($normalizedSessionId === '') {
+                throw new ToolBlockedException(
+                    $name,
+                    'write_session_required',
+                    'Ferramentas WRITE exigem sessionId para proteção de idempotência.'
+                );
+            }
+
+            $previous = $this->context->findSuccessfulToolResult(
+                $normalizedSessionId,
+                $name,
+                $arguments
+            );
+
+            if ($previous !== null) {
+                return $previous;
+            }
+        }
+
+        $result = $this->tools->execute(
+            $name,
+            $arguments
+        );
+
+        if (
+            $operation === ToolSafetyMetadata::OPERATION_WRITE
+            && $normalizedSessionId !== ''
+        ) {
+            $this->context->addToolExecution(
+                $normalizedSessionId,
+                $name,
+                $arguments,
+                $result
+            );
+        }
+
+        return $result;
     }
 
     public function context(string $sessionId): array
@@ -126,10 +188,55 @@ final class Guiche
                 ];
 
                 $cached = false;
+                $blocked = false;
+                $isWrite = false;
+                $previousWrite = null;
                 $result = null;
 
-                if (in_array($name, $this->reusableTools, true)) {
-                    $result = $this->context->findSuccessfulToolResult($sessionId, $name, $arguments);
+                /*
+                 * Gate 1:
+                 * autoriza a chamada antes de qualquer cache/reuso.
+                 * Uma Tool que já ficou proibida não pode recuperar
+                 * um resultado antigo como atalho de policy.
+                 */
+                try {
+                    $currentContext = $this->context->load($sessionId);
+
+                    $registration = $this->executionGate()->assertCanExecute(
+                        $name,
+                        $arguments,
+                        $currentContext
+                    );
+
+                    $operation = ToolSafetyMetadata::operation(
+                        $registration->metadata()
+                    );
+
+                    $isWrite = $operation
+                        === ToolSafetyMetadata::OPERATION_WRITE;
+                } catch (ToolBlockedException $exception) {
+                    $blocked = true;
+                    $result = $exception->toArray();
+
+                    $events[] = [
+                        'type' => 'tool_blocked',
+                        'call_id' => $callId,
+                        'name' => $name,
+                        'reason' => $exception->reasonCode(),
+                        'details' => $exception->details(),
+                    ];
+                }
+
+                if (
+                    !$blocked
+                    && !$isWrite
+                    && in_array($name, $this->reusableTools, true)
+                ) {
+                    $result = $this->context->findSuccessfulToolResult(
+                        $sessionId,
+                        $name,
+                        $arguments
+                    );
 
                     if ($result !== null) {
                         $cached = true;
@@ -142,9 +249,93 @@ final class Guiche
                     }
                 }
 
-                if ($result === null) {
+                if (!$blocked && $isWrite) {
+                    $previousWrite = $this->context->findSuccessfulToolResult(
+                        $sessionId,
+                        $name,
+                        $arguments
+                    );
+
+                    if ($previousWrite !== null) {
+                        $result = $previousWrite;
+
+                        $events[] = [
+                            'type' => 'tool_write_replay',
+                            'call_id' => $callId,
+                            'name' => $name,
+                            'fingerprint' => $this->context->toolFingerprint(
+                                $sessionId,
+                                $name,
+                                $arguments
+                            ),
+                        ];
+                    }
+                }
+
+                if (!$blocked && $result === null) {
                     try {
-                        $result = $this->tools->execute($name, $arguments);
+                        /*
+                         * Gate 2:
+                         * revalida o contexto imediatamente antes da
+                         * execução real. Isto fecha stale tool calls
+                         * inclusive entre múltiplas calls da mesma
+                         * resposta da IA.
+                         */
+                        $currentContext = $this->context->load($sessionId);
+
+                        $registration = $this->executionGate()->assertCanExecute(
+                            $name,
+                            $arguments,
+                            $currentContext
+                        );
+
+                        $operation = ToolSafetyMetadata::operation(
+                            $registration->metadata()
+                        );
+
+                        $isWrite = $operation
+                            === ToolSafetyMetadata::OPERATION_WRITE;
+
+                        if ($isWrite) {
+                            $previousWrite = $this->context->findSuccessfulToolResult(
+                                $sessionId,
+                                $name,
+                                $arguments
+                            );
+
+                            if ($previousWrite !== null) {
+                                $result = $previousWrite;
+
+                                $events[] = [
+                                    'type' => 'tool_write_replay',
+                                    'call_id' => $callId,
+                                    'name' => $name,
+                                    'fingerprint' => $this->context->toolFingerprint(
+                                        $sessionId,
+                                        $name,
+                                        $arguments
+                                    ),
+                                ];
+                            }
+                        }
+
+                        if ($result === null) {
+                            $result = $this->tools->execute(
+                                $name,
+                                $arguments
+                            );
+                        }
+                    } catch (ToolBlockedException $exception) {
+                        $blocked = true;
+                        $result = $exception->toArray();
+
+                        $events[] = [
+                            'type' => 'tool_blocked',
+                            'call_id' => $callId,
+                            'name' => $name,
+                            'reason' => $exception->reasonCode(),
+                            'details' => $exception->details(),
+                        ];
                     } catch (Throwable $exception) {
                         $result = [
                             'success' => false,
@@ -153,10 +344,23 @@ final class Guiche
                         ];
                     }
 
-                    $this->context->addToolExecution($sessionId, $name, $arguments, $result);
+                    if (
+                        !$blocked
+                        && !(
+                            $isWrite
+                            && $previousWrite !== null
+                        )
+                    ) {
+                        $this->context->addToolExecution(
+                            $sessionId,
+                            $name,
+                            $arguments,
+                            $result
+                        );
+                    }
                 }
 
-                if ($this->stateManager !== null) {
+                if (!$blocked && $this->stateManager !== null) {
                     $currentContext = $this->context->load($sessionId);
                     $patch = $this->stateManager->onToolResult(
                         $currentContext,
@@ -237,6 +441,14 @@ final class Guiche
             'runtime' => $this->runtime?->current() ?? [],
             'context' => $this->context->load($sessionId),
         ];
+    }
+
+    private function executionGate(): ToolExecutionGate
+    {
+        return new ToolExecutionGate(
+            $this->tools,
+            $this->toolPolicy
+        );
     }
 
     private function applyCompletionGuards(
@@ -382,20 +594,55 @@ TEXT;
         string $tool,
         array $result
     ): array {
-        $compact = $result;
-
-        $paths = $this->aiToolResultExcludePaths[$tool]
-            ?? [];
-
-        foreach ($paths as $path) {
-            $path = trim(
-                (string) $path
+        /*
+         * Resultados de bloqueio pertencem à própria Safety Layer,
+         * não à Tool de domínio. Mantemos um envelope mínimo fixo
+         * para que a IA saiba que a execução foi recusada sem receber
+         * detalhes internos do estado/policy.
+         */
+        if (($result['blocked'] ?? false) === true) {
+            return array_intersect_key(
+                $result,
+                array_flip([
+                    'success',
+                    'tool',
+                    'blocked',
+                    'reason',
+                    'error',
+                ])
             );
+        }
 
-            if ($path === '') {
-                continue;
+        $includePaths = $this->normalizeProjectionPaths(
+            $this->aiToolResultIncludePaths[$tool]
+                ?? []
+        );
+
+        if ($includePaths === []) {
+            /*
+             * Compatibilidade:
+             * ausência de whitelist mantém o resultado completo
+             * como base, exatamente como nas versões anteriores.
+             */
+            $compact = $result;
+        } else {
+            $compact = [];
+
+            foreach ($includePaths as $path) {
+                $this->copyArrayPath(
+                    $result,
+                    $compact,
+                    explode('.', $path)
+                );
             }
+        }
 
+        $excludePaths = $this->normalizeProjectionPaths(
+            $this->aiToolResultExcludePaths[$tool]
+                ?? []
+        );
+
+        foreach ($excludePaths as $path) {
             $this->unsetArrayPath(
                 $compact,
                 explode('.', $path)
@@ -403,6 +650,70 @@ TEXT;
         }
 
         return $compact;
+    }
+
+    private function normalizeProjectionPaths(
+        mixed $paths
+    ): array {
+        if (!is_array($paths)) {
+            return [];
+        }
+
+        return array_values(
+            array_unique(
+                array_filter(
+                    array_map(
+                        static fn (mixed $path): string =>
+                            trim((string)$path),
+                        $paths
+                    ),
+                    static fn (string $path): bool =>
+                        $path !== ''
+                )
+            )
+        );
+    }
+
+    private function copyArrayPath(
+        array $source,
+        array &$target,
+        array $segments
+    ): void {
+        $segment = array_shift($segments);
+
+        if (
+            $segment === null
+            || $segment === ''
+            || !array_key_exists($segment, $source)
+        ) {
+            return;
+        }
+
+        if ($segments === []) {
+            $target[$segment] = $source[$segment];
+            return;
+        }
+
+        if (!is_array($source[$segment])) {
+            return;
+        }
+
+        if (
+            !isset($target[$segment])
+            || !is_array($target[$segment])
+        ) {
+            $target[$segment] = [];
+        }
+
+        $this->copyArrayPath(
+            $source[$segment],
+            $target[$segment],
+            $segments
+        );
+
+        if ($target[$segment] === []) {
+            unset($target[$segment]);
+        }
     }
 
     public function stateForAi(array $state): array
@@ -455,6 +766,15 @@ TEXT;
             $array[$segment],
             $segments
         );
+
+        /*
+         * Se o último campo de um container foi removido,
+         * não deixamos um objeto/array vazio residual na
+         * projeção enviada à IA.
+         */
+        if ($array[$segment] === []) {
+            unset($array[$segment]);
+        }
     }
 
     private function messagesForAi(array $context): array

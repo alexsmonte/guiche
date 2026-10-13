@@ -207,7 +207,11 @@ $context = new ContextStore(
     'America/Manaus'
 );
 
-$policy = new ToolPolicy();
+$policy = new ToolPolicy(
+    [],
+    [],
+    ['RuntimePing']
+);
 
 $builder = (new GuicheBuilder())
     ->withContextStore($context)

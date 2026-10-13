@@ -63,6 +63,7 @@ final class GuicheBuilder
     private int $historyMessagesLimit = 8;
     private array $aiStateExcludePaths = [];
     private array $aiToolResultExcludePaths = [];
+    private array $aiToolResultIncludePaths = [];
     private int $maxToolRounds = 5;
 
     public function __construct(
@@ -362,6 +363,14 @@ final class GuicheBuilder
         return $this;
     }
 
+    public function withAiToolResultIncludePaths(
+        array $paths
+    ): self {
+        $this->aiToolResultIncludePaths = $paths;
+
+        return $this;
+    }
+
     public function withMaxToolRounds(int $rounds): self
     {
         if ($rounds < 1) {
@@ -403,7 +412,9 @@ final class GuicheBuilder
             aiStateExcludePaths: $this->aiStateExcludePaths,
             aiToolResultExcludePaths:
                 $this->compiledToolResultExcludePaths(),
-            maxToolRounds: $this->maxToolRounds
+            maxToolRounds: $this->maxToolRounds,
+            aiToolResultIncludePaths:
+                $this->compiledToolResultIncludePaths()
         );
 
         if ($this->toolPolicy !== null) {
@@ -531,6 +542,47 @@ final class GuicheBuilder
                 array_values($this->completionGuards)
             )
         );
+    }
+
+    private function compiledToolResultIncludePaths(): array
+    {
+        $paths = $this->aiToolResultIncludePaths;
+
+        foreach (
+            $this->resultProjections
+            as $toolName => $definition
+        ) {
+            $include = $definition['include_paths'] ?? [];
+
+            if (!is_array($include)) {
+                continue;
+            }
+
+            $existing = $paths[$toolName] ?? [];
+
+            if (!is_array($existing)) {
+                $existing = [];
+            }
+
+            $paths[$toolName] = array_values(
+                array_unique(
+                    array_filter(
+                        array_map(
+                            static fn (mixed $path): string =>
+                                trim((string)$path),
+                            array_merge(
+                                $existing,
+                                $include
+                            )
+                        ),
+                        static fn (string $path): bool =>
+                            $path !== ''
+                    )
+                )
+            );
+        }
+
+        return $paths;
     }
 
     private function compiledToolResultExcludePaths(): array
