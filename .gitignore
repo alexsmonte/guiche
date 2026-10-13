@@ -1,0 +1,24 @@
+/vendor/
+/.env
+
+/storage/backups/
+/storage/conversations/*
+!/storage/conversations/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# Scripts de desenvolvimento, diagnóstico e testes do piloto
+/bin/*
+!/bin/chat.php
+
+# Ainda não fazem parte da versão publicada
+/index.php
+/README.md
+
+# Arquivos locais de editor/sistema
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+*.log
+/.user.ini

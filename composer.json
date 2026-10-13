@@ -1,0 +1,13 @@
+{
+    "name": "asmpkg/guiche",
+    "description": "Piloto de motor conversacional com ferramentas para PHP",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Asmpkg\\Guiche\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.4"
+    }
+}
