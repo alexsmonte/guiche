@@ -13,6 +13,7 @@ final readonly class IncomingEvent
 {
     /**
      * @throws JsonException
+     * @param array<mixed> $payload
      */
     public function __construct(
         public string $externalEventId,
@@ -38,6 +39,9 @@ final readonly class IncomingEvent
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function toStoredArray(
         int $sequence,
         DateTimeImmutable $receivedAt

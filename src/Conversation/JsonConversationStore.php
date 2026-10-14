@@ -31,6 +31,9 @@ final class JsonConversationStore implements ConversationStoreInterface
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function load(string $conversationKey): array
     {
         $this->assertKey($conversationKey);
@@ -51,6 +54,10 @@ final class JsonConversationStore implements ConversationStoreInterface
         }
     }
 
+    /**
+     * @param callable $mutation
+     * @return array<mixed>
+     */
     public function mutate(
         string $conversationKey,
         callable $mutation
@@ -68,12 +75,6 @@ final class JsonConversationStore implements ConversationStoreInterface
 
             $current = $this->readUnlocked($conversationKey);
             $next = $mutation($current);
-
-            if (!is_array($next)) {
-                throw new RuntimeException(
-                    'Conversation mutation must return array.'
-                );
-            }
 
             $this->writeUnlocked($conversationKey, $next);
 
@@ -110,6 +111,9 @@ final class JsonConversationStore implements ConversationStoreInterface
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function readUnlocked(string $conversationKey): array
     {
         $path = $this->dataPath($conversationKey);
@@ -150,6 +154,9 @@ final class JsonConversationStore implements ConversationStoreInterface
         return $data;
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function writeUnlocked(
         string $conversationKey,
         array $data

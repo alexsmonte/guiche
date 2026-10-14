@@ -23,8 +23,18 @@ namespace Asmpkg\Guiche\Contracts;
  */
 interface AiProviderInterface
 {
+    /**
+     * @param array<mixed> $messages
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     public function respond(string $instructions, array $messages, array $tools = []): array;
 
+    /**
+     * @param array<mixed> $toolOutputs
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     public function continueWithToolOutputs(
         string $previousResponseId,
         string $instructions,

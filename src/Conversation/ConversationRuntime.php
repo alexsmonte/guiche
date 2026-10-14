@@ -38,6 +38,9 @@ final class ConversationRuntime
         }
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function processReady(
         string $conversationKey
     ): ?array {

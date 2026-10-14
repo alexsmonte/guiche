@@ -20,6 +20,14 @@ final class Guiche
 {
     private readonly RuntimeEventSinkInterface $eventSink;
     private ?ToolPolicy $toolPolicy = null;
+    /**
+     * @param array<mixed> $agentContext
+     * @param array<mixed> $aiStateExcludePaths
+     * @param array<mixed> $aiToolResultExcludePaths
+     * @param array<mixed> $aiToolResultIncludePaths
+     * @param array<mixed> $completionGuards
+     * @param array<mixed> $reusableTools
+     */
     public function __construct(
         private readonly ToolRegistry $tools,
         private readonly ContextStoreInterface $context,
@@ -41,11 +49,18 @@ final class Guiche
 
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function tools(): array
     {
         return $this->tools->definitions();
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function executeTool(
         string $name,
         array $arguments = [],
@@ -109,6 +124,9 @@ final class Guiche
         return $result;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function context(string $sessionId): array
     {
         return $this->context->load($sessionId);
@@ -119,6 +137,9 @@ final class Guiche
         $this->context->delete($sessionId);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function handle(string $sessionId, string $message): array
     {
         if ($this->ai === null) {
@@ -490,6 +511,10 @@ final class Guiche
         );
     }
 
+    /**
+     * @param array<mixed> $context
+     * @param array<mixed> $events
+     */
     private function applyCompletionGuards(
         array $context,
         array &$events,
@@ -573,6 +598,10 @@ final class Guiche
         return $text;
     }
 
+    /**
+     * @param array<mixed> $interactionUsage
+     * @param array<mixed> $response
+     */
     private function accumulateUsage(array &$interactionUsage, array $response): void
     {
         $usage = $response['usage'] ?? [];
@@ -594,6 +623,9 @@ final class Guiche
         ];
     }
 
+    /**
+     * @param array<mixed> $context
+     */
     private function buildInstructions(array $context): string
     {
         $runtime = $this->runtime?->current() ?? [];
@@ -629,6 +661,10 @@ TEXT;
             );
     }
 
+    /**
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     public function toolResultForAi(
         string $tool,
         array $result
@@ -691,6 +727,9 @@ TEXT;
         return $compact;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function normalizeProjectionPaths(
         mixed $paths
     ): array {
@@ -713,6 +752,11 @@ TEXT;
         );
     }
 
+    /**
+     * @param array<mixed> $segments
+     * @param array<mixed> $source
+     * @param array<mixed> $target
+     */
     private function copyArrayPath(
         array $source,
         array &$target,
@@ -755,6 +799,10 @@ TEXT;
         }
     }
 
+    /**
+     * @param array<mixed> $state
+     * @return array<mixed>
+     */
     public function stateForAi(array $state): array
     {
         $result = $state;
@@ -775,6 +823,10 @@ TEXT;
         return $result;
     }
 
+    /**
+     * @param array<mixed> $array
+     * @param array<mixed> $segments
+     */
     private function unsetArrayPath(
         array &$array,
         array $segments
@@ -816,6 +868,10 @@ TEXT;
         }
     }
 
+    /**
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
     private function messagesForAi(array $context): array
     {
         $messages = [];
@@ -850,6 +906,10 @@ TEXT;
         return $this;
     }
 
+    /**
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
     private function toolDefinitionsForContext(array $context): array
     {
         $definitions = $this->tools->definitions();
@@ -865,6 +925,9 @@ TEXT;
     }
 
 
+    /**
+     * @param array<mixed> $events
+     */
     private function persistRuntimeEvents(
         string $sessionId,
         string $interactionId,
@@ -1014,35 +1077,13 @@ TEXT;
         $metadata = [];
 
         try {
-            if (
-                method_exists(
-                    $this->tools,
-                    'registrations'
-                )
-            ) {
-                $registrations =
-                    $this->tools
-                        ->registrations();
+            $registration =
+                $this->tools
+                    ->registrations()[$tool]
+                ?? null;
 
-                $registration =
-                    $registrations[$tool]
-                    ?? null;
-
-                if (
-                    is_object($registration)
-                    && method_exists(
-                        $registration,
-                        'metadata'
-                    )
-                ) {
-                    $candidate =
-                        $registration
-                            ->metadata();
-
-                    if (is_array($candidate)) {
-                        $metadata = $candidate;
-                    }
-                }
+            if ($registration !== null) {
+                $metadata = $registration->metadata();
             }
         } catch (Throwable) {
             $metadata = [];
@@ -1067,6 +1108,10 @@ TEXT;
             : 'unknown';
     }
 
+    /**
+     * @param array<mixed> $response
+     * @return array<mixed>
+     */
     private function usageSummary(
         array $response
     ): array {
@@ -1101,6 +1146,12 @@ TEXT;
         ];
     }
 
+    /**
+     * @param array<mixed> $events
+     * @param array<mixed> $messages
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     private function observedAiRespond(
         string $sessionId,
         string $interactionId,
@@ -1117,8 +1168,16 @@ TEXT;
 
         $startedAt = hrtime(true);
 
+        $ai = $this->ai;
+
+        if ($ai === null) {
+            throw new RuntimeException(
+                'Nenhum provider de IA foi configurado no Guichê.'
+            );
+        }
+
         try {
-            $response = $this->ai->respond(
+            $response = $ai->respond(
                 $instructions,
                 $messages,
                 $tools
@@ -1196,6 +1255,12 @@ TEXT;
         return $response;
     }
 
+    /**
+     * @param array<mixed> $events
+     * @param array<mixed> $toolOutputs
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     private function observedAiContinue(
         string $sessionId,
         string $interactionId,
@@ -1214,10 +1279,17 @@ TEXT;
 
         $startedAt = hrtime(true);
 
+        $ai = $this->ai;
+
+        if ($ai === null) {
+            throw new RuntimeException(
+                'Nenhum provider de IA foi configurado no Guichê.'
+            );
+        }
+
         try {
             $response =
-                $this->ai
-                    ->continueWithToolOutputs(
+                $ai->continueWithToolOutputs(
                         $previousResponseId,
                         $instructions,
                         $toolOutputs,
@@ -1298,6 +1370,11 @@ TEXT;
         return $response;
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $events
+     * @return array<mixed>
+     */
     private function observedToolExecution(
         string $sessionId,
         string $interactionId,
@@ -1378,6 +1455,12 @@ TEXT;
         return $result;
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $events
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     private function observedAddToolExecution(
         string $interactionId,
         array &$events,
@@ -1443,6 +1526,10 @@ TEXT;
         }
     }
 
+    /**
+     * @param array<mixed> $events
+     * @return array<mixed>
+     */
     private function observedContextLoad(
         string $observationSessionId,
         string $interactionId,
@@ -1484,6 +1571,11 @@ TEXT;
         }
     }
 
+    /**
+     * @param array<mixed> $events
+     * @param array<mixed> $patch
+     * @return array<mixed>
+     */
     private function observedContextApplyPatch(
         string $observationSessionId,
         string $interactionId,
@@ -1511,6 +1603,10 @@ TEXT;
         }
     }
 
+    /**
+     * @param array<mixed> $events
+     * @return array<mixed>
+     */
     private function observedContextAddMessage(
         string $observationSessionId,
         string $interactionId,
@@ -1540,6 +1636,11 @@ TEXT;
         }
     }
 
+    /**
+     * @param array<mixed> $events
+     * @param array<mixed> $usage
+     * @return array<mixed>
+     */
     private function observedRecordInteractionUsage(
         string $observationSessionId,
         string $interactionId,
@@ -1567,6 +1668,9 @@ TEXT;
         }
     }
 
+    /**
+     * @param array<mixed> $events
+     */
     private function contextWriteFailed(
         string $sessionId,
         string $interactionId,

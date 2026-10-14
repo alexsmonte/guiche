@@ -15,6 +15,9 @@ use Throwable;
  */
 final class ToolBlockedException extends RuntimeException
 {
+    /**
+     * @param array<mixed> $details
+     */
     public function __construct(
         private readonly string $tool,
         private readonly string $reasonCode,
@@ -35,11 +38,17 @@ final class ToolBlockedException extends RuntimeException
         return $this->reasonCode;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function details(): array
     {
         return $this->details;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function toArray(): array
     {
         return [

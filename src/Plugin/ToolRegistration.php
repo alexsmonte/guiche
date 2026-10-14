@@ -15,6 +15,9 @@ use InvalidArgumentException;
  */
 final class ToolRegistration
 {
+    /**
+     * @param array<mixed> $metadata
+     */
     public function __construct(
         private readonly ToolInterface $tool,
         private readonly array $metadata = []
@@ -34,11 +37,17 @@ final class ToolRegistration
         return trim($this->tool->name());
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function metadata(): array
     {
         return $this->metadata;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function definition(): array
     {
         return [

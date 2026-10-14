@@ -37,6 +37,8 @@ final class ToolExecutionGate
 
     /**
      * @throws ToolBlockedException
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
      */
     public function assertCanExecute(
         string $toolName,
@@ -131,6 +133,10 @@ final class ToolExecutionGate
         return $registration;
     }
 
+    /**
+     * @param array<mixed> $context
+     * @param array<mixed> $metadata
+     */
     private function assertAllowedStage(
         string $toolName,
         array $metadata,
@@ -175,6 +181,10 @@ final class ToolExecutionGate
         }
     }
 
+    /**
+     * @param array<mixed> $conditions
+     * @param array<mixed> $context
+     */
     private function assertRequiredState(
         string $toolName,
         array $conditions,
@@ -224,6 +234,10 @@ final class ToolExecutionGate
         }
     }
 
+    /**
+     * @param array<mixed> $conditions
+     * @param array<mixed> $context
+     */
     private function assertForbiddenState(
         string $toolName,
         array $conditions,
@@ -278,6 +292,10 @@ final class ToolExecutionGate
         }
     }
 
+    /**
+     * @param array<mixed>|null $confirmation
+     * @param array<mixed> $context
+     */
     private function assertConfirmation(
         string $toolName,
         ?array $confirmation,
@@ -325,6 +343,7 @@ final class ToolExecutionGate
 
     /**
      * @return array{0: bool, 1: mixed}
+     * @param array<mixed> $context
      */
     private function readContextPath(
         array $context,
@@ -355,6 +374,9 @@ final class ToolExecutionGate
         return [true, $value];
     }
 
+    /**
+     * @param array<mixed> $details
+     */
     private function blocked(
         string $toolName,
         string $reason,

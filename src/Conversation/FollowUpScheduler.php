@@ -28,6 +28,10 @@ final class FollowUpScheduler
         }
     }
 
+    /**
+     * @param array<mixed> $payload
+     * @param array<mixed> $requiredState
+     */
     public function schedule(
         string $conversationKey,
         array $payload = [],

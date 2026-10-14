@@ -8,6 +8,9 @@ namespace Asmpkg\Guiche\Pilot\Clinical\Presentation;
 
 use Asmpkg\Guiche\Contracts\ResultPresenterInterface;final class DisponibilidadeConveniosPresenter implements ResultPresenterInterface
 {
+    /**
+     * @param array<mixed> $result
+     */
     public function present(array $result): ?string
     {
         if (($result['success'] ?? false) !== true) {
@@ -71,6 +74,9 @@ use Asmpkg\Guiche\Contracts\ResultPresenterInterface;final class Disponibilidade
             );
     }
 
+    /**
+     * @param array<mixed> $row
+     */
     private function extractName(array $row): ?string
     {
         /*

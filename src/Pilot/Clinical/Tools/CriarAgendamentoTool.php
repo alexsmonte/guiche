@@ -41,31 +41,49 @@ final class CriarAgendamentoTool implements ToolInterface
         return $this->description();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function schema(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function inputSchema(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getInputSchema(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parameters(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getParameters(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function definition(): array
     {
         return [
@@ -75,6 +93,10 @@ final class CriarAgendamentoTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(array $arguments): array
     {
         $patientId = (int)($arguments['paciente_id'] ?? 0);
@@ -248,6 +270,9 @@ final class CriarAgendamentoTool implements ToolInterface
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function schemaData(): array
     {
         return [
@@ -309,7 +334,6 @@ final class CriarAgendamentoTool implements ToolInterface
                 if (
                     isset($value[$key])
                     && $value[$key] !== ''
-                    && $value[$key] !== null
                 ) {
                     return is_numeric($value[$key])
                         ? (int)$value[$key]
@@ -347,6 +371,10 @@ final class CriarAgendamentoTool implements ToolInterface
         return null;
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     private function failure(
         string $message,
         array $arguments

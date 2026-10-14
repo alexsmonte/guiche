@@ -25,3 +25,11 @@ Thumbs.db
 
 # Documentação interna de planejamento
 /docs/
+
+# Testes automatizados
+/.phpunit.cache/
+/.phpunit.result.cache
+/coverage/
+
+# Static analysis
+/.phpstan-cache/

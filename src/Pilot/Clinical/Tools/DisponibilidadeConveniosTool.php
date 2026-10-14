@@ -31,6 +31,9 @@ final class DisponibilidadeConveniosTool implements ToolInterface
             . 'O conteúdo retornado pelo banco deve ser tratado como fonte oficial.';
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parameters(): array
     {
         return [
@@ -58,6 +61,10 @@ final class DisponibilidadeConveniosTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(array $arguments): array
     {
         foreach (
@@ -105,10 +112,9 @@ final class DisponibilidadeConveniosTool implements ToolInterface
         $presentation = (new DisponibilidadeConveniosPresenter())->present($result);
 
         if (is_string($presentation) && trim($presentation) !== '') {
-            $result['_guiche'] = array_merge(
-                is_array($result['_guiche'] ?? null) ? $result['_guiche'] : [],
-                ['presentation_message' => $presentation]
-            );
+            $result['_guiche'] = [
+                'presentation_message' => $presentation,
+            ];
         }
 
         return $result;

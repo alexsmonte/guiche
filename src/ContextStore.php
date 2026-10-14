@@ -33,6 +33,9 @@ final class ContextStore implements ContextStoreInterface
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function load(string $sessionId): array
     {
         return $this->withSessionLock(
@@ -42,6 +45,9 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @param array<mixed> $context
+     */
     public function save(string $sessionId, array $context): void
     {
         $this->withSessionLock(
@@ -70,6 +76,9 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function addMessage(
         string $sessionId,
         string $role,
@@ -89,6 +98,9 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function setIntent(
         string $sessionId,
         ?string $intent
@@ -103,6 +115,10 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @param array<mixed> $state
+     * @return array<mixed>
+     */
     public function mergeState(
         string $sessionId,
         array $state
@@ -120,6 +136,10 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @param array<mixed> $patch
+     * @return array<mixed>
+     */
     public function applyPatch(
         string $sessionId,
         array $patch
@@ -151,6 +171,11 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     public function addToolExecution(
         string $sessionId,
         string $tool,
@@ -182,6 +207,10 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>|null
+     */
     public function findSuccessfulToolResult(
         string $sessionId,
         string $tool,
@@ -209,6 +238,10 @@ final class ContextStore implements ContextStoreInterface
         return null;
     }
 
+    /**
+     * @param array<mixed> $usage
+     * @return array<mixed>
+     */
     public function recordInteractionUsage(
         string $sessionId,
         array $usage
@@ -247,6 +280,9 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @param array<mixed> $arguments
+     */
     public function toolFingerprint(
         string $sessionId,
         string $tool,
@@ -271,6 +307,9 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function mutate(
         string $sessionId,
         callable $mutation
@@ -296,6 +335,9 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function loadUnlocked(string $sessionId): array
     {
         $file = $this->file($sessionId);
@@ -345,6 +387,10 @@ final class ContextStore implements ContextStoreInterface
         );
     }
 
+    /**
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
     private function writeUnlocked(
         string $sessionId,
         array $context
@@ -461,6 +507,10 @@ final class ContextStore implements ContextStoreInterface
         return $context;
     }
 
+    /**
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
     private function normalizeContext(
         string $sessionId,
         array $context
@@ -539,6 +589,9 @@ final class ContextStore implements ContextStoreInterface
         return $context;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function emptyContext(string $sessionId): array
     {
         $now = $this->now();
@@ -561,6 +614,9 @@ final class ContextStore implements ContextStoreInterface
         ];
     }
 
+    /**
+     * @param int<0, 7> $operation
+     */
     private function withSessionLock(
         string $sessionId,
         int $operation,

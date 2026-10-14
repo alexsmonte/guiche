@@ -12,6 +12,11 @@ namespace Asmpkg\Guiche\Safety;
  */
 final class ToolArgumentValidator
 {
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $schema
+     * @return array<mixed>
+     */
     public function validate(
         array $schema,
         array $arguments
@@ -23,6 +28,10 @@ final class ToolArgumentValidator
         );
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $schema
+     */
     public function isValid(
         array $schema,
         array $arguments
@@ -33,6 +42,11 @@ final class ToolArgumentValidator
         ) === [];
     }
 
+    /**
+     * @param array<mixed> $schema
+     * @param array<mixed> $value
+     * @return array<mixed>
+     */
     private function validateObject(
         array $schema,
         array $value,
@@ -106,6 +120,10 @@ final class ToolArgumentValidator
         return $errors;
     }
 
+    /**
+     * @param array<mixed> $schema
+     * @return array<mixed>
+     */
     private function validateValue(
         array $schema,
         mixed $value,

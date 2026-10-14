@@ -6,6 +6,11 @@ namespace Asmpkg\Guiche;
 
 final class ToolPolicy
 {
+    /**
+     * @param array<mixed> $bootstrapTools
+     * @param array<mixed> $defaultTools
+     * @param array<mixed> $stages
+     */
     public function __construct(
         private readonly array $stages = [],
         private readonly array $defaultTools = [],
@@ -14,6 +19,10 @@ final class ToolPolicy
     ) {
     }
 
+    /**
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
     public function allowedToolNames(array $context): array
     {
         $stage = trim((string)$this->readContextValue($context));
@@ -29,11 +38,19 @@ final class ToolPolicy
         return $this->normalizeTools($allowed);
     }
 
+    /**
+     * @param array<mixed> $context
+     */
     public function allows(string $tool, array $context): bool
     {
         return in_array($tool, $this->allowedToolNames($context), true);
     }
 
+    /**
+     * @param array<mixed> $context
+     * @param array<mixed> $definitions
+     * @return array<mixed>
+     */
     public function filterDefinitions(array $definitions, array $context): array
     {
         $allowed = array_fill_keys($this->allowedToolNames($context), true);
@@ -51,6 +68,9 @@ final class ToolPolicy
         ));
     }
 
+    /**
+     * @param array<mixed> $context
+     */
     private function readContextValue(array $context): mixed
     {
         $path = trim($this->contextPath);
@@ -78,6 +98,9 @@ final class ToolPolicy
         return $value;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function normalizeTools(mixed $tools): array
     {
         if (!is_array($tools)) {

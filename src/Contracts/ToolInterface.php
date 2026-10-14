@@ -19,11 +19,14 @@ interface ToolInterface
      *     'properties' => [...],
      *     'required' => [...]
      * ]
+     * @return array<mixed>
      */
     public function parameters(): array;
 
     /**
      * Executa a ferramenta e devolve um resultado serializável.
+     * @param array<mixed> $arguments
+     * @return array<mixed>
      */
     public function execute(array $arguments): array;
 }

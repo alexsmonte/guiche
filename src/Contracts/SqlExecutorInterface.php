@@ -15,6 +15,7 @@ interface SqlExecutorInterface
      * Executa uma consulta e devolve todas as linhas.
      *
      * @return array<int, array<string, mixed>>
+     * @param array<mixed> $parameters
      */
     public function fetchAll(
         string $sql,
@@ -23,6 +24,7 @@ interface SqlExecutorInterface
 
     /**
      * Executa INSERT/UPDATE/DELETE ou comando sem retorno tabular.
+     * @param array<mixed> $parameters
      */
     public function execute(
         string $sql,

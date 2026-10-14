@@ -12,6 +12,11 @@ final class TerminalToolOutputAiProvider implements AiProviderInterface
     {
     }
 
+    /**
+     * @param array<mixed> $messages
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     public function respond(
         string $instructions,
         array $messages,
@@ -24,6 +29,11 @@ final class TerminalToolOutputAiProvider implements AiProviderInterface
         );
     }
 
+    /**
+     * @param array<mixed> $toolOutputs
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     public function continueWithToolOutputs(
         string $previousResponseId,
         string $instructions,
@@ -80,6 +90,9 @@ final class TerminalToolOutputAiProvider implements AiProviderInterface
         return $response;
     }
 
+    /**
+     * @param array<mixed> $toolOutputs
+     */
     private function findGuicheMessage(
         array $toolOutputs,
         string $key
@@ -117,6 +130,9 @@ final class TerminalToolOutputAiProvider implements AiProviderInterface
         return $message;
     }
 
+    /**
+     * @param array<mixed> $response
+     */
     private function hasToolCalls(array $response): bool
     {
         $toolCalls = $response['tool_calls'] ?? [];
@@ -125,6 +141,9 @@ final class TerminalToolOutputAiProvider implements AiProviderInterface
             && $toolCalls !== [];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function syntheticResponse(
         string $previousResponseId,
         string $message

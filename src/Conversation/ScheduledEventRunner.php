@@ -175,6 +175,9 @@ final class ScheduledEventRunner
         return $result;
     }
 
+    /**
+     * @param array<mixed> $requirements
+     */
     private function requiredStateMatches(
         string $conversationKey,
         array $requirements
@@ -201,6 +204,7 @@ final class ScheduledEventRunner
 
     /**
      * @return array{0:bool,1:mixed}
+     * @param array<mixed> $source
      */
     private function valueAtPath(
         array $source,

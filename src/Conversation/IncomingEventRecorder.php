@@ -20,6 +20,9 @@ final class IncomingEventRecorder
     ) {
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function record(
         string $conversationKey,
         IncomingEvent $event
@@ -99,6 +102,10 @@ final class IncomingEventRecorder
         return $receipt;
     }
 
+    /**
+     * @param array<mixed> $aggregate
+     * @return array<mixed>
+     */
     private function normalizeAggregate(
         string $conversationKey,
         array $aggregate,

@@ -31,11 +31,18 @@ final class PresentedTool implements ToolInterface
         return $this->tool->description();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parameters(): array
     {
         return $this->tool->parameters();
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(array $arguments): array
     {
         $result = $this->tool->execute($arguments);

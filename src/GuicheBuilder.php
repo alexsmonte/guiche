@@ -48,24 +48,42 @@ final class GuicheBuilder
     /** @var array<string, PluginInterface> */
     private array $plugins = [];
 
-    /** @var array<string, array> */
+    /** @var array<string, array<mixed>> */
     private array $policies = [];
 
     /** @var array<string, string> */
     private array $instructionFragments = [];
 
-    /** @var array<string, array> */
+    /** @var array<string, array<mixed>> */
     private array $completionGuards = [];
 
-    /** @var array<string, array> */
+    /** @var array<string, array<mixed>> */
     private array $resultProjections = [];
 
+    /**
+     * @var array<mixed>
+     */
     private array $agentContext = [];
+    /**
+     * @var array<mixed>
+     */
     private array $reusableTools = [];
+    /**
+     * @var array<mixed>
+     */
     private array $runtimeCompletionGuards = [];
     private int $historyMessagesLimit = 8;
+    /**
+     * @var array<mixed>
+     */
     private array $aiStateExcludePaths = [];
+    /**
+     * @var array<mixed>
+     */
     private array $aiToolResultExcludePaths = [];
+    /**
+     * @var array<mixed>
+     */
     private array $aiToolResultIncludePaths = [];
     private int $maxToolRounds = 5;
 
@@ -160,6 +178,7 @@ final class GuicheBuilder
      *
      * O registro fica disponível para inspeção/documentação.
      * O hard execution gate pertence à v0.4.
+     * @param array<mixed> $definition
      */
     public function registerPolicy(
         string $id,
@@ -225,6 +244,9 @@ final class GuicheBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $definition
+     */
     public function registerCompletionGuard(
         string $id,
         array $definition
@@ -245,6 +267,9 @@ final class GuicheBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $definition
+     */
     public function registerResultProjection(
         string $toolName,
         array $definition
@@ -295,6 +320,9 @@ final class GuicheBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $agentContext
+     */
     public function withAgentContext(array $agentContext): self
     {
         $this->agentContext = $agentContext;
@@ -310,6 +338,9 @@ final class GuicheBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $reusableTools
+     */
     public function withReusableTools(array $reusableTools): self
     {
         $this->reusableTools = array_values(
@@ -333,6 +364,7 @@ final class GuicheBuilder
      * Guards já existentes no bootstrap/aplicação.
      *
      * Os guards registrados pelos Plugins são combinados no build().
+     * @param array<mixed> $completionGuards
      */
     public function withCompletionGuards(
         array $completionGuards
@@ -358,6 +390,9 @@ final class GuicheBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $paths
+     */
     public function withAiStateExcludePaths(
         array $paths
     ): self {
@@ -366,6 +401,9 @@ final class GuicheBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $paths
+     */
     public function withAiToolResultExcludePaths(
         array $paths
     ): self {
@@ -374,6 +412,9 @@ final class GuicheBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $paths
+     */
     public function withAiToolResultIncludePaths(
         array $paths
     ): self {
@@ -467,7 +508,7 @@ final class GuicheBuilder
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, array<mixed>>
      */
     public function policies(): array
     {
@@ -483,7 +524,7 @@ final class GuicheBuilder
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, array<mixed>>
      */
     public function completionGuards(): array
     {
@@ -491,7 +532,7 @@ final class GuicheBuilder
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, array<mixed>>
      */
     public function resultProjections(): array
     {
@@ -546,6 +587,9 @@ final class GuicheBuilder
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function compiledCompletionGuards(): array
     {
         return array_values(
@@ -556,6 +600,9 @@ final class GuicheBuilder
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function compiledToolResultIncludePaths(): array
     {
         $paths = $this->aiToolResultIncludePaths;
@@ -597,6 +644,9 @@ final class GuicheBuilder
         return $paths;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function compiledToolResultExcludePaths(): array
     {
         $paths = $this->aiToolResultExcludePaths;

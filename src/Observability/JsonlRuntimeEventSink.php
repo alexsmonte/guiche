@@ -35,6 +35,9 @@ final class JsonlRuntimeEventSink implements RuntimeEventSinkInterface
         }
     }
 
+    /**
+     * @param array<mixed> $event
+     */
     public function record(array $event): void
     {
         try {

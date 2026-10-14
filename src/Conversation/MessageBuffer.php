@@ -510,6 +510,10 @@ final class MessageBuffer
         return $turn;
     }
 
+    /**
+     * @param array<mixed> $aggregate
+     * @param array<mixed> $pendingIndexes
+     */
     private function isReady(
         array $aggregate,
         array $pendingIndexes,
@@ -561,6 +565,10 @@ final class MessageBuffer
         return $quietReady || $maxReady;
     }
 
+    /**
+     * @param array<mixed> $aggregate
+     * @return array<mixed>
+     */
     private function normalize(
         string $conversationKey,
         array $aggregate
@@ -599,6 +607,10 @@ final class MessageBuffer
         return $aggregate;
     }
 
+    /**
+     * @param array<mixed> $aggregate
+     * @param array<mixed> $storedTurn
+     */
     private function hydrateTurn(
         array $aggregate,
         array $storedTurn
@@ -650,22 +662,18 @@ final class MessageBuffer
                 (string) $storedTurn['created_at'],
             processingStartedAt:
                 isset($storedTurn['processing_started_at'])
-                && $storedTurn['processing_started_at'] !== null
                     ? (string) $storedTurn['processing_started_at']
                     : null,
             completedAt:
                 isset($storedTurn['completed_at'])
-                && $storedTurn['completed_at'] !== null
                     ? (string) $storedTurn['completed_at']
                     : null,
             failedAt:
                 isset($storedTurn['failed_at'])
-                && $storedTurn['failed_at'] !== null
                     ? (string) $storedTurn['failed_at']
                     : null,
             failureClass:
                 isset($storedTurn['failure_class'])
-                && $storedTurn['failure_class'] !== null
                     ? (string) $storedTurn['failure_class']
                     : null
         );

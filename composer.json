@@ -9,5 +9,30 @@
     },
     "require": {
         "php": "^8.4"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Asmpkg\\Guiche\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.0",
+        "phpstan/phpstan": "^2.2"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite unit",
+        "test:contracts": "phpunit --testsuite contracts",
+        "test:integration": "phpunit --testsuite integration",
+        "test:legacy": "@php bin/test-v051-acceptance.php",
+        "check": [
+            "@test",
+            "@analyse",
+            "@coverage",
+            "@test:legacy"
+        ],
+        "analyse": "phpstan analyse --configuration=phpstan.neon --no-progress",
+        "coverage": "@php tools/run-coverage.php",
+        "coverage:check": "@php tools/check-coverage.php coverage/clover.xml 70.00"
     }
 }

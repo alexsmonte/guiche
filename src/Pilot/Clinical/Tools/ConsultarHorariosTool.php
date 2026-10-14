@@ -45,6 +45,9 @@ final class ConsultarHorariosTool implements ToolInterface
             . 'Apresente cada data uma única vez seguida dos horários.';
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parameters(): array
     {
         return [
@@ -83,6 +86,10 @@ final class ConsultarHorariosTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(array $arguments): array
     {
         foreach (
@@ -248,7 +255,7 @@ final class ConsultarHorariosTool implements ToolInterface
         $firstDate = $dates[0] ?? null;
 
         $lastDate = $dates !== []
-            ? $dates[count($dates) - 1]
+            ? (string) $dates[count($dates) - 1]
             : null;
 
         $nextDateStart = null;
@@ -340,6 +347,9 @@ final class ConsultarHorariosTool implements ToolInterface
         return $result;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     private function parseSlot(
         string $value
     ): ?array {

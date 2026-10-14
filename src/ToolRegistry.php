@@ -65,11 +65,18 @@ final class ToolRegistry
         return $this->registrations[$name];
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(string $name, array $arguments = []): array
     {
         return $this->get($name)->execute($arguments);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function definitions(): array
     {
         $definitions = [];
@@ -81,6 +88,9 @@ final class ToolRegistry
         return $definitions;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function names(): array
     {
         return array_keys($this->registrations);
@@ -94,6 +104,9 @@ final class ToolRegistry
         return $this->registrations;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function metadata(string $name): array
     {
         return $this->registration($name)->metadata();

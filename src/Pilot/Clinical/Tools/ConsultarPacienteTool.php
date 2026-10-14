@@ -47,31 +47,49 @@ final class ConsultarPacienteTool implements ToolInterface
         return $this->description();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function schema(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function inputSchema(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getInputSchema(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parameters(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getParameters(): array
     {
         return $this->schemaData();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function definition(): array
     {
         return [
@@ -82,6 +100,10 @@ final class ConsultarPacienteTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(array $arguments): array
     {
         $empresaId = (int)($arguments['empresa_id'] ?? 0);
@@ -210,6 +232,9 @@ final class ConsultarPacienteTool implements ToolInterface
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function schemaData(): array
     {
         return [
@@ -232,6 +257,9 @@ final class ConsultarPacienteTool implements ToolInterface
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function procedureParameters(): array
     {
         return $this->db->fetchAll(
@@ -244,6 +272,9 @@ final class ConsultarPacienteTool implements ToolInterface
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function mapProcedureParameter(
         string $name,
         int $empresaId,
@@ -283,6 +314,10 @@ final class ConsultarPacienteTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $rows
+     * @return array<mixed>
+     */
     private function normalizeRows(array $rows, string $inputCpf): array
     {
         $pacienteId = $this->findValue(
@@ -395,6 +430,9 @@ final class ConsultarPacienteTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $keys
+     */
     private function findValue(
         mixed $value,
         array $keys,
@@ -403,7 +441,7 @@ final class ConsultarPacienteTool implements ToolInterface
         if (is_array($value)) {
             foreach ($value as $key => $item) {
                 $normalizedKey = strtolower(
-                    preg_replace(
+                    (string) preg_replace(
                         '/[^a-z0-9_]+/i',
                         '_',
                         (string)$key
@@ -466,6 +504,10 @@ final class ConsultarPacienteTool implements ToolInterface
         return null;
     }
 
+    /**
+     * @param array<mixed> $input
+     * @return array<mixed>
+     */
     private function failure(array $input, string $message): array
     {
         return [
