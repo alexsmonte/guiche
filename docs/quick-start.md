@@ -1,6 +1,6 @@
 # Quick Start do Guichê
 
-Este guia demonstra a menor experiência funcional da versão **v0.7.0** usando o exemplo oficial de catálogo.
+Este guia demonstra a menor experiência funcional da linha estável **v1.x** usando o exemplo oficial de catálogo.
 
 ## Objetivo
 
@@ -35,7 +35,7 @@ O catálogo é local. Não existe banco de dados nem serviço privado por trás 
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^0.7
+composer require asmpkg/guiche:^1.0
 ```
 
 ## Copiar o exemplo
@@ -156,4 +156,4 @@ Depois de dominar o exemplo básico:
 4. leia `docs/state.md`;
 5. leia `docs/security.md`.
 
-Esses documentos técnicos são parte da entrega de Developer Experience da v0.7.
+Esses documentos compõem a documentação pública da linha estável v1.

@@ -1,6 +1,6 @@
 # API Stability & SemVer
 
-Este documento define a política oficial de estabilidade da API do Guichê a partir da Release Candidate v0.9.0 e o compromisso para a linha v1.x.
+Este documento define a política oficial de estabilidade da API do Guichê para a linha v1.x.
 
 ## Regra principal
 
@@ -14,12 +14,11 @@ Hash SHA-256 da API pública congelada: `39e417149aaee5ac9008de4bb3e477c579826f8
 
 ## Política de SemVer
 
-1. Durante a RC v0.9.x, qualquer alteração da superfície `public` exige revisão explícita antes da v1.0.0.
-2. Na linha v1.x, mudanças incompatíveis em símbolos `public` são reservadas para v2.0.0.
-3. Adições públicas compatíveis podem entrar em minor releases, mas exigem atualização explícita do baseline e revisão de SemVer.
-4. Bug fixes sem mudança de contrato público pertencem a patch releases.
-5. Símbolos `experimental` e `internal` não entram no cálculo automático de BC da API estável.
-6. Todo novo símbolo em `src/` deve ser classificado antes de o quality gate passar.
+1. Na linha v1.x, mudanças incompatíveis em símbolos `public` são reservadas para v2.0.0.
+2. Adições públicas compatíveis podem entrar em minor releases, mas exigem atualização explícita do baseline e revisão de SemVer.
+3. Bug fixes sem mudança de contrato público pertencem a patch releases.
+4. Símbolos `experimental` e `internal` não entram no cálculo automático de BC da API estável.
+5. Todo novo símbolo em `src/` deve ser classificado antes de o quality gate passar.
 
 ## Gate de backward compatibility
 
@@ -67,6 +66,15 @@ GUICHE_ALLOW_API_BASELINE_UPDATE=1 php8.4 tools/api-snapshot.php --write-baselin
 | `Asmpkg\Guiche\Safety\ToolBlockedException` | `class` | exceção observável pelo consumidor |
 | `Asmpkg\Guiche\ToolPolicy` | `class` | política pública configurável |
 | `Asmpkg\Guiche\ToolRegistry` | `class` | tipo exposto transitivamente por API pública |
+
+## Decisão para v1.0.0
+
+Na v1.0.0, os 11 símbolos atualmente classificados como `experimental`
+permanecem explicitamente fora do compromisso BC da API pública v1.x.
+
+A lista foi congelada em `api/experimental-v1.json` e é validada por
+`tools/check-experimental-api.php`. Promoção para `public` exige decisão
+explícita de API, revisão SemVer e atualização deliberada dos baselines.
 
 ## API experimental
 

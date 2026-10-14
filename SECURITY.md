@@ -4,9 +4,7 @@ Security is part of the public contract of Guichê.
 
 ## Supported versions
 
-During the Release Candidate cycle, security fixes target the current `0.9.x` line and the branch being prepared for `1.0.0`.
-
-After `1.0.0`, the project will document any change to the supported security lines here.
+The stable `1.x` line is the supported security line. Security fixes are expected to target the latest maintained `1.x` release unless this document states otherwise.
 
 ## Reporting a vulnerability
 
@@ -40,7 +38,7 @@ The project treats the following as release-blocking invariants:
 
 ## Dependency and CI policy
 
-The Release Candidate CI:
+The stable-line CI:
 
 - tests PHP 8.4 and PHP 8.5;
 - runs `composer validate --strict`;

@@ -31,12 +31,14 @@
             "@analyse",
             "@coverage",
             "@test:legacy",
-            "@check-api-bc"
+            "@check-api-bc",
+            "@check-experimental-api"
         ],
         "analyse": "phpstan analyse --configuration=phpstan.neon --no-progress",
         "coverage": "@php tools/run-coverage.php",
         "coverage:check": "@php tools/check-coverage.php coverage/clover.xml 70.00",
-        "check-api-bc": "@php tools/check-api-bc.php"
+        "check-api-bc": "@php tools/check-api-bc.php",
+        "check-experimental-api": "@php tools/check-experimental-api.php"
     },
     "keywords": [
         "ai",

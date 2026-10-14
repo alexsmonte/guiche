@@ -4,9 +4,29 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
-## [0.9.0] - Unreleased
+## [1.0.0] - 2026-10-14
 
-> Release Candidate preparada localmente. A publicação permanece bloqueada até a matriz CI oficial em PHP 8.4 e PHP 8.5 ficar verde no GitHub.
+### Added
+
+- primeira linha estável da API pública do Guichê;
+- freeze explícito dos 11 símbolos `experimental` do Conversation Runtime;
+- checker `check-experimental-api` integrado ao quality gate;
+- documentação estável v1, migration notes e release notes;
+- validação de consumidor Composer externo da release v0.9.0.
+
+### Stability
+
+- 24 símbolos `public` permanecem no compromisso BC da linha v1.x;
+- 11 símbolos `experimental` permanecem fora do compromisso BC até promoção explícita;
+- 11 símbolos `internal` continuam livres para evolução interna;
+- SHA-256 da API pública permanece `39e417149aaee5ac9008de4bb3e477c579826f86ea9902b8755965fc1482368d`.
+
+### Compatibility
+
+- PHP 8.4 e PHP 8.5 são oficialmente suportados;
+- o Core permanece byte-for-byte sem alterações em `src/` desde a v0.9.0 durante o fechamento documental da v1.
+
+## [0.9.0] - 2026-10-14
 
 ### Added
 
@@ -43,8 +63,8 @@ O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto seg
 ### Compatibility
 
 - constraint do pacote: PHP `^8.4`;
-- matriz oficial da RC: PHP 8.4 e PHP 8.5;
-- PHP 8.5 real será considerado validado somente quando o job remoto correspondente ficar verde.
+- matriz validada: PHP 8.4 e PHP 8.5;
+- ambos os runtimes passaram na CI oficial antes da publicação.
 
 ### API stability
 
@@ -52,7 +72,3 @@ O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto seg
 - Experimental: 11 símbolos;
 - Internal: 11 símbolos;
 - SHA-256 da API pública congelada: `39e417149aaee5ac9008de4bb3e477c579826f86ea9902b8755965fc1482368d`.
-
-### Known release blocker
-
-- CI remoto oficial ainda não executado para a branch RC; publicação/tag final não deve ocorrer enquanto PHP 8.4 e PHP 8.5 não estiverem verdes.

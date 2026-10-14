@@ -1,0 +1,24 @@
+{
+    "schema_version": 1,
+    "decision": "retain_experimental",
+    "bc_commitment": false,
+    "scope": "v1.0.0",
+    "policy": {
+        "public_api": "Symbols listed here are not part of the stable v1.x BC commitment.",
+        "promotion": "Promotion to public requires an explicit SemVer/API review and baseline update.",
+        "reclassification": "Removal, promotion, or reclassification before v1.0.0 requires an explicit update of this freeze."
+    },
+    "symbols": [
+        "Asmpkg\\Guiche\\Conversation\\ConversationKey",
+        "Asmpkg\\Guiche\\Conversation\\ConversationRuntime",
+        "Asmpkg\\Guiche\\Conversation\\ConversationTurn",
+        "Asmpkg\\Guiche\\Conversation\\FollowUpScheduler",
+        "Asmpkg\\Guiche\\Conversation\\IncomingEvent",
+        "Asmpkg\\Guiche\\Conversation\\IncomingEventRecorder",
+        "Asmpkg\\Guiche\\Conversation\\JsonConversationStore",
+        "Asmpkg\\Guiche\\Conversation\\JsonScheduledEventStore",
+        "Asmpkg\\Guiche\\Conversation\\MessageBuffer",
+        "Asmpkg\\Guiche\\Conversation\\ScheduledEventRunner",
+        "Asmpkg\\Guiche\\Conversation\\Scheduler"
+    ]
+}

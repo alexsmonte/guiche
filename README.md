@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v0.7.0 — Developer Experience**
+> Versão documentada: **v1.0.0 — Stable**
 
 ## Requisitos
 
@@ -16,10 +16,10 @@ O quality gate do projeto e os testes automatizados **não dependem** de OpenAI 
 
 ## Instalação
 
-Quando a versão estiver disponível no repositório Composer configurado pela aplicação:
+Instale a linha estável v1:
 
 ```bash
-composer require asmpkg/guiche:^0.7
+composer require asmpkg/guiche:^1.0
 ```
 
 Para trabalhar diretamente com o clone deste repositório:
@@ -47,7 +47,7 @@ A forma mais rápida de validar o Guichê é usar o exemplo básico incluído no
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^0.7
+composer require asmpkg/guiche:^1.0
 ```
 
 ### 2. Copie o exemplo oficial
@@ -232,7 +232,7 @@ O quality gate inclui PHPUnit, PHPStan e cobertura mínima definida pelo projeto
 
 ## Arquitetura e documentação
 
-Na v0.7 a documentação é organizada em:
+A documentação pública da linha v1 é organizada em:
 
 - Quick Start: `docs/quick-start.md`;
 - arquitetura: `docs/architecture.md`;
@@ -241,13 +241,23 @@ Na v0.7 a documentação é organizada em:
 - State: `docs/state.md`;
 - segurança: `docs/security.md`.
 
-Os cinco documentos técnicos são consolidados na fase seguinte da v0.7.
+A política de estabilidade da API e suporte PHP complementa essa documentação.
 
 ## Status
 
-A v0.7.0 tem como objetivo tornar a biblioteca compreensível e utilizável por um desenvolvedor que não participou da construção do piloto original.
+A v1.0.0 estabelece a primeira linha estável do Guichê.
 
-O principal critério de aceite é:
+O compromisso da linha v1 inclui:
+
+- API `public` protegida por SemVer/BC;
+- suporte oficial a PHP 8.4 e PHP 8.5;
+- hard execution gate antes de side effects;
+- idempotência explícita para WRITE;
+- extensibilidade por Tools, Plugins, ContextStore e AiProvider;
+- instalação e uso comprovados em consumidor Composer externo;
+- Conversation Runtime disponível como API `experimental`, fora do compromisso BC estável até promoção explícita.
+
+O principal critério de aceite permanece:
 
 > em um projeto vazio, um desenvolvedor deve conseguir seguir somente este README e obter uma conversa funcional.
 
@@ -276,18 +286,18 @@ Veja o guia de instalação e isolamento em
 O namespace do exemplo não pertence ao autoload público do pacote.
 <!-- GUICHE_V08_CLINICAL_EXAMPLE_END -->
 
-<!-- guiche-v0.9-rc:start -->
-## Release Candidate v0.9
+<!-- guiche-v1-stable:start -->
+## Linha estável v1
 
-A v0.9 congela a superfície pública candidata à v1, formaliza SemVer/BC e valida o Guichê como dependência Composer em projeto externo.
+A v1.0.0 congela a primeira superfície pública estável do Guichê e mantém o Conversation Runtime explicitamente experimental.
 
-Instalação após a publicação da RC:
+Instalação:
 
 ```bash
-composer require asmpkg/guiche:^0.9
+composer require asmpkg/guiche:^1.0
 ```
 
-Fluxo de integração:
+Fluxo básico de integração:
 
 ```php
 $builder = new Asmpkg\Guiche\GuicheBuilder();
@@ -301,22 +311,25 @@ $result = $guiche->handle('session-123', 'Olá');
 
 Pontos de extensão estáveis:
 
-- `ToolInterface`: capacidade executável;
-- `PluginInterface`: registro de capacidades sem editar o Core;
-- `ContextStoreInterface`: persistência substituível;
-- `AiProviderInterface`: provider de IA substituível;
-- `ToolRegistration`: metadados declarativos, incluindo Safety.
+- `ToolInterface`;
+- `PluginInterface`;
+- `ContextStoreInterface`;
+- `AiProviderInterface`;
+- `ToolRegistration`;
+- `GuicheBuilder`.
 
-O **hard execution gate** valida policy, estado, argumentos e regras de WRITE imediatamente antes da execução real da Tool. Uma Tool call da IA não é autorização de side effect.
+O **hard execution gate** valida policy, estado, argumentos e regras de WRITE imediatamente antes da execução real da Tool. Uma Tool call da IA nunca equivale, por si só, a autorização de side effect.
 
-Documentação da RC:
+Documentação da linha v1:
 
+- [Quick Start](docs/quick-start.md)
 - [External Consumer Guide](docs/external-consumer.md)
 - [API Stability & SemVer](docs/api-stability.md)
 - [PHP Support](docs/php-support.md)
-- [Security](docs/security.md)
+- [Security Architecture](docs/security.md)
 - [Security Policy](SECURITY.md)
-- [Quick Start](docs/quick-start.md)
+- [Migração v0.9 → v1.0](docs/migration-v0.9-to-v1.0.md)
+- [Release v1.0.0](docs/releases/v1.0.0.md)
 
-Os exemplos continuam separados do Core: `examples/basic/` para início rápido e `examples/clinica-piloto/` como exemplo avançado de domínio.
-<!-- guiche-v0.9-rc:end -->
+Os exemplos permanecem separados do Core: `examples/basic/` para início rápido e `examples/clinica-piloto/` como exemplo avançado de domínio.
+<!-- guiche-v1-stable:end -->

@@ -4,13 +4,13 @@ Este guia prova a fronteira pública do Guichê: uma aplicação externa pode in
 
 ## Instalação
 
-Após a publicação da Release Candidate:
+Na linha estável v1:
 
 ```bash
-composer require asmpkg/guiche:^0.9
+composer require asmpkg/guiche:^1.0
 ```
 
-Requisitos oficiais da RC: consulte [`php-support.md`](php-support.md). A política de estabilidade está em [`api-stability.md`](api-stability.md).
+Requisitos oficiais da linha v1: consulte [`php-support.md`](php-support.md). A política de estabilidade está em [`api-stability.md`](api-stability.md).
 
 ## Contratos usados
 
@@ -86,7 +86,7 @@ final class CatalogPlugin implements PluginInterface
 
 `requires_state` é validado imediatamente antes de `ToolInterface::execute()`. Se `state.release_approved` não existir, a Tool é bloqueada e o side effect não ocorre.
 
-> O exemplo mínimo não usa `addInstructionFragment()`. Instruction fragments são uma capacidade adicional do Builder, mas não são necessários para registrar uma Tool segura nem para validar o acceptance externo da RC.
+> O exemplo mínimo não usa `addInstructionFragment()`. Instruction fragments são uma capacidade adicional do Builder, mas não são necessários para registrar uma Tool segura nem para validar o acceptance externo da linha v1.
 
 ## 3. ContextStore externo
 
