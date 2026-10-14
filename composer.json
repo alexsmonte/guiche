@@ -1,6 +1,6 @@
 {
     "name": "asmpkg/guiche",
-    "description": "Piloto de motor conversacional com ferramentas para PHP",
+    "description": "Core PHP para assistentes conversacionais orientados a Tools, Plugins, estado, segurança, persistência e runtime de conversação.",
     "type": "library",
     "autoload": {
         "psr-4": {
@@ -34,5 +34,28 @@
         "analyse": "phpstan analyse --configuration=phpstan.neon --no-progress",
         "coverage": "@php tools/run-coverage.php",
         "coverage:check": "@php tools/check-coverage.php coverage/clover.xml 70.00"
+    },
+    "keywords": [
+        "ai",
+        "conversational-ai",
+        "agents",
+        "tools",
+        "plugins",
+        "php"
+    ],
+    "homepage": "https://github.com/alexsmonte/guiche",
+    "support": {
+        "issues": "https://github.com/alexsmonte/guiche/issues",
+        "source": "https://github.com/alexsmonte/guiche"
+    },
+    "archive": {
+        "exclude": [
+            "/storage/",
+            "/coverage/",
+            "/.phpunit.cache/",
+            "/.phpunit.result.cache",
+            "/vendor/",
+            "/guiche-v*.sh"
+        ]
     }
 }
