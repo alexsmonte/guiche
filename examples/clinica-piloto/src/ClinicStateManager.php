@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Pilot\Clinical;
+namespace GuicheExample\ClinicaPiloto;
 
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use DateTimeImmutable;
 
-final class ClinicalStateManager implements StateManagerInterface
+final class ClinicStateManager implements StateManagerInterface
 {
     /**
      * @param array<mixed> $context
@@ -211,6 +211,67 @@ final class ClinicalStateManager implements StateManagerInterface
                     'paciente_id',
                     'paciente_nome',
                     'paciente_validado',
+                    'confirmado_pelo_usuario',
+                ],
+            ]);
+        }
+
+        $appointments = is_array($data['agendamentos'] ?? null)
+            ? array_values(array_filter(
+                $data['agendamentos'],
+                static fn(mixed $appointment): bool => is_array($appointment)
+            ))
+            : [];
+
+        $existingBookingId = null;
+
+        foreach ($appointments as $appointment) {
+            $candidate = $appointment['agendamento_id']
+                ?? $appointment['id_agendamento']
+                ?? null;
+
+            if ($candidate !== null && $candidate !== '') {
+                $existingBookingId = is_numeric($candidate)
+                    ? (int)$candidate
+                    : (string)$candidate;
+                break;
+            }
+        }
+
+        if (
+            ($data['agendamento_encontrado'] ?? false) === true
+            && $existingBookingId !== null
+        ) {
+            $state = [
+                'etapa' => 'agendado',
+                'paciente_id' => is_numeric($patientId)
+                    ? (int)$patientId
+                    : $patientId,
+                'paciente_validado' => true,
+                'agendamento_id' => $existingBookingId,
+                'agendamento_existente' => true,
+                'agendamentos_existentes' => $appointments,
+            ];
+
+            $existingCpf = preg_replace(
+                '/\D+/',
+                '',
+                (string)($data['cpf'] ?? $arguments['cpf'] ?? '')
+            );
+
+            if ($existingCpf !== '') {
+                $state['cpf'] = $existingCpf;
+            }
+
+            $existingName = trim((string)($data['nome'] ?? ''));
+
+            if ($existingName !== '') {
+                $state['paciente_nome'] = $existingName;
+            }
+
+            return $this->cleanPatch([
+                'state' => $state,
+                'unset_state' => [
                     'confirmado_pelo_usuario',
                 ],
             ]);

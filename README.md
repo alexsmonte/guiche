@@ -254,3 +254,24 @@ O principal critério de aceite é:
 ## Licença
 
 Consulte o arquivo de licença do repositório.
+
+<!-- GUICHE_V08_CLINICAL_EXAMPLE_START -->
+## Exemplo clínico avançado
+
+A biblioteca mantém o Core genérico em `src/` e disponibiliza um exemplo
+completo de agendamento em
+[`examples/clinica-piloto/`](examples/clinica-piloto/README.md).
+
+Para executar o exemplo pela primeira vez, use o **Fake Mode**, que não depende
+de banco, IA ou API externos:
+
+```bash
+cp examples/clinica-piloto/.env.example examples/clinica-piloto/.env
+php examples/clinica-piloto/fake-smoke.php
+```
+
+Veja o guia de instalação e isolamento em
+[`examples/clinica-piloto/INSTALL.md`](examples/clinica-piloto/INSTALL.md).
+
+O namespace do exemplo não pertence ao autoload público do pacote.
+<!-- GUICHE_V08_CLINICAL_EXAMPLE_END -->

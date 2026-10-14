@@ -6,7 +6,7 @@ use Asmpkg\Guiche\ContextStore;
 use Asmpkg\Guiche\Contracts\HttpClientInterface;
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\GuicheBuilder;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalPlugin;
+use GuicheExample\ClinicaPiloto\ClinicPlugin;
 use Asmpkg\Guiche\Safety\ToolBlockedException;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -100,7 +100,9 @@ echo "\nGUICHÊ v0.4.0 — FASE 06 / CLINICAL SAFETY\n";
 echo str_repeat('=', 57) . "\n\n";
 
 $config = require dirname(__DIR__)
-    . '/config/pilot-clinical.php';
+    . '/examples/clinica-piloto/config/clinic.php';
+
+$config['write_safety']['slot_revalidation'] = false;
 
 $config['procedures']['consultar_paciente'] =
     'consultar_paciente_por_cpf';
@@ -117,7 +119,7 @@ $http = new ClinicalSafetyHttpV04();
 $builder = new GuicheBuilder();
 
 $builder->registerPlugin(
-    new ClinicalPlugin(
+    new ClinicPlugin(
         $sql,
         $config,
         'INSTRUÇÕES CLÍNICAS DE TESTE',

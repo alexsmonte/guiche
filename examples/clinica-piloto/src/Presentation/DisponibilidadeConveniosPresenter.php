@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Pilot\Clinical\Presentation;
+namespace GuicheExample\ClinicaPiloto\Presentation;
 
 
 
@@ -82,7 +82,7 @@ use Asmpkg\Guiche\Contracts\ResultPresenterInterface;final class Disponibilidade
         /*
          * Formato atual da procedure do piloto:
          *
-         * Dra. Larissa Uemi Yoqui
+         * Dra. Ana Exemplo
          * (atende segunda-feira, terça-feira)
          *
          * O Presenter pertence ao piloto, portanto pode conhecer

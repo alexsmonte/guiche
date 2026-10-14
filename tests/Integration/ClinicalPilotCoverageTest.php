@@ -7,15 +7,15 @@ namespace Asmpkg\Guiche\Tests\Integration;
 use Asmpkg\Guiche\Contracts\HttpClientInterface;
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\GuicheBuilder;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalPlugin;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\ConsultarHorariosPresenter;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\DisponibilidadeConveniosPresenter;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarHorariosTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarPacienteTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarProfissionalTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\CriarAgendamentoTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\DisponibilidadeConveniosTool;
+use GuicheExample\ClinicaPiloto\ClinicPlugin;
+use GuicheExample\ClinicaPiloto\ClinicStateManager;
+use GuicheExample\ClinicaPiloto\Presentation\ConsultarHorariosPresenter;
+use GuicheExample\ClinicaPiloto\Presentation\DisponibilidadeConveniosPresenter;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarHorariosTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarPacienteTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarProfissionalTool;
+use GuicheExample\ClinicaPiloto\Tools\CriarAgendamentoTool;
+use GuicheExample\ClinicaPiloto\Tools\DisponibilidadeConveniosTool;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -96,7 +96,7 @@ final class ClinicalPilotCoverageTest extends TestCase
         $http = new CoverageQueueHttpClient();
 
         $config = require dirname(__DIR__, 2)
-            . '/config/pilot-clinical.php';
+            . '/examples/clinica-piloto/config/clinic.php';
 
         $config['procedures']['consultar_paciente'] =
             'consultar_paciente_por_cpf';
@@ -109,7 +109,7 @@ final class ClinicalPilotCoverageTest extends TestCase
 
         $builder = new GuicheBuilder();
         $builder->registerPlugin(
-            new ClinicalPlugin(
+            new ClinicPlugin(
                 $sql,
                 $config,
                 'INSTRUÇÕES CLÍNICAS',
@@ -129,7 +129,7 @@ final class ClinicalPilotCoverageTest extends TestCase
         );
 
         self::assertInstanceOf(
-            ClinicalStateManager::class,
+            ClinicStateManager::class,
             $builder->stateManager()
         );
 
@@ -160,7 +160,7 @@ final class ClinicalPilotCoverageTest extends TestCase
 
     public function testStateManagerCoversMainClinicalTransitions(): void
     {
-        $manager = new ClinicalStateManager();
+        $manager = new ClinicStateManager();
 
         self::assertSame(
             [],
@@ -426,7 +426,7 @@ final class ClinicalPilotCoverageTest extends TestCase
 
     public function testStateManagerParsesPatientChoices(): void
     {
-        $manager = new ClinicalStateManager();
+        $manager = new ClinicStateManager();
 
         $uniqueTime = $manager->onUserMessage(
             [
@@ -1202,7 +1202,7 @@ final class ClinicalPilotCoverageTest extends TestCase
 
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]
-    public function testLegacyClinicalPluginAcceptanceRunsInsidePhpUnit(): void
+    public function testLegacyClinicPluginAcceptanceRunsInsidePhpUnit(): void
     {
         require dirname(__DIR__, 2)
             . '/bin/test-clinical-plugin-v03.php';

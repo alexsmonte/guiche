@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use Asmpkg\Guiche\GuicheBuilder;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalPlugin;
+use GuicheExample\ClinicaPiloto\ClinicPlugin;
+use GuicheExample\ClinicaPiloto\Adapters\ClinicalAdapterFactory;
 use Asmpkg\Guiche\ContextStore;
 
 use Asmpkg\Guiche\Infrastructure\Database\PdoFactory;
@@ -12,7 +13,7 @@ use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Asmpkg\Guiche\RuntimeContext;
 
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require __DIR__ . '/bootstrap.php';
 
 function loadEnvFile(string $file): void
 {
@@ -77,19 +78,15 @@ function printDebugEvents(array $events): void
     }
 }
 
-loadEnvFile(dirname(__DIR__) . '/.env');
+loadEnvFile(dirname(__DIR__, 2) . '/.env');
 
 $coreConfig = require dirname(__DIR__) . '/config/guiche.php';
-$pilotConfig = require dirname(__DIR__) . '/config/pilot-clinical.php';
-$prompt = require dirname(__DIR__) . '/config/pilot-clinical-prompt.php';
+$pilotConfig = require __DIR__ . '/config/clinic.php';
+$prompt = require __DIR__ . '/config/prompt.php';
 
-$pdo = PdoFactory::fromConfig(
-    $config['database']
-);
+$sql = ClinicalAdapterFactory::sql($config);
 
-$sql = new PdoSqlExecutor(
-    $pdo
-);
+
 
 $guiche = (new GuicheBuilder())
     ->withContextStore(
@@ -99,12 +96,7 @@ $guiche = (new GuicheBuilder())
         )
     )
     ->withAiProvider(
-        new \Asmpkg\Guiche\Providers\TerminalToolOutputAiProvider(
-            new OpenAiResponsesProvider(
-                $config['ai']['api_key'],
-                $config['ai']['model']
-            )
-        )
+        ClinicalAdapterFactory::ai($config)
     )
     ->withAgentContext(
         $config['agent_context'] ?? []
@@ -130,7 +122,7 @@ $guiche = (new GuicheBuilder())
         )
     )
     ->registerPlugin(
-        new ClinicalPlugin(
+        new ClinicPlugin(
             $sql,
             $config,
             $prompt

@@ -12,7 +12,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Asmpkg\\Guiche\\Tests\\": "tests/"
+            "Asmpkg\\Guiche\\Tests\\": "tests/",
+            "GuicheExample\\ClinicaPiloto\\": "examples/clinica-piloto/src/"
         }
     },
     "require-dev": {

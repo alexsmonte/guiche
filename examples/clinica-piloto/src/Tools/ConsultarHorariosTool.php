@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Pilot\Clinical\Tools;
+namespace GuicheExample\ClinicaPiloto\Tools;
 
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\Contracts\ToolInterface;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\ConsultarHorariosPresenter;
+use GuicheExample\ClinicaPiloto\Presentation\ConsultarHorariosPresenter;
 use DateInterval;
 use DateTimeImmutable;
 use InvalidArgumentException;

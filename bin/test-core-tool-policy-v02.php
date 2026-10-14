@@ -74,7 +74,7 @@ checkCoreToolPolicyV02(
     'ToolPolicy do Core não conhece state.etapa'
 );
 
-$pilotConfig = require dirname(__DIR__) . '/config/pilot-clinical.php';
+$pilotConfig = require dirname(__DIR__) . '/examples/clinica-piloto/config/clinic.php';
 
 checkCoreToolPolicyV02(
     ($pilotConfig['tool_policy']['context_path'] ?? null) === 'state.etapa',
