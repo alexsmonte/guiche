@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Pilot\Clinical\Tools;
+namespace GuicheExample\ClinicaPiloto\Tools;
 
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\Contracts\ToolInterface;
@@ -152,7 +152,7 @@ final class ConsultarProfissionalTool implements ToolInterface
              *
              * [
              *   "profissionais" =>
-             *   "[ profissional_id: 574 nome_completo: Larissa Uemi Yoqui ]"
+             *   "[ profissional_id: 574 nome_completo: Ana Exemplo ]"
              * ]
              */
 

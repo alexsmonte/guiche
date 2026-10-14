@@ -9,10 +9,10 @@ use Asmpkg\Guiche\Contracts\ResultPresenterInterface;
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\Guiche;
 use Asmpkg\Guiche\GuicheBuilder;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalPlugin;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\ConsultarHorariosPresenter;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\DisponibilidadeConveniosPresenter;
+use GuicheExample\ClinicaPiloto\ClinicPlugin;
+use GuicheExample\ClinicaPiloto\ClinicStateManager;
+use GuicheExample\ClinicaPiloto\Presentation\ConsultarHorariosPresenter;
+use GuicheExample\ClinicaPiloto\Presentation\DisponibilidadeConveniosPresenter;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -118,7 +118,7 @@ $config = [
     ],
 ];
 
-$plugin = new ClinicalPlugin(
+$plugin = new ClinicPlugin(
     new FakeSqlV03F05(),
     $config,
     'INSTRUÇÕES CLÍNICAS DE TESTE',
@@ -129,15 +129,15 @@ echo PHP_EOL . "1. CONTRATO DO PLUGIN" . PHP_EOL;
 
 checkV03F05(
     $plugin instanceof PluginInterface,
-    'ClinicalPlugin implementa PluginInterface'
+    'ClinicPlugin implementa PluginInterface'
 );
 
 $builder = new GuicheBuilder();
 $builder->registerPlugin($plugin);
 
 checkV03F05(
-    isset($builder->plugins()[ClinicalPlugin::class]),
-    'ClinicalPlugin é registrado pelo GuicheBuilder'
+    isset($builder->plugins()[ClinicPlugin::class]),
+    'ClinicPlugin é registrado pelo GuicheBuilder'
 );
 
 echo PHP_EOL . "2. TOOLS CLÍNICAS" . PHP_EOL;
@@ -152,7 +152,7 @@ $expectedTools = [
 
 checkV03F05(
     $builder->toolRegistry()->names() === $expectedTools,
-    'ClinicalPlugin registra as cinco Tools na ordem atual'
+    'ClinicPlugin registra as cinco Tools na ordem atual'
 );
 
 foreach (
@@ -190,8 +190,8 @@ echo PHP_EOL . "3. STATE + PRESENTERS" . PHP_EOL;
 
 checkV03F05(
     $builder->stateManager()
-        instanceof ClinicalStateManager,
-    'ClinicalStateManager é fornecido pelo Plugin'
+        instanceof ClinicStateManager,
+    'ClinicStateManager é fornecido pelo Plugin'
 );
 
 checkV03F05(
@@ -306,20 +306,20 @@ checkV03F05(
         $guiche->tools(),
         'name'
     ) === $expectedTools,
-    'runtime construído recebe todas as Tools do ClinicalPlugin'
+    'runtime construído recebe todas as Tools do ClinicPlugin'
 );
 
 echo PHP_EOL . "6. BOOTSTRAP CLÍNICO MIGRADO" . PHP_EOL;
 
 $chatSource = file_get_contents(
-    dirname(__DIR__) . '/bin/chat.php'
+    dirname(__DIR__) . '/examples/clinica-piloto/chat.php'
 );
 
 checkV03F05(
     is_string($chatSource)
     && str_contains(
         $chatSource,
-        'new ClinicalPlugin('
+        'new ClinicPlugin('
     )
     && str_contains(
         $chatSource,
@@ -329,7 +329,7 @@ checkV03F05(
         $chatSource,
         'new GuicheBuilder()'
     ),
-    'bin/chat.php usa GuicheBuilder + ClinicalPlugin'
+    'examples/clinica-piloto/chat.php usa GuicheBuilder + ClinicPlugin'
 );
 
 $forbiddenManualWiring = [
@@ -338,7 +338,7 @@ $forbiddenManualWiring = [
     'new ConsultarHorariosTool(',
     'new ConsultarPacienteTool(',
     'new CriarAgendamentoTool(',
-    'new ClinicalStateManager(',
+    'new ClinicStateManager(',
     'new ToolRegistry(',
     'new ToolPolicy(',
 ];
@@ -357,7 +357,7 @@ foreach ($forbiddenManualWiring as $marker) {
 
 checkV03F05(
     $manualWiringRemoved,
-    'bin/chat.php não monta mais capacidades clínicas manualmente'
+    'examples/clinica-piloto/chat.php não monta mais capacidades clínicas manualmente'
 );
 
 echo PHP_EOL . "7. CORE CONTINUA NEUTRO" . PHP_EOL;
@@ -377,7 +377,7 @@ foreach ($coreFiles as $file) {
     if (
         is_string($source)
         && (
-            str_contains($source, 'ClinicalPlugin')
+            str_contains($source, 'ClinicPlugin')
             || str_contains(
                 $source,
                 'Pilot\\Clinical'
@@ -391,7 +391,7 @@ foreach ($coreFiles as $file) {
 
 checkV03F05(
     $coreNeutral,
-    'Core genérico não conhece ClinicalPlugin nem namespace clínico'
+    'Core genérico não conhece ClinicPlugin nem namespace clínico'
 );
 
 echo PHP_EOL;

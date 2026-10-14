@@ -102,24 +102,24 @@ echo PHP_EOL . "4. PILOTO CLÍNICO COMO PLUGIN" . PHP_EOL;
 
 checkAcceptanceV03(
     class_exists(
-        \Asmpkg\Guiche\Pilot\Clinical\ClinicalPlugin::class
+        \GuicheExample\ClinicaPiloto\ClinicPlugin::class
     )
     && is_subclass_of(
-        \Asmpkg\Guiche\Pilot\Clinical\ClinicalPlugin::class,
+        \GuicheExample\ClinicaPiloto\ClinicPlugin::class,
         \Asmpkg\Guiche\Contracts\PluginInterface::class
     ),
-    'piloto clínico está encapsulado em ClinicalPlugin'
+    'piloto clínico está encapsulado em ClinicPlugin'
 );
 
 $chat = file_get_contents(
-    $root . '/bin/chat.php'
+    $root . '/examples/clinica-piloto/chat.php'
 );
 
 checkAcceptanceV03(
     is_string($chat)
     && str_contains(
         $chat,
-        'new ClinicalPlugin('
+        'new ClinicPlugin('
     )
     && str_contains(
         $chat,

@@ -17,6 +17,7 @@
     <source>
         <include>
             <directory suffix=".php">src</directory>
-        </include>
+            <directory suffix=".php">examples/clinica-piloto/src</directory>
+</include>
     </source>
 </phpunit>

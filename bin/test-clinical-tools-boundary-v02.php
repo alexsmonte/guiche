@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use Asmpkg\Guiche\Contracts\ToolInterface;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\ConsultarHorariosPresenter;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\DisponibilidadeConveniosPresenter;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarHorariosTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarPacienteTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarProfissionalTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\CriarAgendamentoTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\DisponibilidadeConveniosTool;
+use GuicheExample\ClinicaPiloto\Presentation\ConsultarHorariosPresenter;
+use GuicheExample\ClinicaPiloto\Presentation\DisponibilidadeConveniosPresenter;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarHorariosTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarPacienteTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarProfissionalTool;
+use GuicheExample\ClinicaPiloto\Tools\CriarAgendamentoTool;
+use GuicheExample\ClinicaPiloto\Tools\DisponibilidadeConveniosTool;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 

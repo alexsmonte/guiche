@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Pilot\Clinical\Tools;
+namespace GuicheExample\ClinicaPiloto\Tools;
 
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\Contracts\ToolInterface;

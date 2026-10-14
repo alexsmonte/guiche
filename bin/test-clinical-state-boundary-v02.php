@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use Asmpkg\Guiche\Guiche;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager;
+use GuicheExample\ClinicaPiloto\ClinicStateManager;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -17,11 +17,11 @@ function checkClinicalStateBoundaryV02(bool $condition, string $message): void
     echo 'OK: ' . $message . PHP_EOL;
 }
 
-$manager = new ClinicalStateManager();
+$manager = new ClinicStateManager();
 
 checkClinicalStateBoundaryV02(
     $manager instanceof StateManagerInterface,
-    'ClinicalStateManager implementa o contrato genérico do Core'
+    'ClinicStateManager implementa o contrato genérico do Core'
 );
 
 checkClinicalStateBoundaryV02(
@@ -48,7 +48,7 @@ checkClinicalStateBoundaryV02(
 );
 
 $clinicalSource = file_get_contents(
-    dirname(__DIR__) . '/src/Pilot/Clinical/ClinicalStateManager.php'
+    dirname(__DIR__) . '/examples/clinica-piloto/src/ClinicStateManager.php'
 );
 
 checkClinicalStateBoundaryV02(
@@ -64,7 +64,7 @@ $guicheSource = file_get_contents(dirname(__DIR__) . '/src/Guiche.php');
 
 checkClinicalStateBoundaryV02(
     is_string($guicheSource)
-        && !str_contains($guicheSource, 'ClinicalStateManager')
+        && !str_contains($guicheSource, 'ClinicStateManager')
         && !str_contains($guicheSource, 'DisponibilidadeConvenios')
         && !str_contains($guicheSource, 'ConsultarPaciente')
         && !str_contains($guicheSource, 'CriarAgendamento'),

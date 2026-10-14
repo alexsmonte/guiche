@@ -2,6 +2,19 @@
 
 declare(strict_types=1);
 
+$clinicalMode = strtolower(trim((string)(getenv('GUICHE_CLINICAL_MODE') ?: 'fake')));
+
+if (!in_array($clinicalMode, ['fake', 'real'], true)) {
+    throw new \RuntimeException(
+        'GUICHE_CLINICAL_MODE deve ser "fake" ou "real".'
+    );
+}
+
+$clinicalCompanyId = (int)(getenv('GUICHE_CLINIC_COMPANY_ID') ?: 1);
+$clinicalCompanyName = trim((string)(getenv('GUICHE_CLINIC_NAME') ?: 'Clínica Exemplo'));
+$clinicalFixture = trim((string)(getenv('GUICHE_FAKE_FIXTURE') ?: ''));
+
+
 /**
  * Configuração do piloto clínico.
  *
@@ -10,6 +23,15 @@ declare(strict_types=1);
  * pertence à fase v0.3 e não é criada neste passo.
  */
 return [
+    'write_safety' => [
+        'slot_revalidation' => true,
+    ],
+    'mode' => $clinicalMode,
+    'fake' => [
+        'fixture' => $clinicalFixture !== ''
+            ? $clinicalFixture
+            : dirname(__DIR__) . '/fixtures/clinical.php',
+    ],
     'database' => [
         'driver' => getenv('DB_DRIVER') ?: 'mysql',
         'dsn' => getenv('DB_DSN') ?: '',
@@ -23,14 +45,14 @@ return [
 
     'agendamento_api' => [
         'url' => getenv('GUICHE_AGENDAMENTO_API_URL')
-            ?: 'https://clinsoft.atendamais.com.br/api/agendamentos/novo.json',
+            ?: ($clinicalMode === 'fake' ? 'https://example.invalid/api/agendamentos/novo.json' : ''),
         'token' => getenv('GUICHE_AGENDAMENTO_API_TOKEN') ?: '',
         'timeout' => (int)(getenv('GUICHE_AGENDAMENTO_API_TIMEOUT') ?: 15),
     ],
 
     'procedures' => [
         'consultar_paciente' =>
-            getenv('DB_PROCEDURE_CONSULTAR_PACIENTE') ?: '',
+            getenv('DB_PROCEDURE_CONSULTAR_PACIENTE') ?: ($clinicalMode === 'fake' ? 'fake_consultar_paciente' : ''),
 
         'disponibilidade_convenios' =>
             getenv('DB_PROCEDURE_DISPONIBILIDADE')
@@ -119,8 +141,8 @@ return [
     ],
 
     'agent_context' => [
-        'empresa_id' => 142,
-        'empresa_nome' => 'Ortoshine',
+        'empresa_id' => $clinicalCompanyId,
+        'empresa_nome' => $clinicalCompanyName,
     ],
 
     'reusable_tools' => [

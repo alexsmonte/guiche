@@ -2,20 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Pilot\Clinical;
+namespace GuicheExample\ClinicaPiloto;
+
+use GuicheExample\ClinicaPiloto\Safety\ClinicalSlotRevalidator;
+
+use GuicheExample\ClinicaPiloto\Adapters\ClinicalAdapterFactory;
 
 use Asmpkg\Guiche\Contracts\HttpClientInterface;
 use Asmpkg\Guiche\Contracts\PluginInterface;
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
 use Asmpkg\Guiche\GuicheBuilder;
 use Asmpkg\Guiche\Infrastructure\Http\CurlHttpClient;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\ConsultarHorariosPresenter;
-use Asmpkg\Guiche\Pilot\Clinical\Presentation\DisponibilidadeConveniosPresenter;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarHorariosTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarPacienteTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarProfissionalTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\CriarAgendamentoTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\DisponibilidadeConveniosTool;
+use GuicheExample\ClinicaPiloto\Presentation\ConsultarHorariosPresenter;
+use GuicheExample\ClinicaPiloto\Presentation\DisponibilidadeConveniosPresenter;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarHorariosTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarPacienteTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarProfissionalTool;
+use GuicheExample\ClinicaPiloto\Tools\CriarAgendamentoTool;
+use GuicheExample\ClinicaPiloto\Tools\DisponibilidadeConveniosTool;
 use Asmpkg\Guiche\Plugin\ToolRegistration;
 use Asmpkg\Guiche\ToolPolicy;
 use ReflectionClass;
@@ -27,7 +31,7 @@ use RuntimeException;
  * O Core permanece neutro: dependências, Tools, estado, apresentação,
  * política e projeções específicas do domínio ficam concentradas aqui.
  */
-final class ClinicalPlugin implements PluginInterface
+final class ClinicPlugin implements PluginInterface
 {
     /**
      * @param array<mixed> $config
@@ -131,14 +135,15 @@ final class ClinicalPlugin implements PluginInterface
             $builder->registerTool(
                 $this->registration(
                     new CriarAgendamentoTool(
-                        $this->http ?? new CurlHttpClient(),
+                        $this->http ?? ClinicalAdapterFactory::http($this->config),
                         $bookingUrl,
                         (string)($booking['token'] ?? ''),
                         max(
                             1,
                             (int)($booking['timeout'] ?? 15)
-                        )
-                    ),
+                        ),
+                $this->slotRevalidator()
+            ),
                     'write'
                 )
             );
@@ -154,13 +159,31 @@ final class ClinicalPlugin implements PluginInterface
                 new ConsultarHorariosPresenter()
             )
             ->useStateManager(
-                new ClinicalStateManager()
+                new ClinicStateManager()
             );
 
         $this->registerToolPolicy($builder);
         $this->registerInstructions($builder);
         $this->registerCompletionGuards($builder);
         $this->registerResultProjections($builder);
+    }
+
+    private function slotRevalidator(): ?ClinicalSlotRevalidator
+    {
+        $writeSafety = is_array($this->config['write_safety'] ?? null)
+            ? $this->config['write_safety']
+            : [];
+
+        if (($writeSafety['slot_revalidation'] ?? false) !== true) {
+            return null;
+        }
+
+        return new ClinicalSlotRevalidator(
+            $this->sql,
+            (string)($this->config['procedures']['consultar_horarios'] ?? ''),
+            (int)($this->config['agent_context']['empresa_id'] ?? 0),
+            (int)($this->config['horarios_por_data'] ?? 3)
+        );
     }
 
     private function registration(
@@ -172,7 +195,7 @@ final class ClinicalPlugin implements PluginInterface
             instanceof \Asmpkg\Guiche\Contracts\ToolInterface
         ) {
             throw new RuntimeException(
-                'ClinicalPlugin recebeu uma Tool inválida.'
+                'ClinicPlugin recebeu uma Tool inválida.'
             );
         }
 

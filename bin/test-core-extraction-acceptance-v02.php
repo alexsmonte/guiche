@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use Asmpkg\Guiche\Contracts\ToolInterface;
 use Asmpkg\Guiche\Guiche;
-use Asmpkg\Guiche\Pilot\Clinical\ClinicalStateManager;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarHorariosTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarPacienteTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\ConsultarProfissionalTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\CriarAgendamentoTool;
-use Asmpkg\Guiche\Pilot\Clinical\Tools\DisponibilidadeConveniosTool;
+use GuicheExample\ClinicaPiloto\ClinicStateManager;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarHorariosTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarPacienteTool;
+use GuicheExample\ClinicaPiloto\Tools\ConsultarProfissionalTool;
+use GuicheExample\ClinicaPiloto\Tools\CriarAgendamentoTool;
+use GuicheExample\ClinicaPiloto\Tools\DisponibilidadeConveniosTool;
 use Asmpkg\Guiche\ToolPolicy;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -101,11 +101,11 @@ checkCoreExtractionV02(
     'StateManager clínico não permanece na raiz do Core'
 );
 
-$clinicalState = new ClinicalStateManager();
+$clinicalState = new ClinicStateManager();
 
 checkCoreExtractionV02(
     $clinicalState instanceof StateManagerInterface,
-    'ClinicalStateManager permanece ligado ao Core apenas pelo contrato'
+    'ClinicStateManager permanece ligado ao Core apenas pelo contrato'
 );
 
 $reflection = new ReflectionMethod(Guiche::class, '__construct');
@@ -147,7 +147,7 @@ foreach ($clinicalTools as $toolClass) {
 }
 
 $coreConfig = require $root . '/config/guiche.php';
-$pilotConfig = require $root . '/config/pilot-clinical.php';
+$pilotConfig = require $root . '/examples/clinica-piloto/config/clinic.php';
 
 $domainConfigKeys = [
     'database',

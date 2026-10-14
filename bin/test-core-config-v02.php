@@ -14,8 +14,8 @@ function checkCoreConfigV02(bool $condition, string $message): void
 $root = dirname(__DIR__);
 
 $core = require $root . '/config/guiche.php';
-$pilot = require $root . '/config/pilot-clinical.php';
-$prompt = require $root . '/config/pilot-clinical-prompt.php';
+$pilot = require $root . '/examples/clinica-piloto/config/clinic.php';
+$prompt = require $root . '/examples/clinica-piloto/config/prompt.php';
 
 checkCoreConfigV02(
     isset(
@@ -85,9 +85,8 @@ foreach (
 }
 
 checkCoreConfigV02(
-    ($pilot['agent_context']['empresa_id'] ?? null) === 142
-        && ($pilot['agent_context']['empresa_nome'] ?? null) === 'Ortoshine',
-    'dados atuais do piloto foram preservados'
+    !str_contains((string)file_get_contents(dirname(__DIR__) . '/examples/clinica-piloto/config/clinic.php'), "'empresa_id' => 142"),
+    'exemplo clínico não fixa empresa_id real'
 );
 
 checkCoreConfigV02(
@@ -97,16 +96,13 @@ checkCoreConfigV02(
 );
 
 checkCoreConfigV02(
-    ($pilot['agendamento_api']['url'] ?? null)
-        === 'https://clinsoft.atendamais.com.br/api/agendamentos/novo.json',
-    'endpoint atual do piloto foi preservado'
+    !str_contains((string)file_get_contents(dirname(__DIR__) . '/examples/clinica-piloto/config/clinic.php'), 'clinsoft.atendamais.com.br'),
+    'exemplo clínico não distribui endpoint real'
 );
 
 checkCoreConfigV02(
-    is_string($prompt)
-        && str_contains($prompt, 'Meg')
-        && str_contains($prompt, 'Ortoshine'),
-    'prompt clínico foi preservado e identificado como piloto'
+    str_contains((string)file_get_contents(dirname(__DIR__) . '/examples/clinica-piloto/config/prompt.php'), 'Clínica Exemplo') && !str_contains((string)file_get_contents(dirname(__DIR__) . '/examples/clinica-piloto/config/prompt.php'), 'Ortoshine'),
+    'prompt clínico foi preservado e sanitizado para exemplo'
 );
 
 checkCoreConfigV02(

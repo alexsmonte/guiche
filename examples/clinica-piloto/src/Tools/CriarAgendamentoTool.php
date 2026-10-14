@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Asmpkg\Guiche\Pilot\Clinical\Tools;
+namespace GuicheExample\ClinicaPiloto\Tools;
 
 use Asmpkg\Guiche\Contracts\HttpClientInterface;
 use Asmpkg\Guiche\Contracts\ToolInterface;
+use GuicheExample\ClinicaPiloto\Safety\ClinicalSlotRevalidator;
 use Throwable;
 
 final class CriarAgendamentoTool implements ToolInterface
@@ -14,7 +15,8 @@ final class CriarAgendamentoTool implements ToolInterface
         private readonly HttpClientInterface $http,
         private readonly string $url,
         private readonly string $token = '',
-        private readonly int $timeout = 15
+        private readonly int $timeout = 15,
+        private readonly ?ClinicalSlotRevalidator $slotRevalidator = null
     ) {
     }
 
@@ -192,6 +194,39 @@ final class CriarAgendamentoTool implements ToolInterface
         }
 
         try {
+            if ($this->slotRevalidator !== null) {
+                $slot = $this->slotRevalidator->revalidate([
+                    'data_inicio' => $date,
+                    'hora_inicio' => $time,
+                    'profissional_id' => $professionalId,
+                ]);
+
+                if ($slot['available'] !== true) {
+                    $reason = $slot['reason'];
+                    $message = $reason === 'slot_unavailable'
+                        ? 'O horário selecionado não está mais disponível. Consulte os horários novamente.'
+                        : 'Não foi possível revalidar o horário com segurança. Consulte os horários novamente antes de agendar.';
+
+                    return [
+                        'success' => false,
+                        'tool' => $this->name(),
+                        'input' => [
+                            'paciente_id' => $patientId,
+                            'data_inicio' => $date,
+                            'hora_inicio' => $time,
+                            'profissional_id' => $professionalId,
+                            'servico_id' => $serviceId,
+                        ],
+                        'data' => null,
+                        'message' => $message,
+                        'meta' => [
+                            'source' => 'slot_revalidation',
+                            'reason' => $reason,
+                        ],
+                    ];
+                }
+            }
+
             $response = $this->http->postForm(
                 $url,
                 $payload,
