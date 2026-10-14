@@ -1,0 +1,47 @@
+symbol	kind	classification	reason	path
+"Asmpkg\Guiche\Clock\SystemClock"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Clock/SystemClock.php
+"Asmpkg\Guiche\ContextStore"	class	public	"implementação padrão de ContextStore"	src/ContextStore.php
+"Asmpkg\Guiche\Contracts\AiProviderInterface"	interface	public	"contrato público de extensão"	src/Contracts/AiProviderInterface.php
+"Asmpkg\Guiche\Contracts\ClockInterface"	interface	public	"contrato público de extensão"	src/Contracts/ClockInterface.php
+"Asmpkg\Guiche\Contracts\ContextStoreInterface"	interface	public	"contrato público de extensão"	src/Contracts/ContextStoreInterface.php
+"Asmpkg\Guiche\Contracts\ConversationStoreInterface"	interface	public	"contrato público de extensão"	src/Contracts/ConversationStoreInterface.php
+"Asmpkg\Guiche\Contracts\HttpClientInterface"	interface	public	"contrato público de extensão"	src/Contracts/HttpClientInterface.php
+"Asmpkg\Guiche\Contracts\PluginInterface"	interface	public	"contrato público de extensão"	src/Contracts/PluginInterface.php
+"Asmpkg\Guiche\Contracts\ResultPresenterInterface"	interface	public	"contrato público de extensão"	src/Contracts/ResultPresenterInterface.php
+"Asmpkg\Guiche\Contracts\RuntimeEventSinkInterface"	interface	public	"contrato público de extensão"	src/Contracts/RuntimeEventSinkInterface.php
+"Asmpkg\Guiche\Contracts\ScheduledEventStoreInterface"	interface	public	"contrato público de extensão"	src/Contracts/ScheduledEventStoreInterface.php
+"Asmpkg\Guiche\Contracts\SqlExecutorInterface"	interface	public	"contrato público de extensão"	src/Contracts/SqlExecutorInterface.php
+"Asmpkg\Guiche\Contracts\StateManagerInterface"	interface	public	"contrato público de extensão"	src/Contracts/StateManagerInterface.php
+"Asmpkg\Guiche\Contracts\ToolInterface"	interface	public	"contrato público de extensão"	src/Contracts/ToolInterface.php
+"Asmpkg\Guiche\Conversation\ConversationKey"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/ConversationKey.php
+"Asmpkg\Guiche\Conversation\ConversationRuntime"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/ConversationRuntime.php
+"Asmpkg\Guiche\Conversation\ConversationTurn"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/ConversationTurn.php
+"Asmpkg\Guiche\Conversation\FollowUpScheduler"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/FollowUpScheduler.php
+"Asmpkg\Guiche\Conversation\IncomingEvent"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/IncomingEvent.php
+"Asmpkg\Guiche\Conversation\IncomingEventRecorder"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/IncomingEventRecorder.php
+"Asmpkg\Guiche\Conversation\JsonConversationStore"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/JsonConversationStore.php
+"Asmpkg\Guiche\Conversation\JsonScheduledEventStore"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/JsonScheduledEventStore.php
+"Asmpkg\Guiche\Conversation\MessageBuffer"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/MessageBuffer.php
+"Asmpkg\Guiche\Conversation\ScheduledEvent"	class	public	"tipo exposto transitivamente por API pública"	src/Conversation/ScheduledEvent.php
+"Asmpkg\Guiche\Conversation\ScheduledEventRunner"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/ScheduledEventRunner.php
+"Asmpkg\Guiche\Conversation\Scheduler"	class	experimental	"conversation runtime ainda fora do compromisso BC estável v1"	src/Conversation/Scheduler.php
+"Asmpkg\Guiche\Guiche"	class	public	"entrypoint principal"	src/Guiche.php
+"Asmpkg\Guiche\GuicheBuilder"	class	public	"builder público"	src/GuicheBuilder.php
+"Asmpkg\Guiche\Infrastructure\Database\PdoFactory"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Infrastructure/Database/PdoFactory.php
+"Asmpkg\Guiche\Infrastructure\Database\PdoSqlExecutor"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Infrastructure/Database/PdoSqlExecutor.php
+"Asmpkg\Guiche\Infrastructure\Http\CurlHttpClient"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Infrastructure/Http/CurlHttpClient.php
+"Asmpkg\Guiche\Observability\JsonlRuntimeEventSink"	class	public	"sink público JSONL"	src/Observability/JsonlRuntimeEventSink.php
+"Asmpkg\Guiche\Observability\NullRuntimeEventSink"	class	public	"sink público padrão"	src/Observability/NullRuntimeEventSink.php
+"Asmpkg\Guiche\Observability\RuntimeEventFactory"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Observability/RuntimeEventFactory.php
+"Asmpkg\Guiche\Plugin\PresentedTool"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Plugin/PresentedTool.php
+"Asmpkg\Guiche\Plugin\ToolRegistration"	class	public	"tipo exposto transitivamente por API pública"	src/Plugin/ToolRegistration.php
+"Asmpkg\Guiche\PresenterRegistry"	class	public	"tipo exposto transitivamente por API pública"	src/PresenterRegistry.php
+"Asmpkg\Guiche\Providers\OpenAiResponsesProvider"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Providers/OpenAiResponsesProvider.php
+"Asmpkg\Guiche\Providers\TerminalToolOutputAiProvider"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Providers/TerminalToolOutputAiProvider.php
+"Asmpkg\Guiche\RuntimeContext"	class	public	"tipo exposto transitivamente por API pública"	src/RuntimeContext.php
+"Asmpkg\Guiche\Safety\ToolArgumentValidator"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Safety/ToolArgumentValidator.php
+"Asmpkg\Guiche\Safety\ToolBlockedException"	class	public	"exceção observável pelo consumidor"	src/Safety/ToolBlockedException.php
+"Asmpkg\Guiche\Safety\ToolExecutionGate"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Safety/ToolExecutionGate.php
+"Asmpkg\Guiche\Safety\ToolSafetyMetadata"	class	internal	"detalhe de implementação não necessário à integração pública"	src/Safety/ToolSafetyMetadata.php
+"Asmpkg\Guiche\ToolPolicy"	class	public	"política pública configurável"	src/ToolPolicy.php
+"Asmpkg\Guiche\ToolRegistry"	class	public	"tipo exposto transitivamente por API pública"	src/ToolRegistry.php

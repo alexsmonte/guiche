@@ -275,3 +275,48 @@ Veja o guia de instalação e isolamento em
 
 O namespace do exemplo não pertence ao autoload público do pacote.
 <!-- GUICHE_V08_CLINICAL_EXAMPLE_END -->
+
+<!-- guiche-v0.9-rc:start -->
+## Release Candidate v0.9
+
+A v0.9 congela a superfície pública candidata à v1, formaliza SemVer/BC e valida o Guichê como dependência Composer em projeto externo.
+
+Instalação após a publicação da RC:
+
+```bash
+composer require asmpkg/guiche:^0.9
+```
+
+Fluxo de integração:
+
+```php
+$builder = new Asmpkg\Guiche\GuicheBuilder();
+$builder->withContextStore($contextStore);
+$builder->withAiProvider($provider);
+$builder->registerPlugin($plugin);
+
+$guiche = $builder->build();
+$result = $guiche->handle('session-123', 'Olá');
+```
+
+Pontos de extensão estáveis:
+
+- `ToolInterface`: capacidade executável;
+- `PluginInterface`: registro de capacidades sem editar o Core;
+- `ContextStoreInterface`: persistência substituível;
+- `AiProviderInterface`: provider de IA substituível;
+- `ToolRegistration`: metadados declarativos, incluindo Safety.
+
+O **hard execution gate** valida policy, estado, argumentos e regras de WRITE imediatamente antes da execução real da Tool. Uma Tool call da IA não é autorização de side effect.
+
+Documentação da RC:
+
+- [External Consumer Guide](docs/external-consumer.md)
+- [API Stability & SemVer](docs/api-stability.md)
+- [PHP Support](docs/php-support.md)
+- [Security](docs/security.md)
+- [Security Policy](SECURITY.md)
+- [Quick Start](docs/quick-start.md)
+
+Os exemplos continuam separados do Core: `examples/basic/` para início rápido e `examples/clinica-piloto/` como exemplo avançado de domínio.
+<!-- guiche-v0.9-rc:end -->

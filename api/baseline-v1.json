@@ -1,0 +1,3572 @@
+{
+    "schema_version": 1,
+    "package": "asmpkg/guiche",
+    "stability_policy": {
+        "public": "BC commitment for v1.x",
+        "experimental": "no BC commitment until promoted to public",
+        "internal": "implementation detail"
+    },
+    "public_api_sha256": "39e417149aaee5ac9008de4bb3e477c579826f86ea9902b8755965fc1482368d",
+    "public_symbols": {
+        "Asmpkg\\Guiche\\ContextStore": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [
+                "Asmpkg\\Guiche\\Contracts\\ContextStoreInterface"
+            ],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "directory",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "timezone",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": "America/Sao_Paulo"
+                        }
+                    ]
+                },
+                "addMessage": {
+                    "name": "addMessage",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "role",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "content",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "addToolExecution": {
+                    "name": "addToolExecution",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "result",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "applyPatch": {
+                    "name": "applyPatch",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "patch",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "delete": {
+                    "name": "delete",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "findSuccessfulToolResult": {
+                    "name": "findSuccessfulToolResult",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "?array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "load": {
+                    "name": "load",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "mergeState": {
+                    "name": "mergeState",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "state",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "recordInteractionUsage": {
+                    "name": "recordInteractionUsage",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "usage",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "save": {
+                    "name": "save",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "context",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "setIntent": {
+                    "name": "setIntent",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "intent",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "toolFingerprint": {
+                    "name": "toolFingerprint",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\AiProviderInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "continueWithToolOutputs": {
+                    "name": "continueWithToolOutputs",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "previousResponseId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "instructions",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "toolOutputs",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tools",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                },
+                "respond": {
+                    "name": "respond",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "instructions",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "messages",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tools",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\ClockInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "now": {
+                    "name": "now",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "DateTimeImmutable",
+                    "parameters": []
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\ContextStoreInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "addMessage": {
+                    "name": "addMessage",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "role",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "content",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "addToolExecution": {
+                    "name": "addToolExecution",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "result",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "applyPatch": {
+                    "name": "applyPatch",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "patch",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "delete": {
+                    "name": "delete",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "findSuccessfulToolResult": {
+                    "name": "findSuccessfulToolResult",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "?array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "load": {
+                    "name": "load",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "mergeState": {
+                    "name": "mergeState",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "state",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "recordInteractionUsage": {
+                    "name": "recordInteractionUsage",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "usage",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "save": {
+                    "name": "save",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "context",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "setIntent": {
+                    "name": "setIntent",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "intent",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "toolFingerprint": {
+                    "name": "toolFingerprint",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\ConversationStoreInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "delete": {
+                    "name": "delete",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "conversationKey",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "load": {
+                    "name": "load",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "conversationKey",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "mutate": {
+                    "name": "mutate",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "conversationKey",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "mutation",
+                            "type": "callable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\HttpClientInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "postForm": {
+                    "name": "postForm",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "url",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "data",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "headers",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "timeout",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": 15
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\PluginInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "register": {
+                    "name": "register",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "builder",
+                            "type": "Asmpkg\\Guiche\\GuicheBuilder",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\ResultPresenterInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "present": {
+                    "name": "present",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "?string",
+                    "parameters": [
+                        {
+                            "name": "result",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "record": {
+                    "name": "record",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "event",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\ScheduledEventStoreInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "cancel": {
+                    "name": "cancel",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                    "parameters": [
+                        {
+                            "name": "eventId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "now",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "claimDue": {
+                    "name": "claimDue",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "now",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "workerId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "leaseSeconds",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "limit",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "complete": {
+                    "name": "complete",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                    "parameters": [
+                        {
+                            "name": "eventId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "leaseToken",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "now",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "find": {
+                    "name": "find",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "?Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                    "parameters": [
+                        {
+                            "name": "eventId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "markIndeterminate": {
+                    "name": "markIndeterminate",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                    "parameters": [
+                        {
+                            "name": "eventId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "leaseToken",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "now",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "failureClass",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "markStale": {
+                    "name": "markStale",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                    "parameters": [
+                        {
+                            "name": "eventId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "leaseToken",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "now",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "reason",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "renewLease": {
+                    "name": "renewLease",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                    "parameters": [
+                        {
+                            "name": "eventId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "leaseToken",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "now",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "leaseSeconds",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "schedule": {
+                    "name": "schedule",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                    "parameters": [
+                        {
+                            "name": "event",
+                            "type": "Asmpkg\\Guiche\\Conversation\\ScheduledEvent",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\SqlExecutorInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "execute": {
+                    "name": "execute",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "int",
+                    "parameters": [
+                        {
+                            "name": "sql",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "parameters",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                },
+                "fetchAll": {
+                    "name": "fetchAll",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sql",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "parameters",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\StateManagerInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "onToolResult": {
+                    "name": "onToolResult",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "context",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "result",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "onUserMessage": {
+                    "name": "onUserMessage",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "context",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "message",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\ToolInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "description": {
+                    "name": "description",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": []
+                },
+                "execute": {
+                    "name": "execute",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "name": {
+                    "name": "name",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": []
+                },
+                "parameters": {
+                    "name": "parameters",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Conversation\\ScheduledEvent": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": true,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "eventId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "conversationKey",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "type",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "payload",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "dueAt",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "status",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "createdAt",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "updatedAt",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "dedupeHash",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "leaseOwner",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "leaseToken",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "leaseUntil",
+                            "type": "?DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "claimCount",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": 0
+                        },
+                        {
+                            "name": "completedAt",
+                            "type": "?DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "cancelledAt",
+                            "type": "?DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "sequenceSnapshot",
+                            "type": "?int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "requiredState",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "staleAt",
+                            "type": "?DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "staleReason",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "indeterminateAt",
+                            "type": "?DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "failureClass",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        }
+                    ]
+                },
+                "fromArray": {
+                    "name": "fromArray",
+                    "static": true,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "data",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "pending": {
+                    "name": "pending",
+                    "static": true,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "conversationKey",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "type",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "payload",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "dueAt",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "now",
+                            "type": "DateTimeImmutable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "dedupeHash",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "sequenceSnapshot",
+                            "type": "?int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "requiredState",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                },
+                "toArray": {
+                    "name": "toArray",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                }
+            },
+            "properties": {
+                "cancelledAt": {
+                    "name": "cancelledAt",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                },
+                "claimCount": {
+                    "name": "claimCount",
+                    "static": false,
+                    "readonly": true,
+                    "type": "int",
+                    "has_default": false,
+                    "default": null
+                },
+                "completedAt": {
+                    "name": "completedAt",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                },
+                "conversationKey": {
+                    "name": "conversationKey",
+                    "static": false,
+                    "readonly": true,
+                    "type": "string",
+                    "has_default": false,
+                    "default": null
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "static": false,
+                    "readonly": true,
+                    "type": "DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                },
+                "dedupeHash": {
+                    "name": "dedupeHash",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?string",
+                    "has_default": false,
+                    "default": null
+                },
+                "dueAt": {
+                    "name": "dueAt",
+                    "static": false,
+                    "readonly": true,
+                    "type": "DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                },
+                "eventId": {
+                    "name": "eventId",
+                    "static": false,
+                    "readonly": true,
+                    "type": "string",
+                    "has_default": false,
+                    "default": null
+                },
+                "failureClass": {
+                    "name": "failureClass",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?string",
+                    "has_default": false,
+                    "default": null
+                },
+                "indeterminateAt": {
+                    "name": "indeterminateAt",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                },
+                "leaseOwner": {
+                    "name": "leaseOwner",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?string",
+                    "has_default": false,
+                    "default": null
+                },
+                "leaseToken": {
+                    "name": "leaseToken",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?string",
+                    "has_default": false,
+                    "default": null
+                },
+                "leaseUntil": {
+                    "name": "leaseUntil",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                },
+                "payload": {
+                    "name": "payload",
+                    "static": false,
+                    "readonly": true,
+                    "type": "array",
+                    "has_default": false,
+                    "default": null
+                },
+                "requiredState": {
+                    "name": "requiredState",
+                    "static": false,
+                    "readonly": true,
+                    "type": "array",
+                    "has_default": false,
+                    "default": null
+                },
+                "sequenceSnapshot": {
+                    "name": "sequenceSnapshot",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?int",
+                    "has_default": false,
+                    "default": null
+                },
+                "staleAt": {
+                    "name": "staleAt",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                },
+                "staleReason": {
+                    "name": "staleReason",
+                    "static": false,
+                    "readonly": true,
+                    "type": "?string",
+                    "has_default": false,
+                    "default": null
+                },
+                "status": {
+                    "name": "status",
+                    "static": false,
+                    "readonly": true,
+                    "type": "string",
+                    "has_default": false,
+                    "default": null
+                },
+                "type": {
+                    "name": "type",
+                    "static": false,
+                    "readonly": true,
+                    "type": "string",
+                    "has_default": false,
+                    "default": null
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "static": false,
+                    "readonly": true,
+                    "type": "DateTimeImmutable",
+                    "has_default": false,
+                    "default": null
+                }
+            },
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Guiche": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "tools",
+                            "type": "Asmpkg\\Guiche\\ToolRegistry",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "context",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ContextStoreInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "ai",
+                            "type": "?Asmpkg\\Guiche\\Contracts\\AiProviderInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "instructions",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": ""
+                        },
+                        {
+                            "name": "agentContext",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "runtime",
+                            "type": "?Asmpkg\\Guiche\\RuntimeContext",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "stateManager",
+                            "type": "?Asmpkg\\Guiche\\Contracts\\StateManagerInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "reusableTools",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "completionGuards",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "historyMessagesLimit",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": 8
+                        },
+                        {
+                            "name": "aiStateExcludePaths",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "aiToolResultExcludePaths",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "maxToolRounds",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": 5
+                        },
+                        {
+                            "name": "aiToolResultIncludePaths",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "eventSink",
+                            "type": "?Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        }
+                    ]
+                },
+                "context": {
+                    "name": "context",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "executeTool": {
+                    "name": "executeTool",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "sessionId",
+                            "type": "?string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        }
+                    ]
+                },
+                "handle": {
+                    "name": "handle",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "message",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "reset": {
+                    "name": "reset",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "setToolPolicy": {
+                    "name": "setToolPolicy",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "toolPolicy",
+                            "type": "?Asmpkg\\Guiche\\ToolPolicy",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "stateForAi": {
+                    "name": "stateForAi",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "state",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "toolResultForAi": {
+                    "name": "toolResultForAi",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "result",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "tools": {
+                    "name": "tools",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\GuicheBuilder": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "tools",
+                            "type": "?Asmpkg\\Guiche\\ToolRegistry",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        },
+                        {
+                            "name": "presenters",
+                            "type": "?Asmpkg\\Guiche\\PresenterRegistry",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        }
+                    ]
+                },
+                "addInstructionFragment": {
+                    "name": "addInstructionFragment",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "fragment",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "build": {
+                    "name": "build",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Guiche",
+                    "parameters": []
+                },
+                "completionGuards": {
+                    "name": "completionGuards",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "instructionFragments": {
+                    "name": "instructionFragments",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "plugins": {
+                    "name": "plugins",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "policies": {
+                    "name": "policies",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "presenterRegistry": {
+                    "name": "presenterRegistry",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\PresenterRegistry",
+                    "parameters": []
+                },
+                "registerCompletionGuard": {
+                    "name": "registerCompletionGuard",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "definition",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "registerPlugin": {
+                    "name": "registerPlugin",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "plugin",
+                            "type": "Asmpkg\\Guiche\\Contracts\\PluginInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "registerPolicy": {
+                    "name": "registerPolicy",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "definition",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "registerPresenter": {
+                    "name": "registerPresenter",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "toolName",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "presenter",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ResultPresenterInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "registerResultProjection": {
+                    "name": "registerResultProjection",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "toolName",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "definition",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "registerTool": {
+                    "name": "registerTool",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "tool",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ToolInterface|Asmpkg\\Guiche\\Plugin\\ToolRegistration",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "resultProjections": {
+                    "name": "resultProjections",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "stateManager": {
+                    "name": "stateManager",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "?Asmpkg\\Guiche\\Contracts\\StateManagerInterface",
+                    "parameters": []
+                },
+                "toolPolicy": {
+                    "name": "toolPolicy",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "?Asmpkg\\Guiche\\ToolPolicy",
+                    "parameters": []
+                },
+                "toolRegistry": {
+                    "name": "toolRegistry",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\ToolRegistry",
+                    "parameters": []
+                },
+                "useStateManager": {
+                    "name": "useStateManager",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "stateManager",
+                            "type": "Asmpkg\\Guiche\\Contracts\\StateManagerInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "useToolPolicy": {
+                    "name": "useToolPolicy",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "toolPolicy",
+                            "type": "Asmpkg\\Guiche\\ToolPolicy",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withAgentContext": {
+                    "name": "withAgentContext",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "agentContext",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withAiProvider": {
+                    "name": "withAiProvider",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "ai",
+                            "type": "?Asmpkg\\Guiche\\Contracts\\AiProviderInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withAiStateExcludePaths": {
+                    "name": "withAiStateExcludePaths",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "paths",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withAiToolResultExcludePaths": {
+                    "name": "withAiToolResultExcludePaths",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "paths",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withAiToolResultIncludePaths": {
+                    "name": "withAiToolResultIncludePaths",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "paths",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withCompletionGuards": {
+                    "name": "withCompletionGuards",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "completionGuards",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withContextStore": {
+                    "name": "withContextStore",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "context",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ContextStoreInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withHistoryMessagesLimit": {
+                    "name": "withHistoryMessagesLimit",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "limit",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withInstructions": {
+                    "name": "withInstructions",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "instructions",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withMaxToolRounds": {
+                    "name": "withMaxToolRounds",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "rounds",
+                            "type": "int",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withReusableTools": {
+                    "name": "withReusableTools",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "reusableTools",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withRuntime": {
+                    "name": "withRuntime",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "runtime",
+                            "type": "?Asmpkg\\Guiche\\RuntimeContext",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withRuntimeEventSink": {
+                    "name": "withRuntimeEventSink",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "sink",
+                            "type": "Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Observability\\JsonlRuntimeEventSink": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [
+                "Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface"
+            ],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "file",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "file": {
+                    "name": "file",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": []
+                },
+                "record": {
+                    "name": "record",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "event",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Observability\\NullRuntimeEventSink": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [
+                "Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface"
+            ],
+            "methods": {
+                "record": {
+                    "name": "record",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "void",
+                    "parameters": [
+                        {
+                            "name": "event",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Plugin\\ToolRegistration": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "tool",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ToolInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "metadata",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                },
+                "definition": {
+                    "name": "definition",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "metadata": {
+                    "name": "metadata",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "name": {
+                    "name": "name",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": []
+                },
+                "tool": {
+                    "name": "tool",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Contracts\\ToolInterface",
+                    "parameters": []
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\PresenterRegistry": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "all": {
+                    "name": "all",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "get": {
+                    "name": "get",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Contracts\\ResultPresenterInterface",
+                    "parameters": [
+                        {
+                            "name": "toolName",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "has": {
+                    "name": "has",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "bool",
+                    "parameters": [
+                        {
+                            "name": "toolName",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "names": {
+                    "name": "names",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "present": {
+                    "name": "present",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "?string",
+                    "parameters": [
+                        {
+                            "name": "toolName",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "result",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "register": {
+                    "name": "register",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "toolName",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "presenter",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ResultPresenterInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\RuntimeContext": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "timezone",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": "America/Manaus"
+                        }
+                    ]
+                },
+                "current": {
+                    "name": "current",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Safety\\ToolBlockedException": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": "RuntimeException",
+            "interfaces": [
+                "Stringable",
+                "Throwable"
+            ],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "reasonCode",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "message",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "details",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "previous",
+                            "type": "?Throwable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        }
+                    ]
+                },
+                "details": {
+                    "name": "details",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "reasonCode": {
+                    "name": "reasonCode",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": []
+                },
+                "toArray": {
+                    "name": "toArray",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "tool": {
+                    "name": "tool",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": []
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\ToolPolicy": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "stages",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "defaultTools",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "bootstrapTools",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        },
+                        {
+                            "name": "contextPath",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": "state.stage"
+                        }
+                    ]
+                },
+                "allowedToolNames": {
+                    "name": "allowedToolNames",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "context",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "allows": {
+                    "name": "allows",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "bool",
+                    "parameters": [
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "context",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "filterDefinitions": {
+                    "name": "filterDefinitions",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "definitions",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "context",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\ToolRegistry": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "definitions": {
+                    "name": "definitions",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "execute": {
+                    "name": "execute",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "arguments",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                },
+                "get": {
+                    "name": "get",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Contracts\\ToolInterface",
+                    "parameters": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "has": {
+                    "name": "has",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "bool",
+                    "parameters": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "metadata": {
+                    "name": "metadata",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "names": {
+                    "name": "names",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "register": {
+                    "name": "register",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "tool",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ToolInterface|Asmpkg\\Guiche\\Plugin\\ToolRegistration",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "registration": {
+                    "name": "registration",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Plugin\\ToolRegistration",
+                    "parameters": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "registrations": {
+                    "name": "registrations",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                }
+            },
+            "properties": [],
+            "constants": []
+        }
+    }
+}

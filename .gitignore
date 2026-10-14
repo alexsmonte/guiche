@@ -51,3 +51,9 @@ docs/*
 !examples/neutral-plugin/
 !examples/neutral-plugin/README.md
 # END GUICHE PUBLIC PACKAGE FILES
+/.env.local
+/.env.production
+/.env.development
+/.env.test
+
+/dist/

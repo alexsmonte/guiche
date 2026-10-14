@@ -1,0 +1,807 @@
+{
+    "schema_version": 1,
+    "provider_builder_method": "withAiProvider",
+    "register_tool_mode": "tool_registration",
+    "symbols": {
+        "Asmpkg\\Guiche\\Contracts\\ToolInterface": {
+            "description": {
+                "name": "description",
+                "return_type": "string",
+                "parameters": []
+            },
+            "execute": {
+                "name": "execute",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "arguments",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "name": {
+                "name": "name",
+                "return_type": "string",
+                "parameters": []
+            },
+            "parameters": {
+                "name": "parameters",
+                "return_type": "array",
+                "parameters": []
+            }
+        },
+        "Asmpkg\\Guiche\\Contracts\\PluginInterface": {
+            "register": {
+                "name": "register",
+                "return_type": "void",
+                "parameters": [
+                    {
+                        "name": "builder",
+                        "type": "Asmpkg\\Guiche\\GuicheBuilder",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            }
+        },
+        "Asmpkg\\Guiche\\Contracts\\ContextStoreInterface": {
+            "addMessage": {
+                "name": "addMessage",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "role",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "content",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "addToolExecution": {
+                "name": "addToolExecution",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "tool",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "arguments",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "result",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "applyPatch": {
+                "name": "applyPatch",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "patch",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "delete": {
+                "name": "delete",
+                "return_type": "void",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "findSuccessfulToolResult": {
+                "name": "findSuccessfulToolResult",
+                "return_type": "?array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "tool",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "arguments",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "load": {
+                "name": "load",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "mergeState": {
+                "name": "mergeState",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "state",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "recordInteractionUsage": {
+                "name": "recordInteractionUsage",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "usage",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "save": {
+                "name": "save",
+                "return_type": "void",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "context",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "setIntent": {
+                "name": "setIntent",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "intent",
+                        "type": "?string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "toolFingerprint": {
+                "name": "toolFingerprint",
+                "return_type": "string",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "tool",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "arguments",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            }
+        },
+        "Asmpkg\\Guiche\\Contracts\\AiProviderInterface": {
+            "continueWithToolOutputs": {
+                "name": "continueWithToolOutputs",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "previousResponseId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "instructions",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "toolOutputs",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "tools",
+                        "type": "array",
+                        "optional": true,
+                        "variadic": false
+                    }
+                ]
+            },
+            "respond": {
+                "name": "respond",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "instructions",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "messages",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "tools",
+                        "type": "array",
+                        "optional": true,
+                        "variadic": false
+                    }
+                ]
+            }
+        },
+        "Asmpkg\\Guiche\\GuicheBuilder": {
+            "addInstructionFragment": {
+                "name": "addInstructionFragment",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "fragment",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "build": {
+                "name": "build",
+                "return_type": "Asmpkg\\Guiche\\Guiche",
+                "parameters": []
+            },
+            "completionGuards": {
+                "name": "completionGuards",
+                "return_type": "array",
+                "parameters": []
+            },
+            "instructionFragments": {
+                "name": "instructionFragments",
+                "return_type": "array",
+                "parameters": []
+            },
+            "plugins": {
+                "name": "plugins",
+                "return_type": "array",
+                "parameters": []
+            },
+            "policies": {
+                "name": "policies",
+                "return_type": "array",
+                "parameters": []
+            },
+            "presenterRegistry": {
+                "name": "presenterRegistry",
+                "return_type": "Asmpkg\\Guiche\\PresenterRegistry",
+                "parameters": []
+            },
+            "registerCompletionGuard": {
+                "name": "registerCompletionGuard",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "definition",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "registerPlugin": {
+                "name": "registerPlugin",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "plugin",
+                        "type": "Asmpkg\\Guiche\\Contracts\\PluginInterface",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "registerPolicy": {
+                "name": "registerPolicy",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "definition",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "registerPresenter": {
+                "name": "registerPresenter",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "toolName",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "presenter",
+                        "type": "Asmpkg\\Guiche\\Contracts\\ResultPresenterInterface",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "registerResultProjection": {
+                "name": "registerResultProjection",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "toolName",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "definition",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "registerTool": {
+                "name": "registerTool",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "tool",
+                        "type": "Asmpkg\\Guiche\\Contracts\\ToolInterface|Asmpkg\\Guiche\\Plugin\\ToolRegistration",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "resultProjections": {
+                "name": "resultProjections",
+                "return_type": "array",
+                "parameters": []
+            },
+            "stateManager": {
+                "name": "stateManager",
+                "return_type": "?Asmpkg\\Guiche\\Contracts\\StateManagerInterface",
+                "parameters": []
+            },
+            "toolPolicy": {
+                "name": "toolPolicy",
+                "return_type": "?Asmpkg\\Guiche\\ToolPolicy",
+                "parameters": []
+            },
+            "toolRegistry": {
+                "name": "toolRegistry",
+                "return_type": "Asmpkg\\Guiche\\ToolRegistry",
+                "parameters": []
+            },
+            "useStateManager": {
+                "name": "useStateManager",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "stateManager",
+                        "type": "Asmpkg\\Guiche\\Contracts\\StateManagerInterface",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "useToolPolicy": {
+                "name": "useToolPolicy",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "toolPolicy",
+                        "type": "Asmpkg\\Guiche\\ToolPolicy",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withAgentContext": {
+                "name": "withAgentContext",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "agentContext",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withAiProvider": {
+                "name": "withAiProvider",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "ai",
+                        "type": "?Asmpkg\\Guiche\\Contracts\\AiProviderInterface",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withAiStateExcludePaths": {
+                "name": "withAiStateExcludePaths",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "paths",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withAiToolResultExcludePaths": {
+                "name": "withAiToolResultExcludePaths",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "paths",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withAiToolResultIncludePaths": {
+                "name": "withAiToolResultIncludePaths",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "paths",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withCompletionGuards": {
+                "name": "withCompletionGuards",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "completionGuards",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withContextStore": {
+                "name": "withContextStore",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "context",
+                        "type": "Asmpkg\\Guiche\\Contracts\\ContextStoreInterface",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withHistoryMessagesLimit": {
+                "name": "withHistoryMessagesLimit",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "type": "int",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withInstructions": {
+                "name": "withInstructions",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "instructions",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withMaxToolRounds": {
+                "name": "withMaxToolRounds",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "rounds",
+                        "type": "int",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withReusableTools": {
+                "name": "withReusableTools",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "reusableTools",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withRuntime": {
+                "name": "withRuntime",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "runtime",
+                        "type": "?Asmpkg\\Guiche\\RuntimeContext",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "withRuntimeEventSink": {
+                "name": "withRuntimeEventSink",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "sink",
+                        "type": "Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            }
+        },
+        "Asmpkg\\Guiche\\Plugin\\ToolRegistration": {
+            "definition": {
+                "name": "definition",
+                "return_type": "array",
+                "parameters": []
+            },
+            "metadata": {
+                "name": "metadata",
+                "return_type": "array",
+                "parameters": []
+            },
+            "name": {
+                "name": "name",
+                "return_type": "string",
+                "parameters": []
+            },
+            "tool": {
+                "name": "tool",
+                "return_type": "Asmpkg\\Guiche\\Contracts\\ToolInterface",
+                "parameters": []
+            }
+        },
+        "Asmpkg\\Guiche\\Guiche": {
+            "context": {
+                "name": "context",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "executeTool": {
+                "name": "executeTool",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "arguments",
+                        "type": "array",
+                        "optional": true,
+                        "variadic": false
+                    },
+                    {
+                        "name": "sessionId",
+                        "type": "?string",
+                        "optional": true,
+                        "variadic": false
+                    }
+                ]
+            },
+            "handle": {
+                "name": "handle",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "message",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "reset": {
+                "name": "reset",
+                "return_type": "void",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "setToolPolicy": {
+                "name": "setToolPolicy",
+                "return_type": "self",
+                "parameters": [
+                    {
+                        "name": "toolPolicy",
+                        "type": "?Asmpkg\\Guiche\\ToolPolicy",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "stateForAi": {
+                "name": "stateForAi",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "state",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "toolResultForAi": {
+                "name": "toolResultForAi",
+                "return_type": "array",
+                "parameters": [
+                    {
+                        "name": "tool",
+                        "type": "string",
+                        "optional": false,
+                        "variadic": false
+                    },
+                    {
+                        "name": "result",
+                        "type": "array",
+                        "optional": false,
+                        "variadic": false
+                    }
+                ]
+            },
+            "tools": {
+                "name": "tools",
+                "return_type": "array",
+                "parameters": []
+            }
+        }
+    }
+}

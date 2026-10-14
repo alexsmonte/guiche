@@ -30,11 +30,13 @@
             "@test",
             "@analyse",
             "@coverage",
-            "@test:legacy"
+            "@test:legacy",
+            "@check-api-bc"
         ],
         "analyse": "phpstan analyse --configuration=phpstan.neon --no-progress",
         "coverage": "@php tools/run-coverage.php",
-        "coverage:check": "@php tools/check-coverage.php coverage/clover.xml 70.00"
+        "coverage:check": "@php tools/check-coverage.php coverage/clover.xml 70.00",
+        "check-api-bc": "@php tools/check-api-bc.php"
     },
     "keywords": [
         "ai",
@@ -51,12 +53,30 @@
     },
     "archive": {
         "exclude": [
-            "/storage/",
-            "/coverage/",
+            "/.env",
+            "/.env.development",
+            "/.env.local",
+            "/.env.production",
+            "/.env.test",
+            "/.gitattributes",
+            "/.github",
+            "/.gitignore",
             "/.phpunit.cache/",
             "/.phpunit.result.cache",
-            "/vendor/",
-            "/guiche-v*.sh"
+            "/api",
+            "/bin",
+            "/composer.lock",
+            "/coverage/",
+            "/dist",
+            "/docs/audits",
+            "/guiche-v*.sh",
+            "/phpstan.neon",
+            "/phpunit.xml.dist",
+            "/storage",
+            "/storage/",
+            "/tests",
+            "/tools",
+            "/vendor/"
         ]
     },
     "license": "MIT"
