@@ -57,5 +57,6 @@
             "/vendor/",
             "/guiche-v*.sh"
         ]
-    }
+    },
+    "license": "MIT"
 }
