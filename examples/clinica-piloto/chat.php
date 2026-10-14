@@ -80,9 +80,12 @@ function printDebugEvents(array $events): void
 
 loadEnvFile(dirname(__DIR__, 2) . '/.env');
 
-$coreConfig = require dirname(__DIR__) . '/config/guiche.php';
+$coreConfig = require dirname(__DIR__, 2) . '/config/guiche.php';
 $pilotConfig = require __DIR__ . '/config/clinic.php';
 $prompt = require __DIR__ . '/config/prompt.php';
+
+$config = array_replace_recursive($coreConfig, $pilotConfig);
+$modeLabel = strtoupper(ClinicalAdapterFactory::mode($config));
 
 $sql = ClinicalAdapterFactory::sql($config);
 
@@ -137,9 +140,9 @@ echo "==================================================" . PHP_EOL;
 echo " GUICHÊ - ETAPA 05I / APRESENTAÇÃO DETERMINÍSTICA" . PHP_EOL;
 echo "==================================================" . PHP_EOL;
 echo "Sessão: {$sessionId}" . PHP_EOL;
-echo "DisponibilidadeConvenios: REAL" . PHP_EOL;
-echo "ConsultarProfissional: REAL" . PHP_EOL;
-echo "ConsultarHorarios: REAL / {$pilotConfig['horarios_por_data']} horários por data" . PHP_EOL;
+echo "DisponibilidadeConvenios: {$modeLabel}" . PHP_EOL;
+echo "ConsultarProfissional: {$modeLabel}" . PHP_EOL;
+echo "ConsultarHorarios: {$modeLabel} / {$pilotConfig['horarios_por_data']} horários por data" . PHP_EOL;
 echo "Timezone: {$coreConfig['timezone']}" . PHP_EOL;
 echo "Histórico enviado à IA: últimas {$coreConfig['history_messages_limit']} mensagens" . PHP_EOL;
 echo "State enviado à IA: compactado (estado completo permanece salvo)" . PHP_EOL;

@@ -4,6 +4,15 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.0.1] - 2026-10-14
+
+### Fixed
+
+- Corrige o caminho do `config/guiche.php` no entrypoint `examples/clinica-piloto/chat.php`.
+- Combina corretamente a configuração do Core com a configuração clínica antes de criar os adapters.
+- Exibe `FAKE` ou `REAL` no banner do CLI de acordo com o adapter efetivamente selecionado.
+- Adiciona teste de regressão que executa o chat clínico em Fake Mode e valida sua inicialização.
+
 ## [1.0.0] - 2026-10-14
 
 ### Added
