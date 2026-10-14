@@ -78,8 +78,10 @@ jobs:
           grep -Fxq "README.md" "${RUNNER_TEMP}/guiche-package.txt"
           grep -Fxq "src/Guiche.php" "${RUNNER_TEMP}/guiche-package.txt"
           grep -Fxq "docs/external-consumer.md" "${RUNNER_TEMP}/guiche-package.txt"
+          grep -Fxq ".env.example" "${RUNNER_TEMP}/guiche-package.txt"
+          grep -Fxq "examples/clinica-piloto/.env.example" "${RUNNER_TEMP}/guiche-package.txt"
 
-          if grep -E '(^|/)(\.env(\.(local|production|development|test))?|storage/|tests/|tools/|vendor/|docs/audits/)' "${RUNNER_TEMP}/guiche-package.txt"; then
+          if grep -E '(^|/)\.env$|(^|/)\.env\.(local|production|development|test)$|(^|/)(storage|tests|tools|vendor|docs/audits)/' "${RUNNER_TEMP}/guiche-package.txt"; then
             echo "Sensitive/development content leaked into Composer archive." >&2
             exit 1
           fi

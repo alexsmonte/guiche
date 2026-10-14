@@ -186,7 +186,7 @@ function guicheApiTypeNames(?ReflectionType $type, ?ReflectionClass $context = n
     return [];
 }
 
-function guicheApiTypeString(?ReflectionType $type): ?string
+function guicheApiTypeString(?ReflectionType $type, ?ReflectionClass $context = null): ?string
 {
     if ($type === null) {
         return null;
@@ -194,15 +194,36 @@ function guicheApiTypeString(?ReflectionType $type): ?string
 
     if ($type instanceof ReflectionNamedType) {
         $name = $type->getName();
+
+        /*
+         * PHP 8.5 passou a resolver "self" para o FQCN em ReflectionNamedType.
+         * Para classes finais, FQCN da própria classe e "self" são equivalentes
+         * para a superfície pública; canonizamos para preservar o snapshot entre
+         * PHP 8.4 e 8.5 sem mascarar tipos explícitos em classes extensíveis.
+         */
+        if (
+            $context !== null
+            && $context->isFinal()
+            && $name === $context->getName()
+        ) {
+            $name = 'self';
+        }
+
         return ($type->allowsNull() && $name !== 'mixed' && $name !== 'null' ? '?' : '') . $name;
     }
 
     if ($type instanceof ReflectionUnionType) {
-        return implode('|', array_map(static fn(ReflectionType $t): string => guicheApiTypeString($t) ?? '', $type->getTypes()));
+        return implode('|', array_map(
+            static fn(ReflectionType $t): string => guicheApiTypeString($t, $context) ?? '',
+            $type->getTypes()
+        ));
     }
 
     if ($type instanceof ReflectionIntersectionType) {
-        return implode('&', array_map(static fn(ReflectionType $t): string => guicheApiTypeString($t) ?? '', $type->getTypes()));
+        return implode('&', array_map(
+            static fn(ReflectionType $t): string => guicheApiTypeString($t, $context) ?? '',
+            $type->getTypes()
+        ));
     }
 
     return (string)$type;
@@ -399,11 +420,12 @@ function guicheApiValidateStabilityMap(array $map): array
 
 function guicheApiMethodSnapshot(ReflectionMethod $method): array
 {
+    $context = $method->getDeclaringClass();
     $parameters = [];
     foreach ($method->getParameters() as $parameter) {
         $row = [
             'name' => $parameter->getName(),
-            'type' => guicheApiTypeString($parameter->getType()),
+            'type' => guicheApiTypeString($parameter->getType(), $context),
             'by_reference' => $parameter->isPassedByReference(),
             'variadic' => $parameter->isVariadic(),
             'optional' => $parameter->isOptional(),
@@ -427,7 +449,7 @@ function guicheApiMethodSnapshot(ReflectionMethod $method): array
         'final' => $method->isFinal(),
         'abstract' => $method->isAbstract(),
         'returns_reference' => $method->returnsReference(),
-        'return_type' => guicheApiTypeString($method->getReturnType()),
+        'return_type' => guicheApiTypeString($method->getReturnType(), $context),
         'parameters' => $parameters,
     ];
 }
@@ -454,7 +476,7 @@ function guicheApiSymbolSnapshot(string $symbol): array
             'name' => $property->getName(),
             'static' => $property->isStatic(),
             'readonly' => method_exists($property, 'isReadOnly') ? $property->isReadOnly() : false,
-            'type' => guicheApiTypeString($property->getType()),
+            'type' => guicheApiTypeString($property->getType(), $r),
             'has_default' => $property->hasDefaultValue(),
             'default' => $property->hasDefaultValue() ? guicheApiNormalizeValue($property->getDefaultValue()) : null,
         ];
