@@ -15,6 +15,8 @@ use InvalidArgumentException;
 use LogicException;
 use Throwable;
 
+use Asmpkg\Guiche\Contracts\ContextStoreInterface;
+use Asmpkg\Guiche\Contracts\RuntimeEventSinkInterface;
 /**
  * Compositor oficial do runtime Guichê.
  *
@@ -34,7 +36,8 @@ final class GuicheBuilder
     private ToolRegistry $tools;
     private PresenterRegistry $presenters;
 
-    private ?ContextStore $context = null;
+    private ?ContextStoreInterface $context = null;
+    private ?RuntimeEventSinkInterface $runtimeEventSink = null;
     private ?AiProviderInterface $ai = null;
     private ?RuntimeContext $runtime = null;
     private ?StateManagerInterface $stateManager = null;
@@ -262,7 +265,15 @@ final class GuicheBuilder
         return $this;
     }
 
-    public function withContextStore(ContextStore $context): self
+    public function withRuntimeEventSink(
+        RuntimeEventSinkInterface $sink
+    ): self {
+        $this->runtimeEventSink = $sink;
+
+        return $this;
+    }
+
+    public function withContextStore(ContextStoreInterface $context): self
     {
         $this->context = $context;
 
@@ -414,7 +425,8 @@ final class GuicheBuilder
                 $this->compiledToolResultExcludePaths(),
             maxToolRounds: $this->maxToolRounds,
             aiToolResultIncludePaths:
-                $this->compiledToolResultIncludePaths()
+                $this->compiledToolResultIncludePaths(),
+            eventSink: $this->runtimeEventSink
         );
 
         if ($this->toolPolicy !== null) {
