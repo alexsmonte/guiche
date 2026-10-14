@@ -29,6 +29,9 @@ use RuntimeException;
  */
 final class ClinicalPlugin implements PluginInterface
 {
+    /**
+     * @param array<mixed> $config
+     */
     public function __construct(
         private readonly SqlExecutorInterface $sql,
         private readonly array $config,
@@ -222,6 +225,9 @@ final class ClinicalPlugin implements PluginInterface
         );
     }
 
+    /**
+     * @param array<mixed> $policy
+     */
     private function createToolPolicy(
         array $policy
     ): ToolPolicy {
@@ -279,12 +285,6 @@ final class ClinicalPlugin implements PluginInterface
         $instance = $reflection->newInstanceArgs(
             $arguments
         );
-
-        if (!$instance instanceof ToolPolicy) {
-            throw new RuntimeException(
-                'Não foi possível criar ToolPolicy clínica.'
-            );
-        }
 
         return $instance;
     }
@@ -404,6 +404,9 @@ final class ClinicalPlugin implements PluginInterface
         }
     }
 
+    /**
+     * @param array<mixed> $procedures
+     */
     private function procedure(
         array $procedures,
         string $key,

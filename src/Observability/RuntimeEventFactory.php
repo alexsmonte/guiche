@@ -12,6 +12,10 @@ final class RuntimeEventFactory
 {
     private const SCHEMA_VERSION = 1;
 
+    /**
+     * @param array<mixed> $legacyEvent
+     * @return array<mixed>
+     */
     public static function fromLegacy(
         string $sessionId,
         string $interactionId,
@@ -58,6 +62,10 @@ final class RuntimeEventFactory
         return $event;
     }
 
+    /**
+     * @param array<mixed> $legacyEvent
+     * @return array<mixed>
+     */
     private static function attributes(
         array $legacyEvent
     ): array {

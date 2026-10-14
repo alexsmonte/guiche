@@ -22,6 +22,10 @@ final readonly class ScheduledEvent
         'indeterminate',
     ];
 
+    /**
+     * @param array<mixed> $payload
+     * @param array<mixed> $requiredState
+     */
     public function __construct(
         public string $eventId,
         public string $conversationKey,
@@ -125,6 +129,10 @@ final readonly class ScheduledEvent
         }
     }
 
+    /**
+     * @param array<mixed> $payload
+     * @param array<mixed> $requiredState
+     */
     public static function pending(
         string $conversationKey,
         string $type,
@@ -150,6 +158,9 @@ final readonly class ScheduledEvent
         );
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         try {
@@ -174,22 +185,18 @@ final readonly class ScheduledEvent
                 ),
                 dedupeHash:
                     isset($data['dedupe_hash'])
-                    && $data['dedupe_hash'] !== null
                         ? (string) $data['dedupe_hash']
                         : null,
                 leaseOwner:
                     isset($data['lease_owner'])
-                    && $data['lease_owner'] !== null
                         ? (string) $data['lease_owner']
                         : null,
                 leaseToken:
                     isset($data['lease_token'])
-                    && $data['lease_token'] !== null
                         ? (string) $data['lease_token']
                         : null,
                 leaseUntil:
                     isset($data['lease_until'])
-                    && $data['lease_until'] !== null
                         ? new DateTimeImmutable(
                             (string) $data['lease_until']
                         )
@@ -198,21 +205,18 @@ final readonly class ScheduledEvent
                     (int) ($data['claim_count'] ?? 0),
                 completedAt:
                     isset($data['completed_at'])
-                    && $data['completed_at'] !== null
                         ? new DateTimeImmutable(
                             (string) $data['completed_at']
                         )
                         : null,
                 cancelledAt:
                     isset($data['cancelled_at'])
-                    && $data['cancelled_at'] !== null
                         ? new DateTimeImmutable(
                             (string) $data['cancelled_at']
                         )
                         : null,
                 sequenceSnapshot:
-                    array_key_exists('sequence_snapshot', $data)
-                    && $data['sequence_snapshot'] !== null
+                    isset($data['sequence_snapshot'])
                         ? (int) $data['sequence_snapshot']
                         : null,
                 requiredState:
@@ -221,26 +225,22 @@ final readonly class ScheduledEvent
                         : [],
                 staleAt:
                     isset($data['stale_at'])
-                    && $data['stale_at'] !== null
                         ? new DateTimeImmutable(
                             (string) $data['stale_at']
                         )
                         : null,
                 staleReason:
                     isset($data['stale_reason'])
-                    && $data['stale_reason'] !== null
                         ? (string) $data['stale_reason']
                         : null,
                 indeterminateAt:
                     isset($data['indeterminate_at'])
-                    && $data['indeterminate_at'] !== null
                         ? new DateTimeImmutable(
                             (string) $data['indeterminate_at']
                         )
                         : null,
                 failureClass:
                     isset($data['failure_class'])
-                    && $data['failure_class'] !== null
                         ? (string) $data['failure_class']
                         : null
             );
@@ -257,6 +257,9 @@ final readonly class ScheduledEvent
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function toArray(): array
     {
         return [

@@ -689,6 +689,9 @@ final class JsonScheduledEventStore
         }
     }
 
+    /**
+     * @param array<mixed> $state
+     */
     private function requireEvent(
         array $state,
         string $eventId
@@ -712,6 +715,9 @@ final class JsonScheduledEventStore
         return ScheduledEvent::fromArray($data);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function readShared(): array
     {
         $lock = $this->openLock();
@@ -730,6 +736,9 @@ final class JsonScheduledEventStore
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function mutate(callable $mutation): array
     {
         $lock = $this->openLock();
@@ -759,6 +768,9 @@ final class JsonScheduledEventStore
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function readUnlocked(): array
     {
         if (!is_file($this->dataPath)) {
@@ -822,6 +834,9 @@ final class JsonScheduledEventStore
         return $state;
     }
 
+    /**
+     * @param array<mixed> $state
+     */
     private function writeUnlocked(
         array $state
     ): void {
@@ -926,6 +941,9 @@ final class JsonScheduledEventStore
         return $handle;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function emptyState(): array
     {
         return [

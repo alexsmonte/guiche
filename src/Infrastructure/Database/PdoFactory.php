@@ -10,6 +10,9 @@ use Throwable;
 
 final class PdoFactory
 {
+    /**
+     * @param array<mixed> $config
+     */
     public static function fromConfig(array $config): PDO
     {
         $driver = trim(
@@ -57,6 +60,9 @@ final class PdoFactory
         }
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     private static function buildDsn(
         string $driver,
         array $config
@@ -69,6 +75,9 @@ final class PdoFactory
         };
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     private static function mysqlDsn(
         array $config
     ): string {

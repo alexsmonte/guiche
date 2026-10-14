@@ -59,6 +59,9 @@ final class PresenterRegistry
         return $this->presenters[$toolName];
     }
 
+    /**
+     * @param array<mixed> $result
+     */
     public function present(string $toolName, array $result): ?string
     {
         if (!$this->has($toolName)) {
@@ -68,6 +71,9 @@ final class PresenterRegistry
         return $this->presenters[$toolName]->present($result);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function names(): array
     {
         return array_keys($this->presenters);

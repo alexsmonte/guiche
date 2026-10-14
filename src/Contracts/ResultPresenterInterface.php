@@ -11,5 +11,8 @@ namespace Asmpkg\Guiche\Contracts;
  */
 interface ResultPresenterInterface
 {
+    /**
+     * @param array<mixed> $result
+     */
     public function present(array $result): ?string;
 }

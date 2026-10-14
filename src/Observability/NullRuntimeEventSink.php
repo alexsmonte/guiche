@@ -8,6 +8,9 @@ use Asmpkg\Guiche\Contracts\RuntimeEventSinkInterface;
 
 final class NullRuntimeEventSink implements RuntimeEventSinkInterface
 {
+    /**
+     * @param array<mixed> $event
+     */
     public function record(array $event): void
     {
         // Intencionalmente vazio.

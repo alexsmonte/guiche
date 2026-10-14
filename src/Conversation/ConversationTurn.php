@@ -8,6 +8,10 @@ use InvalidArgumentException;
 
 final readonly class ConversationTurn
 {
+    /**
+     * @param array<mixed> $eventIds
+     * @param array<mixed> $events
+     */
     public function __construct(
         public string $turnId,
         public string $conversationKey,

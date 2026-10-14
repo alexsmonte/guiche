@@ -39,6 +39,9 @@ final class ToolSafetyMetadata
     public const OPERATION_WRITE = 'write';
     public const OPERATION_UNKNOWN = 'unknown';
 
+    /**
+     * @param array<mixed> $metadata
+     */
     public static function operation(array $metadata): string
     {
         $raw = strtolower(trim((string)(
@@ -69,18 +72,28 @@ final class ToolSafetyMetadata
         return self::OPERATION_UNKNOWN;
     }
 
+    /**
+     * @param array<mixed> $metadata
+     */
     public static function isRead(array $metadata): bool
     {
         return self::operation($metadata)
             === self::OPERATION_READ;
     }
 
+    /**
+     * @param array<mixed> $metadata
+     */
     public static function isWrite(array $metadata): bool
     {
         return self::operation($metadata)
             === self::OPERATION_WRITE;
     }
 
+    /**
+     * @param array<mixed> $metadata
+     * @return array<mixed>
+     */
     public static function allowedStages(array $metadata): array
     {
         $stages = $metadata['allowed_stages'] ?? [];
@@ -100,6 +113,9 @@ final class ToolSafetyMetadata
         )));
     }
 
+    /**
+     * @param array<mixed> $metadata
+     */
     public static function stagePath(array $metadata): ?string
     {
         $path = trim((string)($metadata['stage_path'] ?? ''));
@@ -109,6 +125,10 @@ final class ToolSafetyMetadata
             : null;
     }
 
+    /**
+     * @param array<mixed> $metadata
+     * @return array<mixed>
+     */
     public static function requiredState(array $metadata): array
     {
         return self::normalizeStateConditions(
@@ -116,6 +136,10 @@ final class ToolSafetyMetadata
         );
     }
 
+    /**
+     * @param array<mixed> $metadata
+     * @return array<mixed>
+     */
     public static function forbiddenState(array $metadata): array
     {
         return self::normalizeStateConditions(
@@ -123,6 +147,10 @@ final class ToolSafetyMetadata
         );
     }
 
+    /**
+     * @param array<mixed> $metadata
+     * @return array<mixed>|null
+     */
     public static function confirmation(array $metadata): ?array
     {
         $definition = $metadata['confirmation']
@@ -170,6 +198,9 @@ final class ToolSafetyMetadata
         ];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private static function normalizeStateConditions(
         mixed $definition
     ): array {

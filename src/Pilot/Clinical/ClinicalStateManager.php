@@ -9,6 +9,10 @@ use DateTimeImmutable;
 
 final class ClinicalStateManager implements StateManagerInterface
 {
+    /**
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
     public function onUserMessage(array $context, string $message): array
     {
         $state = $context['state'] ?? [];
@@ -94,6 +98,12 @@ final class ClinicalStateManager implements StateManagerInterface
         return $this->cleanPatch($patch);
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     public function onToolResult(
         array $context,
         string $tool,
@@ -139,6 +149,12 @@ final class ClinicalStateManager implements StateManagerInterface
         };
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     private function afterBooking(
         array $context,
         array $arguments,
@@ -164,6 +180,12 @@ final class ClinicalStateManager implements StateManagerInterface
         ]);
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     private function afterPatient(
         array $context,
         array $arguments,
@@ -233,6 +255,12 @@ final class ClinicalStateManager implements StateManagerInterface
         return $this->cleanPatch($patch);
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     private function afterAvailability(
         array $context,
         array $arguments,
@@ -281,6 +309,12 @@ final class ClinicalStateManager implements StateManagerInterface
         return $patch;
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     private function afterProfessional(
         array $context,
         array $arguments,
@@ -329,6 +363,12 @@ final class ClinicalStateManager implements StateManagerInterface
         return $patch;
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     private function afterSchedules(
         array $context,
         array $arguments,
@@ -548,6 +588,10 @@ final class ClinicalStateManager implements StateManagerInterface
     }
 
 
+    /**
+     * @param array<mixed> $available
+     * @return array<mixed>
+     */
     private function findTimeMatches(
         string $time,
         array $available
@@ -563,6 +607,10 @@ final class ClinicalStateManager implements StateManagerInterface
         return $matches;
     }
 
+    /**
+     * @param array<mixed> $matches
+     * @return array<mixed>
+     */
     private function uniqueDateCandidates(array $matches): array
     {
         $dates = [];
@@ -589,6 +637,9 @@ final class ClinicalStateManager implements StateManagerInterface
         return array_values($dates);
     }
 
+    /**
+     * @param array<mixed> $candidates
+     */
     private function resolveCandidateDate(
         string $message,
         array $candidates
@@ -614,7 +665,6 @@ final class ClinicalStateManager implements StateManagerInterface
             $day = (int) $matches[1];
             $month = (int) $matches[2];
             $year = isset($matches[3])
-                && $matches[3] !== ''
                 ? (int) $matches[3]
                 : null;
         } elseif (
@@ -737,6 +787,10 @@ final class ClinicalStateManager implements StateManagerInterface
         );
     }
 
+    /**
+     * @param array<mixed> $patch
+     * @return array<mixed>
+     */
     private function cleanPatch(array $patch): array
     {
         $patch['unset_state'] = array_values(
@@ -756,6 +810,9 @@ final class ClinicalStateManager implements StateManagerInterface
         return $patch;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function downstreamStateKeys(): array
     {
         return [

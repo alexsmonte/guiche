@@ -17,6 +17,9 @@ final class PdoSqlExecutor implements SqlExecutorInterface
     ) {
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     public function fetchAll(
         string $sql,
         array $parameters = []
@@ -34,9 +37,7 @@ final class PdoSqlExecutor implements SqlExecutorInterface
             // a próxima consulta não resulte em "commands out of sync".
             $this->drainRowsets($statement);
 
-            return is_array($rows)
-                ? $rows
-                : [];
+            return $rows;
         } catch (Throwable $exception) {
             throw new RuntimeException(
                 'Erro ao executar consulta SQL: '
@@ -47,6 +48,9 @@ final class PdoSqlExecutor implements SqlExecutorInterface
         }
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     public function execute(
         string $sql,
         array $parameters = []
@@ -72,6 +76,9 @@ final class PdoSqlExecutor implements SqlExecutorInterface
         }
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     private function prepareAndExecute(
         string $sql,
         array $parameters

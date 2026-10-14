@@ -20,6 +20,11 @@ final class OpenAiResponsesProvider implements AiProviderInterface
         }
     }
 
+    /**
+     * @param array<mixed> $messages
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     public function respond(string $instructions, array $messages, array $tools = []): array
     {
         $payload = [
@@ -35,6 +40,11 @@ final class OpenAiResponsesProvider implements AiProviderInterface
         );
     }
 
+    /**
+     * @param array<mixed> $toolOutputs
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     public function continueWithToolOutputs(
         string $previousResponseId,
         string $instructions,
@@ -68,6 +78,10 @@ final class OpenAiResponsesProvider implements AiProviderInterface
         );
     }
 
+    /**
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
     private function normalizeTools(array $tools): array
     {
         $normalized = [];
@@ -96,6 +110,10 @@ final class OpenAiResponsesProvider implements AiProviderInterface
         return $normalized;
     }
 
+    /**
+     * @param array<mixed> $response
+     * @return array<mixed>
+     */
     private function normalizeResponse(array $response): array
     {
         $toolCalls = [];
@@ -149,6 +167,10 @@ final class OpenAiResponsesProvider implements AiProviderInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $payload
+     * @return array<mixed>
+     */
     private function request(string $path, array $payload): array
     {
         if (!extension_loaded('curl')) {
@@ -188,6 +210,14 @@ final class OpenAiResponsesProvider implements AiProviderInterface
             curl_close($ch);
 
             throw new RuntimeException('Erro HTTP/cURL ao chamar a IA: ' . $error);
+        }
+
+        if (!is_string($raw)) {
+            curl_close($ch);
+
+            throw new RuntimeException(
+                'Resposta HTTP inválida ao chamar a IA.'
+            );
         }
 
         $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);

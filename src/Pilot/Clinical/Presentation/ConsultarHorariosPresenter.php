@@ -10,6 +10,9 @@ use Asmpkg\Guiche\Contracts\ResultPresenterInterface;use DateTimeImmutable;
 
 final class ConsultarHorariosPresenter implements ResultPresenterInterface
 {
+    /**
+     * @param array<mixed> $result
+     */
     public function present(array $result): ?string
     {
         if (($result['success'] ?? false) !== true) {
@@ -99,6 +102,9 @@ final class ConsultarHorariosPresenter implements ResultPresenterInterface
         );
     }
 
+    /**
+     * @param array<mixed> $groups
+     */
     private function render(array $groups, string $heading, bool $hasMore): string
     {
         $blocks = [];
@@ -154,6 +160,9 @@ final class ConsultarHorariosPresenter implements ResultPresenterInterface
         return $message;
     }
 
+    /**
+     * @param array<mixed> $group
+     */
     private function dateLabel(array $group): string
     {
         $date = trim((string)($group['data_br'] ?? ''));
@@ -177,6 +186,9 @@ final class ConsultarHorariosPresenter implements ResultPresenterInterface
         return $date->format('d/m/Y');
     }
 
+    /**
+     * @param array<mixed> $groups
+     */
     private function hasDateInsideRange(array $groups, string $start, string $end): bool
     {
         foreach ($groups as $group) {

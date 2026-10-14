@@ -6,6 +6,7 @@ namespace Asmpkg\Guiche;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use RuntimeException;
 
 final class RuntimeContext
 {
@@ -16,6 +17,9 @@ final class RuntimeContext
         $this->timezone = new DateTimeZone($timezone);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function current(): array
     {
         $now = new DateTimeImmutable('now', $this->timezone);
@@ -43,6 +47,9 @@ final class RuntimeContext
             5 => 'sexta-feira',
             6 => 'sábado',
             7 => 'domingo',
+            default => throw new RuntimeException(
+                'Dia ISO da semana inválido.'
+            ),
         };
     }
 }

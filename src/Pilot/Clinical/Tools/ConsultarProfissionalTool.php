@@ -33,6 +33,9 @@ final class ConsultarProfissionalTool implements ToolInterface
             . 'e retorna seu identificador real.';
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parameters(): array
     {
         return [
@@ -55,6 +58,10 @@ final class ConsultarProfissionalTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(array $arguments): array
     {
         foreach (
@@ -133,6 +140,10 @@ final class ConsultarProfissionalTool implements ToolInterface
         ];
     }
 
+    /**
+     * @param array<mixed> $rows
+     * @return array<mixed>|null
+     */
     private function parseRows(array $rows): ?array
     {
         foreach ($rows as $row) {
@@ -186,6 +197,9 @@ final class ConsultarProfissionalTool implements ToolInterface
         return null;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     private function parseProfessionalString(string $value): ?array
     {
         $value = trim($value);

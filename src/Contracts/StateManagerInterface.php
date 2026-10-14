@@ -17,8 +17,18 @@ namespace Asmpkg\Guiche\Contracts;
  */
 interface StateManagerInterface
 {
+    /**
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
     public function onUserMessage(array $context, string $message): array;
 
+    /**
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
     public function onToolResult(
         array $context,
         string $tool,

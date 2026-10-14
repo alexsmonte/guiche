@@ -9,6 +9,11 @@ use RuntimeException;
 
 final class CurlHttpClient implements HttpClientInterface
 {
+    /**
+     * @param array<mixed> $data
+     * @param array<mixed> $headers
+     * @return array<mixed>
+     */
     public function postForm(
         string $url,
         array $data,
