@@ -2,6 +2,7 @@
 /.env
 
 /storage/backups/
+/storage/examples/
 /storage/conversations/*
 !/storage/conversations/.gitkeep
 /storage/logs/*
@@ -36,20 +37,20 @@ Thumbs.db
 
 # BEGIN GUICHE PUBLIC PACKAGE FILES
 # Public DX files required in releases/packages.
-!README.md
-!docs/
-docs/*
-!docs/quick-start.md
-!docs/architecture.md
-!docs/tools.md
-!docs/plugins.md
-!docs/state.md
-!docs/security.md
-!examples/
-!examples/basic/
-!examples/basic/README.md
-!examples/neutral-plugin/
-!examples/neutral-plugin/README.md
+!/README.md
+!/docs/
+/docs/*
+!/docs/quick-start.md
+!/docs/architecture.md
+!/docs/tools.md
+!/docs/plugins.md
+!/docs/state.md
+!/docs/security.md
+!/examples/
+!/examples/basic/
+!/examples/basic/README.md
+!/examples/neutral-plugin/
+!/examples/neutral-plugin/README.md
 # END GUICHE PUBLIC PACKAGE FILES
 /.env.local
 /.env.production
