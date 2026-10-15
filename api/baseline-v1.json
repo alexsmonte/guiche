@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "23d6746a301b8b9bd0f30150a1c8a286b6d9a2fc6f175c3bd412228a5c189527",
+    "public_api_sha256": "d9fdc23b56b631a2f569c28338d451f39279a574ac4e454d309b81d5c65d8c38",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -2035,6 +2035,62 @@
                     "default": null
                 }
             },
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Execution\\ExecutionContextSeeder": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "contextStore",
+                            "type": "Asmpkg\\Guiche\\Contracts\\ContextStoreInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "seed": {
+                    "name": "seed",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "Asmpkg\\Guiche\\Execution\\ToolExecutionContext",
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "values",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
             "constants": []
         },
         "Asmpkg\\Guiche\\Execution\\ToolExecutionContext": {

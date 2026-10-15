@@ -34,6 +34,7 @@ return array (
   'Asmpkg\\Guiche\\Conversation\\ScheduledEvent' => 'public',
   'Asmpkg\\Guiche\\Conversation\\ScheduledEventRunner' => 'experimental',
   'Asmpkg\\Guiche\\Conversation\\Scheduler' => 'experimental',
+  'Asmpkg\\Guiche\\Execution\\ExecutionContextSeeder' => 'public',
   'Asmpkg\\Guiche\\Execution\\ToolExecutionContext' => 'public',
   'Asmpkg\\Guiche\\Guiche' => 'public',
   'Asmpkg\\Guiche\\GuicheBuilder' => 'public',

@@ -54,6 +54,13 @@ final class ContextStore implements ContextStoreInterface
             $sessionId,
             LOCK_EX,
             function () use ($sessionId, $context): void {
+                $current = $this->loadUnlocked($sessionId);
+                $context = $this->preserveExecutionContextBinding(
+                    $sessionId,
+                    $current,
+                    $context
+                );
+
                 $this->writeUnlocked($sessionId, $context);
             }
         );
@@ -534,6 +541,18 @@ final class ContextStore implements ContextStoreInterface
         $context['session_id'] = $sessionId;
         $context['intent'] = $context['intent'] ?? null;
 
+        if (
+            array_key_exists('execution_context', $context)
+            && !is_array($context['execution_context'])
+        ) {
+            throw new RuntimeException(
+                "execution_context inválido/corrompido para a sessão {$sessionId}."
+            );
+        }
+
+        $context['execution_context'] =
+            $context['execution_context'] ?? [];
+
         if (!is_array($context['state'] ?? null)) {
             $context['state'] = [];
         }
@@ -590,6 +609,94 @@ final class ContextStore implements ContextStoreInterface
     }
 
     /**
+     * @param array<mixed> $current
+     * @param array<mixed> $candidate
+     * @return array<mixed>
+     */
+    private function preserveExecutionContextBinding(
+        string $sessionId,
+        array $current,
+        array $candidate
+    ): array {
+        $bound = $current['execution_context'] ?? [];
+
+        if (!is_array($bound)) {
+            throw new RuntimeException(
+                "execution_context inválido/corrompido para a sessão {$sessionId}."
+            );
+        }
+
+        if ($bound === []) {
+            return $candidate;
+        }
+
+        $incoming = $candidate['execution_context'] ?? [];
+
+        if (!is_array($incoming)) {
+            throw new RuntimeException(
+                "execution_context da sessão {$sessionId} não pode ser substituído."
+            );
+        }
+
+        foreach ($bound as $key => $value) {
+            if (!array_key_exists($key, $incoming)) {
+                $incoming[$key] = $value;
+                continue;
+            }
+
+            if (!$this->executionContextValuesEqual(
+                $value,
+                $incoming[$key]
+            )) {
+                throw new RuntimeException(
+                    "execution_context da sessão {$sessionId} já está vinculado e não pode ser alterado."
+                );
+            }
+        }
+
+        $candidate['execution_context'] = $incoming;
+
+        return $candidate;
+    }
+
+    private function executionContextValuesEqual(
+        mixed $left,
+        mixed $right
+    ): bool {
+        return serialize(
+            $this->canonicalizeExecutionContextValue($left)
+        ) === serialize(
+            $this->canonicalizeExecutionContextValue($right)
+        );
+    }
+
+    private function canonicalizeExecutionContextValue(
+        mixed $value
+    ): mixed {
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        if (array_is_list($value)) {
+            foreach ($value as $index => $item) {
+                $value[$index] =
+                    $this->canonicalizeExecutionContextValue($item);
+            }
+
+            return $value;
+        }
+
+        ksort($value, SORT_STRING);
+
+        foreach ($value as $key => $item) {
+            $value[$key] =
+                $this->canonicalizeExecutionContextValue($item);
+        }
+
+        return $value;
+    }
+
+    /**
      * @return array<mixed>
      */
     private function emptyContext(string $sessionId): array
@@ -600,6 +707,7 @@ final class ContextStore implements ContextStoreInterface
             'schema_version' => self::SCHEMA_VERSION,
             'session_id' => $sessionId,
             'intent' => null,
+            'execution_context' => [],
             'state' => [],
             'messages' => [],
             'tool_history' => [],
