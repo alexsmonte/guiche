@@ -15,15 +15,6 @@ use Throwable;
 
 final class Application
 {
-    private const DEFAULT_CHAT_INSTRUCTIONS = <<<'PROMPT'
-Você é um assistente executado pelo Guichê.
-
-REGRAS
-- Responda de forma clara, objetiva e útil.
-- Não invente dados que não estejam disponíveis na conversa.
-- Quando não houver Tools registradas, responda somente com conhecimento conversacional.
-PROMPT;
-
     public function __construct(
         private readonly string $packageRoot,
         private readonly string $projectRoot,
@@ -94,6 +85,11 @@ TXT;
     {
         $source = $this->packageRoot . '/.env.example';
         $target = $this->projectRoot . '/.env';
+        $promptSource = $this->packageRoot
+            . '/resources/guiche.prompt.md';
+        $promptTarget = $this->projectRoot
+            . '/'
+            . PromptResolver::PROJECT_PROMPT_FILE;
         $storage = $this->storagePath();
 
         if (!is_file($source)) {
@@ -102,7 +98,14 @@ TXT;
             );
         }
 
+        if (!is_file($promptSource)) {
+            throw new RuntimeException(
+                'Prompt padrão do pacote não foi encontrado.'
+            );
+        }
+
         $createdEnv = false;
+        $createdPrompt = false;
 
         if (!is_file($target)) {
             if (!copy($source, $target)) {
@@ -112,6 +115,16 @@ TXT;
             }
 
             $createdEnv = true;
+        }
+
+        if (!is_file($promptTarget)) {
+            if (!copy($promptSource, $promptTarget)) {
+                throw new RuntimeException(
+                    'Não foi possível criar guiche.prompt.md.'
+                );
+            }
+
+            $createdPrompt = true;
         }
 
         if (
@@ -128,6 +141,9 @@ TXT;
         echo $createdEnv
             ? "  [OK] .env criado a partir de .env.example" . PHP_EOL
             : "  [OK] .env existente preservado" . PHP_EOL;
+        echo $createdPrompt
+            ? "  [OK] guiche.prompt.md criado" . PHP_EOL
+            : "  [OK] guiche.prompt.md existente preservado" . PHP_EOL;
         echo "  [OK] storage/conversations disponível" . PHP_EOL;
         echo PHP_EOL;
         echo "Próximo passo: configure AI_API_KEY no .env e execute:" . PHP_EOL;
@@ -437,7 +453,10 @@ TXT;
         );
         $builder->withAiProvider($provider);
         $builder->withInstructions(
-            self::DEFAULT_CHAT_INSTRUCTIONS
+            (new PromptResolver(
+                $this->packageRoot,
+                $this->projectRoot
+            ))->resolve()
         );
         $builder->withHistoryMessagesLimit(
             $historyMessagesLimit
