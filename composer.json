@@ -2,6 +2,9 @@
     "name": "asmpkg/guiche",
     "description": "Core PHP para assistentes conversacionais orientados a Tools, Plugins, estado, segurança, persistência e runtime de conversação.",
     "type": "library",
+    "bin": [
+        "cli/guiche"
+    ],
     "autoload": {
         "psr-4": {
             "Asmpkg\\Guiche\\": "src/"
