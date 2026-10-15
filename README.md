@@ -4,8 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.1.1 — DX Patch**
-
+> Versão documentada: **v1.1.1 — Stable**
 ## Requisitos
 
 - PHP `^8.4`;

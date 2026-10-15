@@ -4,6 +4,35 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.1.1] - 2026-10-15
+
+### Fixed
+
+- carregamento automático de arquivos `.env` nos entrypoints oficiais;
+- configuração pública padronizada em `AI_API_KEY` e `AI_MODEL`;
+- compatibilidade temporária com `OPENAI_API_KEY` e `OPENAI_MODEL`;
+- comandos locais do exemplo básico tratados sem envio desnecessário ao provider de IA;
+- bootstrap do exemplo clínico simplificado para usar o carregador de ambiente compartilhado.
+
+### Added
+
+- dependência runtime `vlucas/phpdotenv`;
+- `.env.example` próprio para o exemplo básico;
+- regressões automatizadas do Developer Experience para carregamento de ambiente e comandos locais.
+
+### Documentation
+
+- Quick Start e README do exemplo básico atualizados para configuração via `.env`;
+- documentação principal alinhada aos nomes genéricos `AI_API_KEY` e `AI_MODEL`.
+
+### Validation
+
+- 176 testes / 764 assertions;
+- PHPStan sem erros;
+- cobertura de linhas/statements: 76,65%;
+- `composer validate --strict`, `composer audit` e `composer check` aprovados.
+
+
 ## [1.1.0] - 2026-10-15
 
 ### Added
