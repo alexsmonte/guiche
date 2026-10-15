@@ -6,6 +6,7 @@ namespace Asmpkg\Guiche\Tests\Integration;
 
 use Asmpkg\Guiche\Cli\Application;
 use Asmpkg\Guiche\ContextStore;
+use Asmpkg\Guiche\Contracts\AiProviderInterface;
 use PHPUnit\Framework\TestCase;
 
 final class CliApplicationTest extends TestCase
@@ -28,21 +29,30 @@ final class CliApplicationTest extends TestCase
 
     public function testHelpListsPublicCommands(): void
     {
-        [$status, $output] = $this->runCli(['guiche', 'help']);
+        [$status, $output] = $this->runCli([
+            'guiche',
+            'help',
+        ]);
 
         self::assertSame(0, $status);
         self::assertStringContainsString('Guichê CLI', $output);
         self::assertStringContainsString('init', $output);
         self::assertStringContainsString('doctor', $output);
+        self::assertStringContainsString('chat', $output);
         self::assertStringContainsString('usage', $output);
     }
 
     public function testInitCreatesEnvironmentAndStorageWithoutOverwritingEnv(): void
     {
-        [$status, $output] = $this->runCli(['guiche', 'init']);
+        [$status, $output] = $this->runCli([
+            'guiche',
+            'init',
+        ]);
 
         self::assertSame(0, $status);
-        self::assertFileExists($this->projectRoot . '/.env');
+        self::assertFileExists(
+            $this->projectRoot . '/.env'
+        );
         self::assertDirectoryExists(
             $this->projectRoot . '/storage/conversations'
         );
@@ -70,7 +80,9 @@ final class CliApplicationTest extends TestCase
         self::assertSame(0, $secondStatus);
         self::assertSame(
             "CUSTOM_VALUE=preservar\n",
-            file_get_contents($this->projectRoot . '/.env')
+            file_get_contents(
+                $this->projectRoot . '/.env'
+            )
         );
         self::assertStringContainsString(
             '.env existente preservado',
@@ -122,6 +134,55 @@ final class CliApplicationTest extends TestCase
         );
     }
 
+    public function testChatBootstrapsRuntimeWithoutManualChatFile(): void
+    {
+        [$status, $output] = $this->runCli(
+            [
+                'guiche',
+                'chat',
+                '--session=bootstrap-test',
+                'Olá',
+                'Guichê',
+            ],
+            new CliFakeAiProvider()
+        );
+
+        self::assertSame(0, $status);
+        self::assertStringContainsString(
+            'Guichê: resposta fake: Olá Guichê',
+            $output
+        );
+
+        $store = new ContextStore(
+            $this->projectRoot . '/storage/conversations'
+        );
+
+        $context = $store->load(
+            'bootstrap-test'
+        );
+
+        self::assertCount(
+            2,
+            $context['messages']
+        );
+        self::assertSame(
+            'user',
+            $context['messages'][0]['role']
+        );
+        self::assertSame(
+            'Olá Guichê',
+            $context['messages'][0]['content']
+        );
+        self::assertSame(
+            'assistant',
+            $context['messages'][1]['role']
+        );
+        self::assertSame(
+            15,
+            $context['usage']['total_tokens']
+        );
+    }
+
     public function testComposerRegistersCliAsPublicBinary(): void
     {
         $root = dirname(__DIR__, 2);
@@ -138,17 +199,22 @@ final class CliApplicationTest extends TestCase
             'cli/guiche',
             $composer['bin'] ?? []
         );
-        self::assertFileExists($root . '/cli/guiche');
+        self::assertFileExists(
+            $root . '/cli/guiche'
+        );
         self::assertNotSame(
             0,
-            fileperms($root . '/cli/guiche') & 0111
+            fileperms(
+                $root . '/cli/guiche'
+            ) & 0111
         );
         self::assertNotContains(
             '/cli',
             $composer['archive']['exclude'] ?? []
         );
 
-        $map = require $root . '/api/stability-map.php';
+        $map = require $root
+            . '/api/stability-map.php';
 
         self::assertSame(
             'internal',
@@ -160,11 +226,14 @@ final class CliApplicationTest extends TestCase
      * @param array<int, string> $argv
      * @return array{0:int, 1:string}
      */
-    private function runCli(array $argv): array
-    {
+    private function runCli(
+        array $argv,
+        ?AiProviderInterface $provider = null
+    ): array {
         $application = new Application(
             dirname(__DIR__, 2),
-            $this->projectRoot
+            $this->projectRoot,
+            $provider
         );
 
         ob_start();
@@ -179,8 +248,9 @@ final class CliApplicationTest extends TestCase
         return [$status, $output];
     }
 
-    private function removeDirectory(string $directory): void
-    {
+    private function removeDirectory(
+        string $directory
+    ): void {
         if (!is_dir($directory)) {
             return;
         }
@@ -192,14 +262,21 @@ final class CliApplicationTest extends TestCase
         }
 
         foreach ($items as $item) {
-            if ($item === '.' || $item === '..') {
+            if (
+                $item === '.'
+                || $item === '..'
+            ) {
                 continue;
             }
 
-            $path = $directory . '/' . $item;
+            $path = $directory
+                . '/'
+                . $item;
 
             if (is_dir($path)) {
-                $this->removeDirectory($path);
+                $this->removeDirectory(
+                    $path
+                );
 
                 continue;
             }
@@ -208,5 +285,54 @@ final class CliApplicationTest extends TestCase
         }
 
         @rmdir($directory);
+    }
+}
+
+final class CliFakeAiProvider implements AiProviderInterface
+{
+    /**
+     * @param array<mixed> $messages
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
+    public function respond(
+        string $instructions,
+        array $messages,
+        array $tools = []
+    ): array {
+        $last = end($messages);
+        $content = is_array($last)
+            ? (string) ($last['content'] ?? '')
+            : '';
+
+        return [
+            'id' => 'resp-cli-fake',
+            'text' => 'resposta fake: ' . $content,
+            'tool_calls' => [],
+            'usage' => [
+                'input_tokens' => 10,
+                'output_tokens' => 5,
+                'total_tokens' => 15,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<mixed> $toolOutputs
+     * @param array<mixed> $tools
+     * @return array<mixed>
+     */
+    public function continueWithToolOutputs(
+        string $previousResponseId,
+        string $instructions,
+        array $toolOutputs,
+        array $tools = []
+    ): array {
+        return [
+            'id' => 'resp-cli-fake-tools',
+            'text' => 'resposta fake',
+            'tool_calls' => [],
+            'usage' => [],
+        ];
     }
 }

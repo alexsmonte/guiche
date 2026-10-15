@@ -5,14 +5,29 @@ declare(strict_types=1);
 namespace Asmpkg\Guiche\Cli;
 
 use Asmpkg\Guiche\ContextStore;
+use Asmpkg\Guiche\Contracts\AiProviderInterface;
+use Asmpkg\Guiche\Guiche;
+use Asmpkg\Guiche\GuicheBuilder;
+use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Dotenv\Dotenv;
+use RuntimeException;
 use Throwable;
 
 final class Application
 {
+    private const DEFAULT_CHAT_INSTRUCTIONS = <<<'PROMPT'
+Você é um assistente executado pelo Guichê.
+
+REGRAS
+- Responda de forma clara, objetiva e útil.
+- Não invente dados que não estejam disponíveis na conversa.
+- Quando não houver Tools registradas, responda somente com conhecimento conversacional.
+PROMPT;
+
     public function __construct(
         private readonly string $packageRoot,
-        private readonly string $projectRoot
+        private readonly string $projectRoot,
+        private readonly ?AiProviderInterface $aiProvider = null
     ) {
     }
 
@@ -29,6 +44,7 @@ final class Application
                 '', 'help', '--help', '-h' => $this->help(),
                 'init' => $this->init(),
                 'doctor' => $this->doctor(),
+                'chat' => $this->chat($arguments),
                 'usage' => $this->usage($arguments),
                 default => $this->unknown($command),
             };
@@ -54,14 +70,18 @@ Comandos:
   help                Exibe esta ajuda.
   init                Inicializa arquivos locais mínimos do projeto.
   doctor              Verifica ambiente PHP, extensões e configuração.
+  chat [mensagem]     Inicia conversa ou envia uma mensagem única.
   usage [sessão]      Exibe consumo acumulado de tokens da sessão.
 
-Opções de usage:
-  --session=<id>      Informa explicitamente a sessão.
+Opções:
+  --session=<id>      Define a sessão para chat ou usage.
 
 Exemplos:
   vendor/bin/guiche init
   vendor/bin/guiche doctor
+  vendor/bin/guiche chat
+  vendor/bin/guiche chat "Olá, tudo bem?"
+  vendor/bin/guiche chat --session=cliente-123 "Olá"
   vendor/bin/guiche usage
   vendor/bin/guiche usage --session=cliente-123
 
@@ -74,10 +94,10 @@ TXT;
     {
         $source = $this->packageRoot . '/.env.example';
         $target = $this->projectRoot . '/.env';
-        $storage = $this->projectRoot . '/storage/conversations';
+        $storage = $this->storagePath();
 
         if (!is_file($source)) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 '.env.example do pacote não foi encontrado.'
             );
         }
@@ -86,7 +106,7 @@ TXT;
 
         if (!is_file($target)) {
             if (!copy($source, $target)) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     'Não foi possível criar o arquivo .env.'
                 );
             }
@@ -99,7 +119,7 @@ TXT;
             && !mkdir($storage, 0775, true)
             && !is_dir($storage)
         ) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Não foi possível criar storage/conversations.'
             );
         }
@@ -112,6 +132,7 @@ TXT;
         echo PHP_EOL;
         echo "Próximo passo: configure AI_API_KEY no .env e execute:" . PHP_EOL;
         echo "  vendor/bin/guiche doctor" . PHP_EOL;
+        echo "  vendor/bin/guiche chat" . PHP_EOL;
 
         return 0;
     }
@@ -124,7 +145,6 @@ TXT;
         $warnings = 0;
 
         $runtimePhpVersion = (string) phpversion();
-
         $phpVersionOk = version_compare(
             $runtimePhpVersion,
             '8.4.0',
@@ -161,17 +181,16 @@ TXT;
         $this->doctorLine(
             $hasEnv ? 'OK' : 'WARN',
             '.env',
-            $hasEnv ? 'encontrado' : 'não encontrado; variáveis do processo ainda podem ser usadas'
+            $hasEnv
+                ? 'encontrado'
+                : 'não encontrado; variáveis do processo ainda podem ser usadas'
         );
 
         if (!$hasEnv) {
             $warnings++;
         }
 
-        $apiKey = trim((string) $this->env(
-            'AI_API_KEY',
-            $this->env('OPENAI_API_KEY', '')
-        ));
+        $apiKey = $this->apiKey();
 
         $this->doctorLine(
             $apiKey !== '' ? 'OK' : 'FAIL',
@@ -183,10 +202,7 @@ TXT;
             $failures++;
         }
 
-        $model = trim((string) $this->env(
-            'AI_MODEL',
-            $this->env('OPENAI_MODEL', 'gpt-5.6-luna')
-        ));
+        $model = $this->model();
 
         $this->doctorLine(
             $model !== '' ? 'OK' : 'FAIL',
@@ -198,7 +214,7 @@ TXT;
             $failures++;
         }
 
-        $storage = $this->projectRoot . '/storage/conversations';
+        $storage = $this->storagePath();
         $storageOk = is_dir($storage) && is_writable($storage);
 
         $this->doctorLine(
@@ -229,6 +245,109 @@ TXT;
     /**
      * @param array<int, string> $arguments
      */
+    private function chat(array $arguments): int
+    {
+        $this->loadEnvironment();
+
+        [$sessionId, $message] = $this->chatArguments(
+            $arguments
+        );
+
+        $guiche = $this->buildGuiche();
+
+        if ($message !== '') {
+            $this->respond(
+                $guiche,
+                $sessionId,
+                $message
+            );
+
+            return 0;
+        }
+
+        echo "Guichê — chat" . PHP_EOL;
+        echo "Modelo: " . $this->model() . PHP_EOL;
+        echo "Sessão: {$sessionId}" . PHP_EOL;
+        echo "Comandos: /context, /usage, /tools, /reset, /sair" . PHP_EOL;
+        echo PHP_EOL;
+
+        while (true) {
+            $line = readline('Você: ');
+
+            if ($line === false) {
+                echo PHP_EOL;
+
+                break;
+            }
+
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            if (in_array(
+                $line,
+                ['/sair', '/exit', '/quit'],
+                true
+            )) {
+                break;
+            }
+
+            if ($line === '/context') {
+                $this->printJson(
+                    $guiche->context($sessionId)
+                );
+
+                continue;
+            }
+
+            if ($line === '/usage') {
+                $context = $guiche->context($sessionId);
+
+                $this->printJson(
+                    $context['usage'] ?? []
+                );
+
+                continue;
+            }
+
+            if ($line === '/tools') {
+                $this->printJson(
+                    $guiche->tools()
+                );
+
+                continue;
+            }
+
+            if ($line === '/reset') {
+                $guiche->reset($sessionId);
+
+                echo "Guichê: conversa reiniciada." . PHP_EOL;
+
+                continue;
+            }
+
+            try {
+                $this->respond(
+                    $guiche,
+                    $sessionId,
+                    $line
+                );
+            } catch (Throwable $exception) {
+                fwrite(
+                    STDERR,
+                    'Erro: ' . $exception->getMessage() . PHP_EOL
+                );
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param array<int, string> $arguments
+     */
     private function usage(array $arguments): int
     {
         $this->loadEnvironment();
@@ -240,7 +359,7 @@ TXT;
         );
 
         $store = new ContextStore(
-            $this->projectRoot . '/storage/conversations',
+            $this->storagePath(),
             $timezone
         );
 
@@ -265,6 +384,94 @@ TXT;
         return 0;
     }
 
+    private function buildGuiche(): Guiche
+    {
+        $storage = $this->storagePath();
+
+        if (
+            !is_dir($storage)
+            && !mkdir($storage, 0775, true)
+            && !is_dir($storage)
+        ) {
+            throw new RuntimeException(
+                'Não foi possível criar storage/conversations.'
+            );
+        }
+
+        $timezone = (string) $this->env(
+            'GUICHE_TIMEZONE',
+            'America/Sao_Paulo'
+        );
+
+        $historyMessagesLimit = max(
+            0,
+            (int) $this->env(
+                'GUICHE_HISTORY_MESSAGES_LIMIT',
+                8
+            )
+        );
+
+        $provider = $this->aiProvider;
+
+        if ($provider === null) {
+            $apiKey = $this->apiKey();
+
+            if ($apiKey === '') {
+                throw new RuntimeException(
+                    'AI_API_KEY não configurada. Execute vendor/bin/guiche init e configure o .env.'
+                );
+            }
+
+            $provider = new OpenAiResponsesProvider(
+                $apiKey,
+                $this->model()
+            );
+        }
+
+        $builder = new GuicheBuilder();
+        $builder->withContextStore(
+            new ContextStore(
+                $storage,
+                $timezone
+            )
+        );
+        $builder->withAiProvider($provider);
+        $builder->withInstructions(
+            self::DEFAULT_CHAT_INSTRUCTIONS
+        );
+        $builder->withHistoryMessagesLimit(
+            $historyMessagesLimit
+        );
+
+        return $builder->build();
+    }
+
+    private function respond(
+        Guiche $guiche,
+        string $sessionId,
+        string $message
+    ): void {
+        $result = $guiche->handle(
+            $sessionId,
+            $message
+        );
+
+        echo 'Guichê: '
+            . (string) ($result['message'] ?? '')
+            . PHP_EOL;
+    }
+
+    private function printJson(mixed $value): void
+    {
+        echo json_encode(
+            $value,
+            JSON_PRETTY_PRINT
+            | JSON_UNESCAPED_UNICODE
+            | JSON_UNESCAPED_SLASHES
+            | JSON_THROW_ON_ERROR
+        ) . PHP_EOL;
+    }
+
     private function unknown(string $command): int
     {
         fwrite(
@@ -283,6 +490,70 @@ TXT;
                 $this->projectRoot
             )->safeLoad();
         }
+    }
+
+    private function apiKey(): string
+    {
+        return trim((string) $this->env(
+            'AI_API_KEY',
+            $this->env('OPENAI_API_KEY', '')
+        ));
+    }
+
+    private function model(): string
+    {
+        $model = trim((string) $this->env(
+            'AI_MODEL',
+            $this->env(
+                'OPENAI_MODEL',
+                'gpt-5.6-luna'
+            )
+        ));
+
+        return $model !== ''
+            ? $model
+            : 'gpt-5.6-luna';
+    }
+
+    private function storagePath(): string
+    {
+        return $this->projectRoot
+            . '/storage/conversations';
+    }
+
+    /**
+     * @param array<int, string> $arguments
+     * @return array{0:string, 1:string}
+     */
+    private function chatArguments(array $arguments): array
+    {
+        $sessionId = $this->sessionId($arguments);
+        $messageParts = [];
+
+        for ($i = 0, $count = count($arguments); $i < $count; $i++) {
+            $argument = $arguments[$i];
+
+            if (str_starts_with($argument, '--session=')) {
+                continue;
+            }
+
+            if ($argument === '--session') {
+                $i++;
+
+                continue;
+            }
+
+            if (str_starts_with($argument, '-')) {
+                continue;
+            }
+
+            $messageParts[] = $argument;
+        }
+
+        return [
+            $sessionId,
+            trim(implode(' ', $messageParts)),
+        ];
     }
 
     /**
@@ -307,18 +578,19 @@ TXT;
                 continue;
             }
 
-            if ($argument === '--session' && isset($arguments[$i + 1])) {
-                $sessionId = trim($arguments[++$i]);
-
-                continue;
-            }
-
-            if (!str_starts_with($argument, '-')) {
-                $sessionId = trim($argument);
+            if (
+                $argument === '--session'
+                && isset($arguments[$i + 1])
+            ) {
+                $sessionId = trim(
+                    $arguments[++$i]
+                );
             }
         }
 
-        return $sessionId !== '' ? $sessionId : 'guiche-cli';
+        return $sessionId !== ''
+            ? $sessionId
+            : 'guiche-cli';
     }
 
     private function env(string $name, mixed $default = null): mixed
