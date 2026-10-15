@@ -65,7 +65,7 @@ final class ClinicalAdapterFactory
 
         if ($apiKey === '') {
             throw new RuntimeException(
-                'OPENAI_API_KEY é obrigatória em GUICHE_CLINICAL_MODE=real.'
+                'AI_API_KEY é obrigatória em GUICHE_CLINICAL_MODE=real.'
             );
         }
 

@@ -1,6 +1,7 @@
 # Quick Start do Guichê
 
-Este guia demonstra a menor experiência funcional da linha estável **v1.x** usando o exemplo oficial de catálogo.
+Este guia demonstra a menor experiência funcional da linha estável **v1.x**
+usando o exemplo oficial de catálogo.
 
 ## Objetivo
 
@@ -22,13 +23,14 @@ OpenAiResponsesProvider
 resposta
 ```
 
-O catálogo é local. Não existe banco de dados nem serviço privado por trás da Tool.
+O catálogo é local. Não existe banco de dados nem serviço privado por trás
+da Tool.
 
 ## Requisitos
 
 - PHP `^8.4`;
 - Composer;
-- `OPENAI_API_KEY` para a conversa real.
+- uma chave de API para o provider usado na conversa real.
 
 ## Projeto novo
 
@@ -45,14 +47,24 @@ mkdir -p examples
 cp -R vendor/asmpkg/guiche/examples/basic examples/basic
 ```
 
-O exemplo é copiado para fora de `vendor/` de propósito. Assim o código pode ser estudado e modificado como código da aplicação, sem editar a dependência instalada.
+Na v1.1.1 o exemplo continua copiável para fora de `vendor/`, mas não exige
+mais `export` manual de credenciais.
 
 ## Configurar ambiente
 
 ```bash
-export OPENAI_API_KEY="sua-chave"
-export OPENAI_MODEL="gpt-5.6-luna"
+cp examples/basic/.env.example .env
+nano .env
 ```
+
+Preencha:
+
+```dotenv
+AI_API_KEY=sua-chave
+AI_MODEL=gpt-5.6-luna
+```
+
+O `chat.php` carrega `.env` automaticamente.
 
 ## Conversa interativa
 
@@ -80,19 +92,19 @@ A Tool `CatalogSearch` é a fonte de verdade do catálogo.
 php examples/basic/chat.php "Liste os serviços de suporte"
 ```
 
-## Reiniciar a sessão
+## Comandos locais
 
 No modo interativo:
 
 ```text
+/context
+/usage
+/tools
 /reset
-```
-
-Para encerrar:
-
-```text
 /sair
 ```
+
+Esses comandos são processados localmente e não são enviados à IA.
 
 ## O que observar no código
 
@@ -114,7 +126,8 @@ Arquivo:
 examples/basic/src/BasicPlugin.php
 ```
 
-Implementa `PluginInterface` e registra `CatalogSearch` no `GuicheBuilder` como operação `read`.
+Implementa `PluginInterface` e registra `CatalogSearch` no `GuicheBuilder`
+como operação `read`.
 
 ### chat.php
 
@@ -126,12 +139,13 @@ examples/basic/chat.php
 
 Monta:
 
-1. `ContextStore`;
-2. `OpenAiResponsesProvider`;
-3. `GuicheBuilder`;
-4. `BasicPlugin`;
-5. runtime via `build()`;
-6. conversa via `handle()`.
+1. carregamento automático de `.env`;
+2. `ContextStore`;
+3. `OpenAiResponsesProvider`;
+4. `GuicheBuilder`;
+5. `BasicPlugin`;
+6. runtime via `build()`;
+7. conversa via `handle()`.
 
 ## Regra de segurança do exemplo
 
@@ -144,7 +158,9 @@ side effect = nenhum
 fonte = catálogo local
 ```
 
-Isso deixa a primeira experiência concentrada no fluxo `mensagem → IA → Tool → IA → resposta` sem introduzir banco, credenciais de domínio ou efeitos irreversíveis.
+Isso deixa a primeira experiência concentrada no fluxo
+`mensagem → IA → Tool → IA → resposta` sem introduzir banco, credenciais de
+domínio ou efeitos irreversíveis.
 
 ## Próximos passos
 
@@ -156,4 +172,5 @@ Depois de dominar o exemplo básico:
 4. leia `docs/state.md`;
 5. leia `docs/security.md`.
 
-Esses documentos compõem a documentação pública da linha estável v1.
+A v1.2.0 eliminará também a necessidade de copiar/manter manualmente
+`chat.php`, por meio da CLI oficial `vendor/bin/guiche`.

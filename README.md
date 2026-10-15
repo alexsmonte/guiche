@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.1.0 — Stable**
+> Versão documentada: **v1.1.1 — DX Patch**
 
 ## Requisitos
 
@@ -65,6 +65,7 @@ meu-guiche/
 ├── vendor/
 └── examples/
     └── basic/
+        ├── .env.example
         ├── README.md
         ├── chat.php
         └── src/
@@ -75,11 +76,19 @@ meu-guiche/
 ### 3. Configure o provider
 
 ```bash
-export OPENAI_API_KEY="sua-chave"
-export OPENAI_MODEL="gpt-5.6-luna"
+cp examples/basic/.env.example .env
+nano .env
 ```
 
-`OPENAI_MODEL` é opcional; o exemplo possui um valor padrão.
+Preencha:
+
+```dotenv
+AI_API_KEY=sua-chave
+AI_MODEL=gpt-5.6-luna
+```
+
+`AI_MODEL` é opcional; o exemplo possui um valor padrão. O `.env` é
+carregado automaticamente.
 
 ### 4. Inicie a conversa
 
@@ -103,8 +112,13 @@ php examples/basic/chat.php "Qual é o preço do Suporte Pro?"
 
 No modo interativo:
 
+- `/context` mostra o contexto salvo;
+- `/usage` mostra o uso registrado na sessão;
+- `/tools` mostra as Tools disponíveis;
 - `/reset` reinicia o contexto da sessão;
 - `/sair` encerra a CLI.
+
+Esses comandos são tratados localmente e não são enviados à IA.
 
 ## Como o exemplo é composto
 
@@ -278,7 +292,7 @@ A política de estabilidade da API e suporte PHP complementa essa documentação
 
 ## Status
 
-A v1.0.0 estabeleceu a primeira linha estável do Guichê. A v1.1.0 adiciona contexto dinâmico multi-tenant para Tools sem quebrar o contrato público existente.
+A v1.0.0 estabeleceu a primeira linha estável do Guichê. A v1.1.0 adiciona contexto dinâmico multi-tenant para Tools sem quebrar o contrato público existente. A v1.1.1 corrige a experiência real de instalação com `.env` automático e configuração de IA neutra de provider.
 
 O compromisso da linha v1 inclui:
 

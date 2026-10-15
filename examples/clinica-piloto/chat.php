@@ -16,37 +16,6 @@ use Asmpkg\Guiche\RuntimeContext;
 
 require __DIR__ . '/bootstrap.php';
 
-function loadEnvFile(string $file): void
-{
-    if (!is_file($file)) {
-        return;
-    }
-
-    foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
-        $line = trim($line);
-
-        if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
-            continue;
-        }
-
-        [$key, $value] = explode('=', $line, 2);
-        $key = trim($key);
-        $value = trim($value);
-
-        if (
-            (str_starts_with($value, '"') && str_ends_with($value, '"'))
-            || (str_starts_with($value, "'") && str_ends_with($value, "'"))
-        ) {
-            $value = substr($value, 1, -1);
-        }
-
-        if ($key !== '' && getenv($key) === false) {
-            putenv("{$key}={$value}");
-            $_ENV[$key] = $value;
-        }
-    }
-}
-
 function printJson(mixed $value): void
 {
     echo json_encode(
@@ -80,7 +49,6 @@ function printDebugEvents(array $events): void
     }
 }
 
-loadEnvFile(dirname(__DIR__, 2) . '/.env');
 
 $coreConfig = require dirname(__DIR__, 2) . '/config/guiche.php';
 $pilotConfig = require __DIR__ . '/config/clinic.php';

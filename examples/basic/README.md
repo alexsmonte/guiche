@@ -1,42 +1,46 @@
-# Guichê — exemplo básico
+# Exemplo básico
 
-Este diretório demonstra a menor integração útil do Guichê com:
+Exemplo mínimo e neutro de domínio para validar o Guichê com uma Tool local
+somente de leitura.
 
-- `BasicPlugin`;
-- uma Tool local e determinística chamada `CatalogSearch`;
-- `GuicheBuilder`;
-- `ContextStore`;
-- `OpenAiResponsesProvider`;
-- uma CLI interativa em `chat.php`.
+## Preparar
 
-O catálogo é local: não usa banco de dados, HTTP, Clinsoft ou qualquer API privada.
+Na raiz do projeto consumidor:
+
+```bash
+cp examples/basic/.env.example .env
+```
+
+Edite `.env` e informe:
+
+```dotenv
+AI_API_KEY=sua-chave
+AI_MODEL=gpt-5.6-luna
+```
 
 ## Executar
 
-Na raiz do projeto:
-
 ```bash
-export OPENAI_API_KEY="sua-chave"
-export OPENAI_MODEL="gpt-5.6-luna"
-
-php8.4 examples/basic/chat.php
+php examples/basic/chat.php
 ```
 
-Ou faça uma única pergunta:
+Ou envie uma única mensagem:
 
 ```bash
-php8.4 examples/basic/chat.php "Quais serviços existem no catálogo?"
+php examples/basic/chat.php "Qual é o preço do Suporte Pro?"
 ```
 
-No modo interativo:
-
-- `/reset` apaga o contexto da sessão do exemplo;
-- `/sair` encerra a CLI.
-
-Os contextos desse exemplo são gravados em:
+Comandos locais do modo interativo:
 
 ```text
-storage/examples/basic/conversations/
+/context
+/usage
+/tools
+/reset
+/sair
 ```
 
-> O README principal e o Quick Start oficial serão consolidados na Fase 03 da v0.7.
+Esses comandos são tratados pela CLI e não são enviados à IA.
+
+A Tool `CatalogSearch` é local, determinística, `READ` e não produz
+side effects.
