@@ -4,6 +4,61 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.1.0] - 2026-10-15
+
+### Added
+
+- `ContextAwareToolInterface` para Tools que dependem de contexto confiável de execução;
+- `ToolExecutionContext` imutável com `sessionId`, identity, tenant e valores contextuais;
+- `ExecutionContextSeeder` para vincular identity à sessão;
+- `TenantResolverInterface` e pipeline de resolução por `TenantResolutionService`;
+- resolvers SQL, HTTP e callback/repository;
+- suporte do `GuicheBuilder` a `withTenantResolver()`;
+- dispatch contextual no `Guiche` sem alteração da assinatura de `ToolInterface`;
+- decorator interno `ContextAwarePresentedTool` para preservar Presenters em Tools contextuais;
+- exemplo clínico multi-tenant sem `empresa_id` controlado pela IA;
+- acceptance adversarial de isolamento e concorrência entre sessões/tenants.
+
+### Security
+
+- `execution_context.identity` é write-once por sessão;
+- `tenant_id` resolvido é write-once por sessão;
+- ContextAware Tool sem sessão falha fechada antes da execução;
+- tenant ausente ou resolução inválida bloqueia antes de side effects;
+- argumentos de tenant forjados não substituem `ToolExecutionContext::tenantId()`;
+- Tools clínicas rejeitam `empresa_id` extra no Hard Gate e derivam a empresa do contexto confiável;
+- falhas de TenantResolver não vazam mensagens brutas no envelope de bloqueio;
+- Gate 1, Gate 2, READ cache e WRITE replay/idempotência permanecem preservados.
+
+### Compatibility
+
+- `ToolInterface` permanece com a assinatura v1 original;
+- Tools legadas continuam compatíveis e não exigem `sessionId` nem `TenantResolver`;
+- `ContextStoreInterface` permanece inalterada;
+- mudanças públicas da v1.1 são aditivas e compatíveis com SemVer;
+- API pública congelada: 32 símbolos;
+- API experimental: 11 símbolos;
+- API interna: 12 símbolos;
+- SHA-256 da API pública: `f4328ccc4724f0e097e0d9369329a6bb3bbfe27bca5cddc8d452f43a63130c41`.
+
+### Validation
+
+- 173 testes / 736 assertions no fechamento da Fase 06;
+- PHPStan sem erros;
+- cobertura de linhas/statements: 76,65%;
+- acceptance concorrente com oito workers;
+- `composer check`, API freeze e Safety Layer aprovados.
+
+
+## [1.0.2] - 2026-10-15
+
+### Fixed
+
+- permite parâmetros opcionais de Tools no provider OpenAI sem forçar strict mode incompatível;
+- ajusta o exemplo básico para consultas gerais sem filtro e consultas específicas com termo normalizado;
+- adiciona regressão para Tool com argumento opcional.
+
+
 ## [1.0.1] - 2026-10-14
 
 ### Fixed

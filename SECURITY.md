@@ -34,6 +34,10 @@ The project treats the following as release-blocking invariants:
 - result projection prevents internal payloads from being sent to the AI provider;
 - runtime observability must not persist raw sensitive payloads;
 - `.env`, private keys, credentials, `storage/`, `vendor/` and development-only files are not part of the distributed package;
+- session-bound `execution_context.identity` cannot be switched after binding;
+- a resolved `tenant_id` cannot be switched for the same session;
+- tenant identity comes from trusted runtime context, not from AI-generated Tool arguments;
+- ContextAware Tools fail closed before side effects when session/tenant context is unavailable;
 - CI does not require repository secrets to execute the quality gate.
 
 ## Dependency and CI policy

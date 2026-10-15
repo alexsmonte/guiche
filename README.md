@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.0.0 — Stable**
+> Versão documentada: **v1.1.0 — Stable**
 
 ## Requisitos
 
@@ -161,6 +161,37 @@ Um Plugin implementa `PluginInterface` e registra capacidades pelo `GuicheBuilde
 
 O contexto estruturado da conversa pode ser persistido por uma implementação de `ContextStoreInterface`. O Core não precisa conhecer detalhes do domínio para manter esse estado.
 
+### Contexto dinâmico multi-tenant
+
+A partir da v1.1, uma Tool pode implementar `ContextAwareToolInterface`
+quando sua execução depende de identidade e tenant vinculados à sessão.
+
+O fluxo confiável é:
+
+```text
+SESSION
+  ↓
+execution_context.identity
+  ↓
+TenantResolver
+  ↓
+execution_context.tenant_id
+  ↓
+ToolExecutionContext
+  ↓
+ContextAwareToolInterface::executeWithContext()
+```
+
+`tenant_id` não deve ser aceito da IA como fonte de autoridade.
+
+O `ToolInterface` original permanece compatível. Tools legadas continuam
+executando por `execute(array $arguments)` sem exigir contexto multi-tenant.
+
+Veja:
+
+- `docs/multitenancy.md`;
+- `docs/migration-v1.0-to-v1.1.md`.
+
 ### Safety Layer
 
 A execução de Tools passa por regras estruturadas de segurança. O runtime suporta, entre outros mecanismos:
@@ -239,13 +270,15 @@ A documentação pública da linha v1 é organizada em:
 - Tools: `docs/tools.md`;
 - Plugins: `docs/plugins.md`;
 - State: `docs/state.md`;
+- contexto multi-tenant: `docs/multitenancy.md`;
+- migração v1.0 → v1.1: `docs/migration-v1.0-to-v1.1.md`;
 - segurança: `docs/security.md`.
 
 A política de estabilidade da API e suporte PHP complementa essa documentação.
 
 ## Status
 
-A v1.0.0 estabelece a primeira linha estável do Guichê.
+A v1.0.0 estabeleceu a primeira linha estável do Guichê. A v1.1.0 adiciona contexto dinâmico multi-tenant para Tools sem quebrar o contrato público existente.
 
 O compromisso da linha v1 inclui:
 

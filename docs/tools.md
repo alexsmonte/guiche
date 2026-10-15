@@ -23,6 +23,68 @@ interface ToolInterface
 
 Uma Tool deve possuir nome estável, descrição útil ao provider, schema de argumentos e retorno serializável.
 
+## ContextAwareToolInterface
+
+Quando uma Tool precisa de identidade ou tenant confiável da sessão,
+ela pode implementar `ContextAwareToolInterface`.
+
+```php
+use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
+use Asmpkg\Guiche\Execution\ToolExecutionContext;
+
+final class MinhaTool implements ContextAwareToolInterface
+{
+    public function name(): string
+    {
+        return 'MinhaTool';
+    }
+
+    public function description(): string
+    {
+        return 'Executa uma operação no tenant da sessão.';
+    }
+
+    public function parameters(): array
+    {
+        return [
+            'type' => 'object',
+            'properties' => [
+                'consulta' => ['type' => 'string'],
+            ],
+            'required' => ['consulta'],
+            'additionalProperties' => false,
+        ];
+    }
+
+    public function execute(array $arguments): array
+    {
+        // Caminho legado opcional, mantido pelo contrato ToolInterface.
+        return ['success' => false];
+    }
+
+    public function executeWithContext(
+        array $arguments,
+        ToolExecutionContext $context
+    ): array {
+        $tenantId = $context->tenantId();
+
+        // $tenantId é a fonte confiável para escopo multi-tenant.
+        return [
+            'success' => true,
+            'tenant_id' => $tenantId,
+        ];
+    }
+}
+```
+
+Regras:
+
+- não exponha `tenant_id`/`empresa_id` no schema apenas para a IA devolvê-lo;
+- use `ToolExecutionContext::tenantId()` como autoridade;
+- uma Tool contextual precisa de `sessionId`;
+- ausência ou falha de contexto bloqueia antes de `executeWithContext()`;
+- Tools que implementam somente `ToolInterface` permanecem legadas e compatíveis.
+
 ## Schema de argumentos
 
 `parameters()` descreve os argumentos aceitos.
@@ -130,7 +192,8 @@ confirmação, se exigida?
       ↓
 proteção de escrita/idempotência
       ↓
-Tool::execute()
+ToolInterface::execute() ou
+ContextAwareToolInterface::executeWithContext()
 ```
 
 Qualquer bloqueio anterior deve impedir que `execute()` seja alcançado.

@@ -10,7 +10,7 @@ Este documento define a política oficial de estabilidade da API do Guichê para
 
 O mapa canônico está em `api/stability-map.php`. O snapshot estrutural congelado está em `api/baseline-v1.json`.
 
-Hash SHA-256 da API pública congelada: `39e417149aaee5ac9008de4bb3e477c579826f86ea9902b8755965fc1482368d`.
+Hash SHA-256 da API pública congelada na v1.1.0: `f4328ccc4724f0e097e0d9369329a6bb3bbfe27bca5cddc8d452f43a63130c41`.
 
 ## Política de SemVer
 
@@ -67,6 +67,15 @@ GUICHE_ALLOW_API_BASELINE_UPDATE=1 php8.4 tools/api-snapshot.php --write-baselin
 | `Asmpkg\Guiche\ToolPolicy` | `class` | política pública configurável |
 | `Asmpkg\Guiche\ToolRegistry` | `class` | tipo exposto transitivamente por API pública |
 
+| `Asmpkg\Guiche\Contracts\ContextAwareToolInterface` | `interface` | extensão compatível de Tool para execução com contexto |
+| `Asmpkg\Guiche\Contracts\TenantResolverInterface` | `interface` | contrato público para resolução de tenant |
+| `Asmpkg\Guiche\Execution\ExecutionContextSeeder` | `class` | vincula identity confiável à sessão |
+| `Asmpkg\Guiche\Execution\ToolExecutionContext` | `class` | contexto imutável entregue a Tools contextuais |
+| `Asmpkg\Guiche\Tenant\CallbackTenantResolver` | `class` | adapter público para repository/callback |
+| `Asmpkg\Guiche\Tenant\HttpTenantResolver` | `class` | adapter público de resolução HTTP |
+| `Asmpkg\Guiche\Tenant\SqlTenantResolver` | `class` | adapter público de resolução SQL/Stored Procedure |
+| `Asmpkg\Guiche\Tenant\TenantResolutionService` | `class` | pipeline público de resolução e binding de tenant |
+
 ## Decisão para v1.0.0
 
 Na v1.0.0, os 11 símbolos atualmente classificados como `experimental`
@@ -75,6 +84,24 @@ permanecem explicitamente fora do compromisso BC da API pública v1.x.
 A lista foi congelada em `api/experimental-v1.json` e é validada por
 `tools/check-experimental-api.php`. Promoção para `public` exige decisão
 explícita de API, revisão SemVer e atualização deliberada dos baselines.
+
+## Decisão para v1.1.0
+
+A v1.1.0 mantém os 11 símbolos do Conversation Runtime como
+`experimental` e adiciona oito símbolos `public` de contexto/tenant.
+
+Contagem congelada:
+
+- Public: 32;
+- Experimental: 11;
+- Internal: 12.
+
+SHA-256 da API pública:
+
+`f4328ccc4724f0e097e0d9369329a6bb3bbfe27bca5cddc8d452f43a63130c41`
+
+As adições são compatíveis com SemVer da linha v1.x. O contrato original
+de `ToolInterface` e `ContextStoreInterface` não foi quebrado.
 
 ## API experimental
 
@@ -96,6 +123,7 @@ explícita de API, revisão SemVer e atualização deliberada dos baselines.
 
 | Símbolo | Tipo | Motivo |
 |---|---|---|
+| `Asmpkg\Guiche\Plugin\ContextAwarePresentedTool` | `class` | decorator interno para Presenter de Tool contextual |
 | `Asmpkg\Guiche\Clock\SystemClock` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Infrastructure\Database\PdoFactory` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Infrastructure\Database\PdoSqlExecutor` | `class` | detalhe de implementação não necessário à integração pública |

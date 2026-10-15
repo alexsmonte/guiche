@@ -310,3 +310,71 @@ composer check
 ```
 
 Ele deve permanecer independente de APIs reais e side effects reais.
+
+## Contexto dinâmico multi-tenant — v1.1
+
+A v1.1 adiciona uma camada de contexto confiável entre a sessão e a Tool.
+
+```text
+SESSION
+  ↓
+execution_context.identity
+  ↓
+TenantResolver
+  ↓
+execution_context.tenant_id
+  ↓
+ToolExecutionContext
+  ↓
+TOOL
+```
+
+Responsabilidades:
+
+- `ExecutionContextSeeder`: vincula identity à sessão;
+- `TenantResolverInterface`: traduz identity confiável em tenant;
+- `TenantResolutionService`: resolve, valida e persiste tenant;
+- `ToolExecutionContext`: transporta session/identity/tenant de forma imutável;
+- `ContextAwareToolInterface`: recebe o contexto no momento da execução.
+
+### Imutabilidade
+
+`identity` e `tenant_id` são bindings de segurança.
+
+Depois de vinculados à sessão, não podem ser trocados por outra chamada,
+por argumento da IA ou por concorrência entre workers.
+
+### Compatibilidade
+
+A nova camada é opt-in.
+
+```text
+ToolInterface
+    ↓
+execute(arguments)
+
+ContextAwareToolInterface extends ToolInterface
+    ↓
+executeWithContext(arguments, context)
+```
+
+O Core preserva o caminho legado para Tools não contextuais.
+
+### Safety
+
+A resolução de contexto ocorre dentro do runtime de execução e não
+substitui a Safety Layer.
+
+```text
+Policy / Gate
+  ↓
+Context resolution
+  ↓
+WRITE replay check quando aplicável
+  ↓
+execução real
+```
+
+No runtime com duas gates, o contexto é novamente obtido no caminho que
+leva à execução efetiva, preservando a revalidação imediatamente anterior
+ao side effect.
