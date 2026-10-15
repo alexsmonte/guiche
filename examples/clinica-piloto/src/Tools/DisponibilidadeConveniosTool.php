@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace GuicheExample\ClinicaPiloto\Tools;
 
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
-use Asmpkg\Guiche\Contracts\ToolInterface;
+use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
+use Asmpkg\Guiche\Execution\ToolExecutionContext;
+use GuicheExample\ClinicaPiloto\Support\ClinicalTenant;
 use GuicheExample\ClinicaPiloto\Presentation\DisponibilidadeConveniosPresenter;
 use InvalidArgumentException;
 
-final class DisponibilidadeConveniosTool implements ToolInterface
+final class DisponibilidadeConveniosTool implements ContextAwareToolInterface
 {
     public function __construct(
         private readonly SqlExecutorInterface $db,
@@ -39,10 +41,6 @@ final class DisponibilidadeConveniosTool implements ToolInterface
         return [
             'type' => 'object',
             'properties' => [
-                'empresa_id' => [
-                    'type' => 'integer',
-                    'description' => 'Identificador da empresa.',
-                ],
                 'tratamento_nome' => [
                     'type' => 'string',
                     'description' => 'Nome do procedimento ou tratamento.',
@@ -53,12 +51,25 @@ final class DisponibilidadeConveniosTool implements ToolInterface
                 ],
             ],
             'required' => [
-                'empresa_id',
                 'tratamento_nome',
                 'convenio_nome',
             ],
             'additionalProperties' => false,
         ];
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
+    public function executeWithContext(
+        array $arguments,
+        ToolExecutionContext $context
+    ): array {
+        $arguments['empresa_id'] =
+            ClinicalTenant::companyId($context);
+
+        return $this->execute($arguments);
     }
 
     /**

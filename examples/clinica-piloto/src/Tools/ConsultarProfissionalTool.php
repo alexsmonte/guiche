@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace GuicheExample\ClinicaPiloto\Tools;
 
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
-use Asmpkg\Guiche\Contracts\ToolInterface;
+use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
+use Asmpkg\Guiche\Execution\ToolExecutionContext;
+use GuicheExample\ClinicaPiloto\Support\ClinicalTenant;
 use InvalidArgumentException;
 use RuntimeException;
 
-final class ConsultarProfissionalTool implements ToolInterface
+final class ConsultarProfissionalTool implements ContextAwareToolInterface
 {
     public function __construct(
         private readonly SqlExecutorInterface $db,
@@ -41,21 +43,30 @@ final class ConsultarProfissionalTool implements ToolInterface
         return [
             'type' => 'object',
             'properties' => [
-                'empresa_id' => [
-                    'type' => 'integer',
-                    'description' => 'Identificador da empresa.',
-                ],
                 'nome_profissional' => [
                     'type' => 'string',
                     'description' => 'Nome do profissional escolhido.',
                 ],
             ],
             'required' => [
-                'empresa_id',
                 'nome_profissional',
             ],
             'additionalProperties' => false,
         ];
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
+    public function executeWithContext(
+        array $arguments,
+        ToolExecutionContext $context
+    ): array {
+        $arguments['empresa_id'] =
+            ClinicalTenant::companyId($context);
+
+        return $this->execute($arguments);
     }
 
     /**

@@ -13,6 +13,56 @@ if (!in_array($clinicalMode, ['fake', 'real'], true)) {
 $clinicalCompanyId = (int)(getenv('GUICHE_CLINIC_COMPANY_ID') ?: 1);
 $clinicalCompanyName = trim((string)(getenv('GUICHE_CLINIC_NAME') ?: 'Clínica Exemplo'));
 $clinicalFixture = trim((string)(getenv('GUICHE_FAKE_FIXTURE') ?: ''));
+$clinicalTenantKey = trim(
+    (string)(getenv('GUICHE_CLINIC_TENANT_KEY') ?: 'clinic-example')
+);
+$clinicalTenantMapRaw = trim(
+    (string)(getenv('GUICHE_CLINIC_TENANT_MAP') ?: '')
+);
+$clinicalTenantMap = [];
+
+if ($clinicalTenantMapRaw !== '') {
+    $decodedTenantMap = json_decode(
+        $clinicalTenantMapRaw,
+        true
+    );
+
+    if (!is_array($decodedTenantMap)) {
+        throw new \RuntimeException(
+            'GUICHE_CLINIC_TENANT_MAP precisa ser um objeto JSON.'
+        );
+    }
+
+    foreach ($decodedTenantMap as $tenantKey => $tenantId) {
+        $tenantKey = trim((string)$tenantKey);
+        $tenantId = (int)$tenantId;
+
+        if ($tenantKey === '' || $tenantId <= 0) {
+            throw new \RuntimeException(
+                'GUICHE_CLINIC_TENANT_MAP contém tenant inválido.'
+            );
+        }
+
+        $clinicalTenantMap[$tenantKey] = $tenantId;
+    }
+}
+
+if ($clinicalTenantKey === '') {
+    throw new \RuntimeException(
+        'GUICHE_CLINIC_TENANT_KEY não pode ser vazio.'
+    );
+}
+
+if ($clinicalCompanyId <= 0) {
+    throw new \RuntimeException(
+        'GUICHE_CLINIC_COMPANY_ID precisa ser inteiro positivo.'
+    );
+}
+
+if (!array_key_exists($clinicalTenantKey, $clinicalTenantMap)) {
+    $clinicalTenantMap[$clinicalTenantKey] =
+        $clinicalCompanyId;
+}
 
 
 /**
@@ -140,8 +190,16 @@ return [
         ],
     ],
 
+    /*
+     * tenant_context é operacional e NÃO é enviado à IA.
+     * A identidade confiável da sessão resolve tenant_id por este mapa.
+     */
+    'tenant_context' => [
+        'default_key' => $clinicalTenantKey,
+        'tenants' => $clinicalTenantMap,
+    ],
+
     'agent_context' => [
-        'empresa_id' => $clinicalCompanyId,
         'empresa_nome' => $clinicalCompanyName,
     ],
 

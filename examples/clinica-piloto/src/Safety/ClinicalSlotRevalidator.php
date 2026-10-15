@@ -13,7 +13,7 @@ final class ClinicalSlotRevalidator
     public function __construct(
         private readonly SqlExecutorInterface $sql,
         private readonly string $procedure,
-        private readonly int $companyId,
+        private readonly int $companyId = 0,
         private readonly int $hoursPerDate = 3
     ) {
     }
@@ -22,14 +22,21 @@ final class ClinicalSlotRevalidator
      * @param array<string, mixed> $arguments
      * @return array{available: bool, reason: string}
      */
-    public function revalidate(array $arguments): array
-    {
+    public function revalidate(
+        array $arguments,
+        ?int $companyId = null
+    ): array {
+        $effectiveCompanyId =
+            ($companyId ?? 0) > 0
+                ? (int)$companyId
+                : $this->companyId;
+
         $date = trim((string)($arguments['data_inicio'] ?? ''));
         $time = trim((string)($arguments['hora_inicio'] ?? ''));
         $professionalId = (int)($arguments['profissional_id'] ?? 0);
 
         if (
-            $this->companyId <= 0
+            $effectiveCompanyId <= 0
             || $professionalId <= 0
             || preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) !== 1
             || preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $time) !== 1
@@ -47,7 +54,7 @@ final class ClinicalSlotRevalidator
                 $this->procedure,
                 $this->hoursPerDate
             ))->execute([
-                'empresa_id' => $this->companyId,
+                'empresa_id' => $effectiveCompanyId,
                 'profissional_id' => $professionalId,
                 'data_inicio' => $date,
                 'data_final' => $date,

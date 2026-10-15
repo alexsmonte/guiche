@@ -181,7 +181,7 @@ final class ClinicPlugin implements PluginInterface
         return new ClinicalSlotRevalidator(
             $this->sql,
             (string)($this->config['procedures']['consultar_horarios'] ?? ''),
-            (int)($this->config['agent_context']['empresa_id'] ?? 0),
+            0,
             (int)($this->config['horarios_por_data'] ?? 3)
         );
     }

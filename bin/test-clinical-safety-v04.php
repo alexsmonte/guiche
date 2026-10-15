@@ -5,7 +5,9 @@ declare(strict_types=1);
 use Asmpkg\Guiche\ContextStore;
 use Asmpkg\Guiche\Contracts\HttpClientInterface;
 use Asmpkg\Guiche\Contracts\SqlExecutorInterface;
+use Asmpkg\Guiche\Execution\ExecutionContextSeeder;
 use Asmpkg\Guiche\GuicheBuilder;
+use Asmpkg\Guiche\Tenant\CallbackTenantResolver;
 use GuicheExample\ClinicaPiloto\ClinicPlugin;
 use Asmpkg\Guiche\Safety\ToolBlockedException;
 
@@ -241,6 +243,16 @@ $store = new ContextStore(
 
 $guiche = $builder
     ->withContextStore($store)
+    ->withTenantResolver(
+        new CallbackTenantResolver(
+            static function (array $identity): array {
+                return ($identity['tenant_key'] ?? null)
+                    === 'clinic-142'
+                    ? ['tenant_id' => 142]
+                    : [];
+            }
+        )
+    )
     ->withAgentContext(
         $config['agent_context'] ?? []
     )
@@ -253,6 +265,18 @@ $guiche = $builder
     ->build();
 
 $session = 'clinical-write';
+
+$seeder = new ExecutionContextSeeder($store);
+
+$seeder->seed(
+    $session,
+    [
+        'identity' => [
+            'provider' => 'test',
+            'tenant_key' => 'clinic-142',
+        ],
+    ]
+);
 
 $store->mergeState(
     $session,
@@ -357,6 +381,16 @@ echo "\n4. PRECONDITION DE READ CLÍNICA\n";
 
 $readSession = 'clinical-read';
 
+$seeder->seed(
+    $readSession,
+    [
+        'identity' => [
+            'provider' => 'test',
+            'tenant_key' => 'clinic-142',
+        ],
+    ]
+);
+
 $store->mergeState(
     $readSession,
     [
@@ -370,8 +404,6 @@ expect_block(
             'ConsultarProfissional',
             [
                 'nome_profissional' => 'Profissional Teste',
-                'empresa_id' => 142,
-                'sessao_id' => 'teste',
             ],
             $readSession
         ),

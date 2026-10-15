@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace GuicheExample\ClinicaPiloto\Tools;
 
 use Asmpkg\Guiche\Contracts\HttpClientInterface;
-use Asmpkg\Guiche\Contracts\ToolInterface;
+use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
+use Asmpkg\Guiche\Execution\ToolExecutionContext;
+use GuicheExample\ClinicaPiloto\Support\ClinicalTenant;
 use GuicheExample\ClinicaPiloto\Safety\ClinicalSlotRevalidator;
 use Throwable;
 
-final class CriarAgendamentoTool implements ToolInterface
+final class CriarAgendamentoTool implements ContextAwareToolInterface
 {
     public function __construct(
         private readonly HttpClientInterface $http,
@@ -99,8 +101,23 @@ final class CriarAgendamentoTool implements ToolInterface
      * @param array<mixed> $arguments
      * @return array<mixed>
      */
+    public function executeWithContext(
+        array $arguments,
+        ToolExecutionContext $context
+    ): array {
+        $arguments['empresa_id'] =
+            ClinicalTenant::companyId($context);
+
+        return $this->execute($arguments);
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
     public function execute(array $arguments): array
     {
+        $companyId = (int)($arguments['empresa_id'] ?? 0);
         $patientId = (int)($arguments['paciente_id'] ?? 0);
         $date = trim(
             (string)($arguments['data_inicio'] ?? '')
@@ -195,11 +212,14 @@ final class CriarAgendamentoTool implements ToolInterface
 
         try {
             if ($this->slotRevalidator !== null) {
-                $slot = $this->slotRevalidator->revalidate([
-                    'data_inicio' => $date,
-                    'hora_inicio' => $time,
-                    'profissional_id' => $professionalId,
-                ]);
+                $slot = $this->slotRevalidator->revalidate(
+                    [
+                        'data_inicio' => $date,
+                        'hora_inicio' => $time,
+                        'profissional_id' => $professionalId,
+                    ],
+                    $companyId
+                );
 
                 if ($slot['available'] !== true) {
                     $reason = $slot['reason'];

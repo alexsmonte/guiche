@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Asmpkg\Guiche\Execution\ExecutionContextSeeder;
 use Asmpkg\Guiche\GuicheBuilder;
+use Asmpkg\Guiche\Tenant\CallbackTenantResolver;
 use GuicheExample\ClinicaPiloto\ClinicPlugin;
 use GuicheExample\ClinicaPiloto\Adapters\ClinicalAdapterFactory;
 use Asmpkg\Guiche\ContextStore;
@@ -11,7 +13,6 @@ use Asmpkg\Guiche\Infrastructure\Database\PdoFactory;
 use Asmpkg\Guiche\Infrastructure\Database\PdoSqlExecutor;
 use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Asmpkg\Guiche\RuntimeContext;
-
 
 require __DIR__ . '/bootstrap.php';
 
@@ -54,6 +55,7 @@ function printJson(mixed $value): void
     ) . PHP_EOL;
 }
 
+/** @param array<mixed> $events */
 function printDebugEvents(array $events): void
 {
     foreach ($events as $event) {
@@ -89,15 +91,74 @@ $modeLabel = strtoupper(ClinicalAdapterFactory::mode($config));
 
 $sql = ClinicalAdapterFactory::sql($config);
 
+$sessionId = $argv[1] ?? 'piloto-cli-ia';
 
+$tenantConfig = is_array($config['tenant_context'] ?? null)
+    ? $config['tenant_context']
+    : [];
+
+$tenantMap = is_array($tenantConfig['tenants'] ?? null)
+    ? $tenantConfig['tenants']
+    : [];
+
+$tenantKey = trim(
+    (string)($argv[2] ?? $tenantConfig['default_key'] ?? '')
+);
+
+if (
+    $tenantKey === ''
+    || !array_key_exists($tenantKey, $tenantMap)
+) {
+    throw new RuntimeException(
+        'Tenant clínico não configurado para esta sessão.'
+    );
+}
+
+$contextStore = new ContextStore(
+    $config['context_path'],
+    $config['timezone']
+);
+
+$seeder = new ExecutionContextSeeder($contextStore);
+
+$seedExecutionContext = static function () use (
+    $seeder,
+    $sessionId,
+    $tenantKey
+): void {
+    $seeder->seed(
+        $sessionId,
+        [
+            'identity' => [
+                'provider' => 'clinical-pilot-cli',
+                'tenant_key' => $tenantKey,
+            ],
+        ]
+    );
+};
+
+$seedExecutionContext();
+
+$tenantResolver = new CallbackTenantResolver(
+    static function (array $identity) use ($tenantMap): array {
+        $key = trim((string)($identity['tenant_key'] ?? ''));
+
+        if (
+            $key === ''
+            || !array_key_exists($key, $tenantMap)
+        ) {
+            return [];
+        }
+
+        return [
+            'tenant_id' => (int)$tenantMap[$key],
+        ];
+    }
+);
 
 $guiche = (new GuicheBuilder())
-    ->withContextStore(
-        new ContextStore(
-            $config['context_path'],
-            $config['timezone']
-        )
-    )
+    ->withContextStore($contextStore)
+    ->withTenantResolver($tenantResolver)
     ->withAiProvider(
         ClinicalAdapterFactory::ai($config)
     )
@@ -133,13 +194,13 @@ $guiche = (new GuicheBuilder())
     )
     ->build();
 
-$sessionId = $argv[1] ?? 'piloto-cli-ia';
 
 echo PHP_EOL;
 echo "==================================================" . PHP_EOL;
 echo " GUICHÊ - ETAPA 05I / APRESENTAÇÃO DETERMINÍSTICA" . PHP_EOL;
 echo "==================================================" . PHP_EOL;
 echo "Sessão: {$sessionId}" . PHP_EOL;
+echo "Tenant key: {$tenantKey}" . PHP_EOL;
 echo "DisponibilidadeConvenios: {$modeLabel}" . PHP_EOL;
 echo "ConsultarProfissional: {$modeLabel}" . PHP_EOL;
 echo "ConsultarHorarios: {$modeLabel} / {$pilotConfig['horarios_por_data']} horários por data" . PHP_EOL;
@@ -195,7 +256,8 @@ while (true) {
 
     if ($input === '/reset') {
         $guiche->reset($sessionId);
-        echo "Sessão apagada." . PHP_EOL;
+        $seedExecutionContext();
+        echo "Sessão apagada e identidade confiável recriada." . PHP_EOL;
         continue;
     }
 
