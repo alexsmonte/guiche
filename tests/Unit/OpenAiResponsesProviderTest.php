@@ -61,4 +61,75 @@ final class OpenAiResponsesProviderTest extends TestCase
             $normalized[0]['parameters']['properties']
         );
     }
+
+    public function testEmptyToolPropertiesAreSerializedAsJsonObject(): void
+    {
+        $provider = new OpenAiResponsesProvider('test-api-key');
+
+        $method = new ReflectionMethod(
+            $provider,
+            'normalizeTools'
+        );
+
+        $normalized = $method->invoke(
+            $provider,
+            [
+                [
+                    'name' => 'CompanyInfo',
+                    'description' => 'Retorna dados da empresa.',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [],
+                        'required' => [],
+                        'additionalProperties' => false,
+                    ],
+                ],
+            ]
+        );
+
+        self::assertInstanceOf(
+            \stdClass::class,
+            $normalized[0]['parameters']['properties']
+        );
+
+        $json = json_encode(
+            $normalized[0]['parameters'],
+            JSON_THROW_ON_ERROR
+        );
+
+        self::assertStringContainsString(
+            '"properties":{}',
+            $json
+        );
+    }
+
+    public function testDefaultToolSchemaUsesJsonObjectForEmptyProperties(): void
+    {
+        $provider = new OpenAiResponsesProvider('test-api-key');
+
+        $method = new ReflectionMethod(
+            $provider,
+            'normalizeTools'
+        );
+
+        $normalized = $method->invoke(
+            $provider,
+            [
+                [
+                    'name' => 'Ping',
+                    'description' => 'Ping sem argumentos.',
+                ],
+            ]
+        );
+
+        self::assertInstanceOf(
+            \stdClass::class,
+            $normalized[0]['parameters']['properties']
+        );
+
+        self::assertSame(
+            [],
+            $normalized[0]['parameters']['required']
+        );
+    }
 }

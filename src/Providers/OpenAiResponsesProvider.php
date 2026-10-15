@@ -98,6 +98,16 @@ final class OpenAiResponsesProvider implements AiProviderInterface
                 $parameters['additionalProperties'] = false;
             }
 
+            if (
+                ($parameters['type'] ?? null) === 'object'
+                && (
+                    !array_key_exists('properties', $parameters)
+                    || $parameters['properties'] === []
+                )
+            ) {
+                $parameters['properties'] = new \stdClass();
+            }
+
             $normalized[] = [
                 'type' => 'function',
                 'name' => $tool['name'],
