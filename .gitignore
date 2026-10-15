@@ -46,6 +46,10 @@ Thumbs.db
 !/docs/plugins.md
 !/docs/state.md
 !/docs/security.md
+!/docs/migration-v1.1-to-v1.2.md
+!/docs/releases/
+/docs/releases/*
+!/docs/releases/v1.2.0.md
 !/examples/
 !/examples/basic/
 !/examples/basic/README.md

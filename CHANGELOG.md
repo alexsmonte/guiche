@@ -4,6 +4,57 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.2.0] - 2026-10-15
+
+### Added
+
+- CLI oficial distribuída pelo Composer como `vendor/bin/guiche`;
+- comandos `help`, `init`, `doctor`, `chat` e `usage`;
+- bootstrap automático de `.env`, `guiche.prompt.md` e `storage/conversations`;
+- chat interativo e mensagem única sem exigir `chat.php` manual;
+- suporte a sessão explícita com `--session`;
+- `PromptResolver` interno com prompt por arquivo, variável de ambiente ou fallback do pacote;
+- prompt padrão distribuído em `resources/guiche.prompt.md`.
+
+### Developer Experience
+
+- `init` é idempotente e preserva `.env` e prompt existentes;
+- `doctor` valida o ambiente sem realizar chamada de rede ao provider;
+- `/context`, `/usage`, `/tools`, `/reset` e `/sair` permanecem locais no chat;
+- contexto e usage da CLI são persistidos no projeto consumidor, fora de `vendor/`;
+- Quick Start passa a funcionar por Composer + CLI sem copiar o exemplo básico.
+
+### Prompt resolution
+
+Prioridade:
+
+1. `GUICHE_PROMPT_FILE`;
+2. `GUICHE_PROMPT`;
+3. `guiche.prompt.md`;
+4. prompt padrão do pacote.
+
+### Compatibility
+
+- API pública v1 permanece inalterada e compatível;
+- Public: 32 símbolos;
+- Experimental: 11 símbolos;
+- Internal: 14 símbolos;
+- SHA-256 da API pública:
+  `f4328ccc4724f0e097e0d9369329a6bb3bbfe27bca5cddc8d452f43a63130c41`;
+- `Application` e `PromptResolver` da CLI são `internal`.
+
+### Validation
+
+- 183 testes / 807 assertions;
+- PHPStan sem erros;
+- cobertura de linhas/statements: 75,18%;
+- threshold mínimo: 70%;
+- API pública v1 e freeze experimental preservados;
+- instalação Composer externa validada com cópia física, sem symlink;
+- `vendor/bin/guiche`, `init`, `doctor`, `chat`, prompt customizado,
+  persistência e `usage` validados em projeto consumidor vazio.
+
+
 ## [1.1.1] - 2026-10-15
 
 ### Fixed

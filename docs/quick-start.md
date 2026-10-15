@@ -1,7 +1,7 @@
 # Quick Start do Guichê
 
-Este guia demonstra a menor experiência funcional da linha estável **v1.x**
-usando o exemplo oficial de catálogo.
+Este guia demonstra a menor experiência funcional da linha estável **v1.2.x**
+sem exigir a criação manual de `chat.php`.
 
 ## Objetivo
 
@@ -10,21 +10,18 @@ Ao final, você terá:
 ```text
 terminal
    ↓
-chat.php
+vendor/bin/guiche
+   ↓
+bootstrap automático
    ↓
 GuicheBuilder
    ↓
-BasicPlugin
+ContextStore
    ↓
-CatalogSearch
-   ↓
-OpenAiResponsesProvider
+AI Provider
    ↓
 resposta
 ```
-
-O catálogo é local. Não existe banco de dados nem serviço privado por trás
-da Tool.
 
 ## Requisitos
 
@@ -32,67 +29,107 @@ da Tool.
 - Composer;
 - uma chave de API para o provider usado na conversa real.
 
-## Projeto novo
+## 1. Projeto novo
 
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^1.0
+composer require asmpkg/guiche:^1.2
 ```
 
-## Copiar o exemplo
+## 2. Inicialização automática
 
 ```bash
-mkdir -p examples
-cp -R vendor/asmpkg/guiche/examples/basic examples/basic
+vendor/bin/guiche init
 ```
 
-Na v1.1.1 o exemplo continua copiável para fora de `vendor/`, mas não exige
-mais `export` manual de credenciais.
+O comando cria:
 
-## Configurar ambiente
-
-```bash
-cp examples/basic/.env.example .env
-nano .env
+```text
+.env
+guiche.prompt.md
+storage/
+└── conversations/
 ```
 
-Preencha:
+O `init` é idempotente: se `.env` ou `guiche.prompt.md` já existirem, eles são
+preservados.
+
+## 3. Configurar IA
+
+Abra `.env` e informe:
 
 ```dotenv
 AI_API_KEY=sua-chave
 AI_MODEL=gpt-5.6-luna
 ```
 
-O `chat.php` carrega `.env` automaticamente.
+`AI_MODEL` possui valor padrão.
 
-## Conversa interativa
+Os nomes legados abaixo continuam aceitos temporariamente por compatibilidade:
 
-```bash
-php examples/basic/chat.php
+```dotenv
+OPENAI_API_KEY=
+OPENAI_MODEL=
 ```
 
-Experimente:
+Os nomes canônicos da v1.2 são `AI_API_KEY` e `AI_MODEL`.
+
+## 4. Configurar o prompt
+
+O arquivo criado automaticamente é:
 
 ```text
-Quais serviços existem?
+guiche.prompt.md
 ```
 
-Depois:
+Você pode editar esse arquivo diretamente.
+
+A prioridade de resolução é:
 
 ```text
-Quanto custa o Suporte Pro?
+1. GUICHE_PROMPT_FILE
+2. GUICHE_PROMPT
+3. guiche.prompt.md na raiz do projeto
+4. resources/guiche.prompt.md do pacote
 ```
 
-A Tool `CatalogSearch` é a fonte de verdade do catálogo.
+Exemplo com arquivo explícito:
 
-## Mensagem única
+```dotenv
+GUICHE_PROMPT_FILE=config/prompts/atendimento.md
+```
+
+Exemplo inline:
+
+```dotenv
+GUICHE_PROMPT="Você é um assistente objetivo."
+```
+
+`GUICHE_PROMPT_FILE` tem prioridade sobre `GUICHE_PROMPT`.
+
+## 5. Verificar o ambiente
 
 ```bash
-php examples/basic/chat.php "Liste os serviços de suporte"
+vendor/bin/guiche doctor
 ```
 
-## Comandos locais
+O diagnóstico verifica:
+
+- PHP compatível;
+- extensões necessárias;
+- presença do `.env`;
+- `AI_API_KEY`;
+- `AI_MODEL`;
+- `storage/conversations` gravável.
+
+O `doctor` é determinístico e não envia uma requisição de teste ao provider.
+
+## 6. Conversa interativa
+
+```bash
+vendor/bin/guiche chat
+```
 
 No modo interativo:
 
@@ -104,73 +141,102 @@ No modo interativo:
 /sair
 ```
 
-Esses comandos são processados localmente e não são enviados à IA.
+Esses comandos são locais e não são enviados à IA.
 
-## O que observar no código
+## 7. Mensagem única
 
-### CatalogTool
-
-Arquivo:
-
-```text
-examples/basic/src/CatalogTool.php
+```bash
+vendor/bin/guiche chat "Olá, tudo bem?"
 ```
 
-Implementa `ToolInterface` e contém dados locais determinísticos.
+## 8. Sessão explícita
 
-### BasicPlugin
-
-Arquivo:
-
-```text
-examples/basic/src/BasicPlugin.php
+```bash
+vendor/bin/guiche chat --session=cliente-123 "Olá"
 ```
 
-Implementa `PluginInterface` e registra `CatalogSearch` no `GuicheBuilder`
-como operação `read`.
-
-### chat.php
-
-Arquivo:
+O contexto é persistido no projeto consumidor em:
 
 ```text
-examples/basic/chat.php
+storage/conversations/
 ```
 
-Monta:
+## 9. Usage
 
-1. carregamento automático de `.env`;
-2. `ContextStore`;
-3. `OpenAiResponsesProvider`;
-4. `GuicheBuilder`;
-5. `BasicPlugin`;
-6. runtime via `build()`;
-7. conversa via `handle()`.
+```bash
+vendor/bin/guiche usage
+```
 
-## Regra de segurança do exemplo
+Ou para uma sessão específica:
 
-O exemplo básico não executa escrita externa.
+```bash
+vendor/bin/guiche usage --session=cliente-123
+```
+
+O comando exibe:
+
+- quantidade de interações;
+- input tokens;
+- output tokens;
+- total de tokens.
+
+## 10. Comandos disponíveis
+
+```bash
+vendor/bin/guiche help
+vendor/bin/guiche init
+vendor/bin/guiche doctor
+vendor/bin/guiche chat
+vendor/bin/guiche usage
+```
+
+## Exemplo básico com Tool
+
+O Quick Start da v1.2 não depende mais do exemplo básico. Ele continua
+disponível para demonstrar como um domínio registra Plugin e Tool sem alterar o
+Core:
 
 ```text
-CatalogSearch
-operation = read
-side effect = nenhum
-fonte = catálogo local
+examples/basic/
+├── chat.php
+└── src/
+    ├── BasicPlugin.php
+    └── CatalogTool.php
 ```
 
-Isso deixa a primeira experiência concentrada no fluxo
-`mensagem → IA → Tool → IA → resposta` sem introduzir banco, credenciais de
-domínio ou efeitos irreversíveis.
+`CatalogSearch` é uma Tool local somente READ, com catálogo determinístico e sem
+side effects.
+
+## Segurança
+
+O bootstrap da CLI usa o runtime normal do Guichê. A CLI não cria caminho
+alternativo para execução de Tools.
+
+Quando Tools são registradas, continuam valendo as mesmas invariantes do Core:
+
+```text
+Tool call da IA
+        ↓
+Safety / Policy
+        ↓
+Hard execution gate
+        ↓
+execute()
+```
+
+Uma Tool call da IA nunca equivale, por si só, à autorização de side effect.
+
+WRITE continua sem retry/cache genérico e usa as proteções de idempotência do
+runtime.
 
 ## Próximos passos
 
-Depois de dominar o exemplo básico:
+Depois do primeiro chat:
 
 1. leia `docs/architecture.md`;
 2. leia `docs/tools.md`;
 3. leia `docs/plugins.md`;
 4. leia `docs/state.md`;
-5. leia `docs/security.md`.
-
-A v1.2.0 eliminará também a necessidade de copiar/manter manualmente
-`chat.php`, por meio da CLI oficial `vendor/bin/guiche`.
+5. leia `docs/security.md`;
+6. leia `docs/external-consumer.md`;
+7. para atualizar da v1.1, leia `docs/migration-v1.1-to-v1.2.md`.

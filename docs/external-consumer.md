@@ -12,6 +12,31 @@ composer require asmpkg/guiche:^1.0
 
 Requisitos oficiais da linha v1: consulte [`php-support.md`](php-support.md). A política de estabilidade está em [`api-stability.md`](api-stability.md).
 
+
+## Bootstrap pela CLI na v1.2
+
+Para uma aplicação que quer começar com o runtime padrão, a v1.2 elimina a
+necessidade de criar um entrypoint de chat manual:
+
+```bash
+vendor/bin/guiche init
+vendor/bin/guiche doctor
+vendor/bin/guiche chat
+```
+
+`init` cria `.env`, `guiche.prompt.md` e `storage/conversations/` no projeto
+consumidor sem sobrescrever personalizações existentes.
+
+O prompt pode vir de `GUICHE_PROMPT_FILE`, `GUICHE_PROMPT`,
+`guiche.prompt.md` ou do fallback distribuído pelo pacote.
+
+A CLI é uma camada de Developer Experience. Ela monta o runtime por
+`GuicheBuilder` e não contorna Safety Layer, Tool Policy, hard execution gate ou
+idempotência.
+
+Aplicações com bootstrap próprio podem continuar usando diretamente os contratos
+públicos descritos abaixo.
+
 ## Contratos usados
 
 Uma integração normal depende principalmente de:
@@ -176,11 +201,12 @@ Tools WRITE não usam cache genérico. O `ContextStoreInterface` participa do fi
 
 Nada neste fluxo depende do exemplo clínico. O exemplo em `examples/clinica-piloto/` é apenas uma demonstração avançada de domínio.
 
-Para uma introdução menor, use `examples/basic/`.
+Para a menor experiência funcional, use `vendor/bin/guiche init` e `vendor/bin/guiche chat`. Para estudar Plugin + Tool, use `examples/basic/`.
 
 ## 9. Checklist do consumidor
 
 - instale `asmpkg/guiche`;
+- opcionalmente inicialize o runtime padrão com `vendor/bin/guiche init`;
 - implemente/seleciona um `AiProviderInterface`;
 - crie suas `ToolInterface`;
 - agrupe-as em `PluginInterface`;

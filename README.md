@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.1.1 — Stable**
+> Versão documentada: **v1.2.0 — Stable**
 ## Requisitos
 
 - PHP `^8.4`;
@@ -31,82 +31,89 @@ composer install
 
 ## Quick Start — primeira conversa
 
-A forma mais rápida de validar o Guichê é usar o exemplo básico incluído no pacote. Ele contém:
-
-- `BasicPlugin`;
-- a Tool local `CatalogSearch`;
-- catálogo determinístico em memória;
-- operação somente `READ`;
-- nenhum MySQL;
-- nenhuma API privada;
-- nenhum side effect.
+Na v1.2.0 você não precisa copiar nem criar `chat.php` para começar.
 
 ### 1. Crie um projeto vazio
 
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^1.0
+composer require asmpkg/guiche:^1.2
 ```
 
-### 2. Copie o exemplo oficial
+### 2. Inicialize o projeto
 
 ```bash
-mkdir -p examples
-cp -R vendor/asmpkg/guiche/examples/basic examples/basic
+vendor/bin/guiche init
 ```
 
-A estrutura ficará assim:
+O comando cria, sem sobrescrever arquivos existentes:
 
 ```text
-meu-guiche/
-├── composer.json
-├── vendor/
-└── examples/
-    └── basic/
-        ├── .env.example
-        ├── README.md
-        ├── chat.php
-        └── src/
-            ├── BasicPlugin.php
-            └── CatalogTool.php
+.env
+guiche.prompt.md
+storage/conversations/
 ```
 
 ### 3. Configure o provider
 
-```bash
-cp examples/basic/.env.example .env
-nano .env
-```
-
-Preencha:
+Edite `.env`:
 
 ```dotenv
 AI_API_KEY=sua-chave
 AI_MODEL=gpt-5.6-luna
 ```
 
-`AI_MODEL` é opcional; o exemplo possui um valor padrão. O `.env` é
-carregado automaticamente.
+`AI_MODEL` possui valor padrão. Por compatibilidade, `OPENAI_API_KEY` e
+`OPENAI_MODEL` ainda são aceitos como aliases legados.
 
-### 4. Inicie a conversa
+### 4. Personalize o prompt
 
-```bash
-php examples/basic/chat.php
-```
-
-Exemplo de pergunta:
+Edite:
 
 ```text
-Você: Quais serviços existem no catálogo?
+guiche.prompt.md
 ```
 
-A IA pode chamar `CatalogSearch`, receber o catálogo local e responder usando somente os dados retornados pela Tool.
+A resolução de prompt segue esta prioridade:
 
-Também é possível executar uma única mensagem:
+```text
+GUICHE_PROMPT_FILE
+        ↓
+GUICHE_PROMPT
+        ↓
+guiche.prompt.md
+        ↓
+prompt padrão do pacote
+```
+
+### 5. Verifique o ambiente
 
 ```bash
-php examples/basic/chat.php "Qual é o preço do Suporte Pro?"
+vendor/bin/guiche doctor
+```
+
+O `doctor` valida PHP, extensões, `.env`, configuração de IA e
+`storage/conversations` sem fazer uma chamada de rede ao provider.
+
+### 6. Converse
+
+Modo interativo:
+
+```bash
+vendor/bin/guiche chat
+```
+
+Mensagem única:
+
+```bash
+vendor/bin/guiche chat "Olá, tudo bem?"
+```
+
+Sessão explícita:
+
+```bash
+vendor/bin/guiche chat --session=cliente-123 "Olá"
 ```
 
 No modo interativo:
@@ -114,36 +121,39 @@ No modo interativo:
 - `/context` mostra o contexto salvo;
 - `/usage` mostra o uso registrado na sessão;
 - `/tools` mostra as Tools disponíveis;
-- `/reset` reinicia o contexto da sessão;
+- `/reset` reinicia a sessão;
 - `/sair` encerra a CLI.
 
 Esses comandos são tratados localmente e não são enviados à IA.
 
-## Como o exemplo é composto
+Também é possível consultar usage fora do chat:
 
-O fluxo essencial é:
-
-```text
-mensagem do usuário
-        ↓
-Guiche::handle()
-        ↓
-AI Provider
-        ↓
-Tool call, quando necessária
-        ↓
-Safety / Policy
-        ↓
-Tool
-        ↓
-resultado
-        ↓
-AI Provider
-        ↓
-resposta final
+```bash
+vendor/bin/guiche usage --session=cliente-123
 ```
 
-O `BasicPlugin` registra a Tool por meio da API pública do `GuicheBuilder`. O exemplo não modifica o Core.
+## Exemplo básico com Tool
+
+A CLI da v1.2.0 oferece a menor experiência genérica sem exigir arquivo PHP
+manual. Quando você quiser estudar a integração de uma Tool e um Plugin, o
+exemplo oficial continua disponível em:
+
+```text
+examples/basic/
+```
+
+Ele contém:
+
+- `BasicPlugin`;
+- Tool local `CatalogSearch`;
+- catálogo determinístico em memória;
+- operação somente `READ`;
+- nenhum MySQL;
+- nenhuma API privada;
+- nenhum side effect.
+
+O `BasicPlugin` registra sua Tool pela mesma API pública do
+`GuicheBuilder` usada por aplicações externas.
 
 ## Conceitos principais
 
@@ -285,13 +295,14 @@ A documentação pública da linha v1 é organizada em:
 - State: `docs/state.md`;
 - contexto multi-tenant: `docs/multitenancy.md`;
 - migração v1.0 → v1.1: `docs/migration-v1.0-to-v1.1.md`;
+- migração v1.1 → v1.2: `docs/migration-v1.1-to-v1.2.md`;
 - segurança: `docs/security.md`.
 
 A política de estabilidade da API e suporte PHP complementa essa documentação.
 
 ## Status
 
-A v1.0.0 estabeleceu a primeira linha estável do Guichê. A v1.1.0 adiciona contexto dinâmico multi-tenant para Tools sem quebrar o contrato público existente. A v1.1.1 corrige a experiência real de instalação com `.env` automático e configuração de IA neutra de provider.
+A v1.0.0 estabeleceu a primeira linha estável do Guichê. A v1.1.0 adicionou contexto dinâmico multi-tenant para Tools e a v1.1.1 corrigiu o carregamento de ambiente. A v1.2.0 adiciona a CLI pública `vendor/bin/guiche`, bootstrap automático, `doctor`, `usage`, chat sem `chat.php` manual e resolução configurável de prompt.
 
 O compromisso da linha v1 inclui:
 
@@ -376,6 +387,7 @@ Documentação da linha v1:
 - [Security Policy](SECURITY.md)
 - [Migração v0.9 → v1.0](docs/migration-v0.9-to-v1.0.md)
 - [Release v1.0.0](docs/releases/v1.0.0.md)
+- [Release v1.2.0](docs/releases/v1.2.0.md)
 
 Os exemplos permanecem separados do Core: `examples/basic/` para início rápido e `examples/clinica-piloto/` como exemplo avançado de domínio.
 <!-- guiche-v1-stable:end -->
