@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Asmpkg\Guiche;
 
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
+use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
 use Asmpkg\Guiche\Contracts\PluginInterface;
 use Asmpkg\Guiche\Contracts\ResultPresenterInterface;
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
+use Asmpkg\Guiche\Contracts\TenantResolverInterface;
 use Asmpkg\Guiche\Contracts\ToolInterface;
+use Asmpkg\Guiche\Plugin\ContextAwarePresentedTool;
 use Asmpkg\Guiche\Plugin\PresentedTool;
 use Asmpkg\Guiche\Plugin\ToolRegistration;
 use InvalidArgumentException;
@@ -42,6 +45,7 @@ final class GuicheBuilder
     private ?RuntimeContext $runtime = null;
     private ?StateManagerInterface $stateManager = null;
     private ?ToolPolicy $toolPolicy = null;
+    private ?TenantResolverInterface $tenantResolver = null;
 
     private string $instructions = '';
 
@@ -305,6 +309,14 @@ final class GuicheBuilder
         return $this;
     }
 
+    public function withTenantResolver(
+        TenantResolverInterface $tenantResolver
+    ): self {
+        $this->tenantResolver = $tenantResolver;
+
+        return $this;
+    }
+
     public function withAiProvider(
         ?AiProviderInterface $ai
     ): self {
@@ -467,7 +479,8 @@ final class GuicheBuilder
             maxToolRounds: $this->maxToolRounds,
             aiToolResultIncludePaths:
                 $this->compiledToolResultIncludePaths(),
-            eventSink: $this->runtimeEventSink
+            eventSink: $this->runtimeEventSink,
+            tenantResolver: $this->tenantResolver
         );
 
         if ($this->toolPolicy !== null) {
@@ -548,10 +561,17 @@ final class GuicheBuilder
             $name = $registration->name();
 
             if ($this->presenters->has($name)) {
-                $tool = new PresentedTool(
-                    $tool,
-                    $this->presenters->get($name)
-                );
+                $presenter = $this->presenters->get($name);
+
+                $tool = $tool instanceof ContextAwareToolInterface
+                    ? new ContextAwarePresentedTool(
+                        $tool,
+                        $presenter
+                    )
+                    : new PresentedTool(
+                        $tool,
+                        $presenter
+                    );
             }
 
             $runtime->register(

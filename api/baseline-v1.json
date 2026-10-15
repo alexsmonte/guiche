@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "cd662cb4edcd91a8033f144f620644511a5eaadbddb02feb4396e1dc14712b83",
+    "public_api_sha256": "f4328ccc4724f0e097e0d9369329a6bb3bbfe27bca5cddc8d452f43a63130c41",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -2352,6 +2352,15 @@
                             "optional": true,
                             "has_default": true,
                             "default": null
+                        },
+                        {
+                            "name": "tenantResolver",
+                            "type": "?Asmpkg\\Guiche\\Contracts\\TenantResolverInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
                         }
                     ]
                 },
@@ -3083,6 +3092,24 @@
                         {
                             "name": "sink",
                             "type": "Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withTenantResolver": {
+                    "name": "withTenantResolver",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "tenantResolver",
+                            "type": "Asmpkg\\Guiche\\Contracts\\TenantResolverInterface",
                             "by_reference": false,
                             "variadic": false,
                             "optional": false,

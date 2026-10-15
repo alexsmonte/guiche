@@ -44,6 +44,7 @@ return array (
   'Asmpkg\\Guiche\\Observability\\JsonlRuntimeEventSink' => 'public',
   'Asmpkg\\Guiche\\Observability\\NullRuntimeEventSink' => 'public',
   'Asmpkg\\Guiche\\Observability\\RuntimeEventFactory' => 'internal',
+  'Asmpkg\\Guiche\\Plugin\\ContextAwarePresentedTool' => 'internal',
   'Asmpkg\\Guiche\\Plugin\\PresentedTool' => 'internal',
   'Asmpkg\\Guiche\\Plugin\\ToolRegistration' => 'public',
   'Asmpkg\\Guiche\\PresenterRegistry' => 'public',

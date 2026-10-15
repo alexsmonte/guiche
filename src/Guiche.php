@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Asmpkg\Guiche;
 
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
+use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
 use Asmpkg\Guiche\Contracts\ContextStoreInterface;
 use Asmpkg\Guiche\Contracts\RuntimeEventSinkInterface;
+use Asmpkg\Guiche\Contracts\TenantResolverInterface;
+use Asmpkg\Guiche\Execution\ToolExecutionContext;
 use Asmpkg\Guiche\Observability\NullRuntimeEventSink;
 use Asmpkg\Guiche\Observability\RuntimeEventFactory;
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
+use Asmpkg\Guiche\Tenant\TenantResolutionService;
 use Asmpkg\Guiche\Safety\ToolBlockedException;
 use Asmpkg\Guiche\Safety\ToolExecutionGate;
 use Asmpkg\Guiche\Safety\ToolSafetyMetadata;
@@ -19,6 +23,7 @@ use Throwable;
 final class Guiche
 {
     private readonly RuntimeEventSinkInterface $eventSink;
+    private readonly ?TenantResolutionService $tenantResolution;
     private ?ToolPolicy $toolPolicy = null;
     /**
      * @param array<mixed> $agentContext
@@ -43,10 +48,16 @@ final class Guiche
         private readonly array $aiToolResultExcludePaths = [],
         private readonly int $maxToolRounds = 5,
         private readonly array $aiToolResultIncludePaths = [],
-        ?RuntimeEventSinkInterface $eventSink = null
+        ?RuntimeEventSinkInterface $eventSink = null,
+        ?TenantResolverInterface $tenantResolver = null
     ) {
         $this->eventSink = $eventSink ?? new NullRuntimeEventSink();
-
+        $this->tenantResolution = $tenantResolver !== null
+            ? new TenantResolutionService(
+                $this->context,
+                $tenantResolver
+            )
+            : null;
     }
 
     /**
@@ -84,6 +95,12 @@ final class Guiche
             $registration->metadata()
         );
 
+        $toolExecutionContext =
+            $this->toolExecutionContextFor(
+                $name,
+                $normalizedSessionId
+            );
+
         if ($operation === ToolSafetyMetadata::OPERATION_WRITE) {
             if ($normalizedSessionId === '') {
                 throw new ToolBlockedException(
@@ -104,9 +121,10 @@ final class Guiche
             }
         }
 
-        $result = $this->tools->execute(
+        $result = $this->executeRegisteredTool(
             $name,
-            $arguments
+            $arguments,
+            $toolExecutionContext
         );
 
         if (
@@ -228,6 +246,7 @@ final class Guiche
                 $isWrite = false;
                 $previousWrite = null;
                 $result = null;
+                $toolExecutionContext = null;
 
                 /*
                  * Gate 1:
@@ -250,6 +269,12 @@ final class Guiche
 
                     $isWrite = $operation
                         === ToolSafetyMetadata::OPERATION_WRITE;
+
+                    $toolExecutionContext =
+                        $this->toolExecutionContextFor(
+                            $name,
+                            $sessionId
+                        );
                 } catch (ToolBlockedException $exception) {
                     $blocked = true;
                     $result = $exception->toArray();
@@ -332,6 +357,12 @@ final class Guiche
                         $isWrite = $operation
                             === ToolSafetyMetadata::OPERATION_WRITE;
 
+                        $toolExecutionContext =
+                            $this->toolExecutionContextFor(
+                                $name,
+                                $sessionId
+                            );
+
                         if ($isWrite) {
                             $previousWrite = $this->context->findSuccessfulToolResult(
                                 $sessionId,
@@ -359,9 +390,10 @@ final class Guiche
                             $result = $this->observedToolExecution($sessionId, $interactionId, $events, $callId,
                                 $name,
                                 $arguments,
-                            fn (): array => $this->tools->execute(
+                            fn (): array => $this->executeRegisteredTool(
                                 $name,
-                                $arguments
+                                $arguments,
+                                $toolExecutionContext
                             )
                         );
                         }
@@ -501,6 +533,115 @@ final class Guiche
             'runtime' => $this->runtime?->current() ?? [],
             'context' => $this->context->load($sessionId),
         ];
+    }
+
+    private function toolExecutionContextFor(
+        string $name,
+        string $sessionId
+    ): ?ToolExecutionContext {
+        $tool = $this->tools->get($name);
+
+        if (!$tool instanceof ContextAwareToolInterface) {
+            return null;
+        }
+
+        $sessionId = trim($sessionId);
+
+        if ($sessionId === '') {
+            throw new ToolBlockedException(
+                $name,
+                'context_session_required',
+                'Ferramentas contextuais exigem sessionId.'
+            );
+        }
+
+        try {
+            if ($this->tenantResolution !== null) {
+                return $this->tenantResolution->resolve(
+                    $sessionId
+                );
+            }
+
+            $stored = $this->context->load($sessionId);
+            $values = $stored['execution_context'] ?? [];
+
+            if (!is_array($values)) {
+                throw new RuntimeException(
+                    'execution_context persistido é inválido.'
+                );
+            }
+
+            $identity = $values['identity'] ?? null;
+
+            if (
+                !is_array($identity)
+                || $identity === []
+                || array_is_list($identity)
+            ) {
+                throw new ToolBlockedException(
+                    $name,
+                    'identity_context_required',
+                    'Ferramenta contextual sem identidade confiável vinculada à sessão.'
+                );
+            }
+
+            $context = new ToolExecutionContext(
+                $sessionId,
+                $values
+            );
+
+            if ($context->tenantId() === null) {
+                throw new ToolBlockedException(
+                    $name,
+                    'tenant_context_required',
+                    'Ferramenta contextual sem tenant vinculado à sessão.'
+                );
+            }
+
+            return $context;
+        } catch (ToolBlockedException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new ToolBlockedException(
+                $name,
+                'tenant_context_unavailable',
+                'Contexto de tenant indisponível para a ferramenta.',
+                ['exception_class' => $exception::class],
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     * @return array<mixed>
+     */
+    private function executeRegisteredTool(
+        string $name,
+        array $arguments,
+        ?ToolExecutionContext $executionContext
+    ): array {
+        $tool = $this->tools->get($name);
+
+        if ($tool instanceof ContextAwareToolInterface) {
+            if ($executionContext === null) {
+                throw new ToolBlockedException(
+                    $name,
+                    'tenant_context_required',
+                    'Ferramenta contextual sem contexto de execução.'
+                );
+            }
+
+            return $tool->executeWithContext(
+                $arguments,
+                $executionContext
+            );
+        }
+
+        return $this->tools->execute(
+            $name,
+            $arguments
+        );
     }
 
     private function executionGate(): ToolExecutionGate
