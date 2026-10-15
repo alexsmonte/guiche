@@ -54,6 +54,10 @@ return array (
   'Asmpkg\\Guiche\\Safety\\ToolBlockedException' => 'public',
   'Asmpkg\\Guiche\\Safety\\ToolExecutionGate' => 'internal',
   'Asmpkg\\Guiche\\Safety\\ToolSafetyMetadata' => 'internal',
+  'Asmpkg\\Guiche\\Tenant\\CallbackTenantResolver' => 'public',
+  'Asmpkg\\Guiche\\Tenant\\HttpTenantResolver' => 'public',
+  'Asmpkg\\Guiche\\Tenant\\SqlTenantResolver' => 'public',
+  'Asmpkg\\Guiche\\Tenant\\TenantResolutionService' => 'public',
   'Asmpkg\\Guiche\\ToolPolicy' => 'public',
   'Asmpkg\\Guiche\\ToolRegistry' => 'public',
 );
