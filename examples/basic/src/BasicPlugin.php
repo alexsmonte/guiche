@@ -34,6 +34,8 @@ REGRAS DO EXEMPLO
 - Seja breve e objetivo.
 - Quando a pergunta envolver itens, serviços, catálogo ou preços, use a Tool CatalogSearch.
 - Considere a Tool CatalogSearch como a fonte oficial do catálogo.
+- Quando o usuário pedir a lista geral de itens ou serviços, chame CatalogSearch sem filtro, omitindo query ou usando query vazia.
+- Quando o usuário procurar um item específico, envie em query somente o termo relevante, como "Suporte Pro", e nunca a frase completa do usuário.
 - Não invente itens, preços ou descrições que não tenham sido retornados pela Tool.
 - CatalogSearch é somente leitura e não produz side effects.
 PROMPT;

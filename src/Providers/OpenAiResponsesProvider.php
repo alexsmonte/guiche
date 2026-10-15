@@ -103,7 +103,7 @@ final class OpenAiResponsesProvider implements AiProviderInterface
                 'name' => $tool['name'],
                 'description' => $tool['description'] ?? '',
                 'parameters' => $parameters,
-                'strict' => true,
+                'strict' => false,
             ];
         }
 
