@@ -255,3 +255,46 @@ session-b → identity-b → tenant-b → mesma Tool
 
 A mesma classe/instância pode servir os dois tenants sem misturar o
 escopo de dados.
+
+## Binding recomendado a partir da v1.3
+
+Aplicações externas não precisam instanciar `ExecutionContextSeeder`
+diretamente.
+
+O caminho público recomendado é:
+
+```php
+$guiche->bindIdentity(
+    $sessionId,
+    [
+        'provider' => 'custom-crm',
+        'account_id' => $accountId,
+        'conversation_id' => $conversationId,
+    ]
+);
+```
+
+Quando um `TenantResolverInterface` está configurado, o próprio binding
+resolve e persiste o tenant antes de retornar.
+
+```text
+trusted host
+   ↓
+bindIdentity()
+   ↓
+identity write-once
+   ↓
+TenantResolver
+   ↓
+tenant_id write-once
+   ↓
+ToolExecutionContext
+```
+
+A mesma identity pode ser vinculada novamente de forma idempotente. Uma
+identity diferente para a mesma sessão é rejeitada.
+
+`bindIdentity()` e `handle()` usam o mesmo lock por sessão para impedir que
+um turno atravesse um binding ainda em andamento.
+
+Veja `docs/trusted-external-identity.md`.

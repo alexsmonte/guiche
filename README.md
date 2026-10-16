@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.2.0 — Stable**
+> Versão documentada: **v1.3.0 — Stable**
 ## Requisitos
 
 - PHP `^8.4`;
@@ -31,14 +31,14 @@ composer install
 
 ## Quick Start — primeira conversa
 
-Na v1.2.0 você não precisa copiar nem criar `chat.php` para começar.
+Na v1.3.0 você não precisa copiar nem criar `chat.php` para começar.
 
 ### 1. Crie um projeto vazio
 
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^1.2
+composer require asmpkg/guiche:^1.3
 ```
 
 ### 2. Inicialize o projeto
@@ -214,6 +214,63 @@ Veja:
 
 - `docs/multitenancy.md`;
 - `docs/migration-v1.0-to-v1.1.md`.
+
+### Contexto externo confiável — v1.3
+
+A v1.3 torna público o caminho recomendado para aplicações externas
+vincularem uma identidade autenticada à sessão:
+
+```php
+$guiche->bindIdentity(
+    $sessionId,
+    [
+        'provider' => 'custom-crm',
+        'account_id' => $accountId,
+        'conversation_id' => $conversationId,
+    ]
+);
+
+$response = $guiche->handle(
+    $sessionId,
+    $message
+);
+```
+
+O fluxo é:
+
+```text
+host externo confiável
+        ↓
+bindIdentity()
+        ↓
+execution_context.identity
+        ↓
+TenantResolver
+        ↓
+execution_context.tenant_id
+        ↓
+ToolExecutionContext
+        ↓
+ContextAwareTool
+```
+
+`bindIdentity()` é write-once por sessão, idempotente para o mesmo binding e
+falha fechado quando há tentativa de troca. Binding e turno da mesma sessão
+também compartilham o mesmo lock de concorrência.
+
+O Core não depende de Chatwoot ou de qualquer provider externo. Chatwoot é
+um adapter de referência em `examples/chatwoot/`; um exemplo genérico fica
+em `examples/external-host/`.
+
+A autenticação do webhook/request externo pertence ao host. Somente depois
+de estabelecer a confiança o host deve chamar `bindIdentity()`.
+
+Veja:
+
+- `docs/trusted-external-identity.md`;
+- `docs/migration-v1.2-to-v1.3.md`;
+- `examples/chatwoot/`;
+- `examples/external-host/`.
 
 ### Safety Layer
 

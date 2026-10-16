@@ -4,6 +4,68 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.3.0] - 2026-10-16
+
+### Added
+
+- `Guiche::bindIdentity()` como API pública recomendada para vincular
+  identidade externa confiável a uma sessão;
+- pipeline direto `host externo → bindIdentity() → TenantResolver →
+  ToolExecutionContext → Tool`;
+- adapter de referência para Chatwoot em `examples/chatwoot/`;
+- exemplo provider-agnostic em `examples/external-host/`;
+- documentação de migração e integração para contexto externo confiável.
+
+### Security
+
+- `execution_context.identity` permanece write-once e imutável por sessão;
+- rebinding idêntico é idempotente;
+- tentativa de troca de identidade falha fechado;
+- resolução de tenant recebe somente identity confiável;
+- dados extras retornados pelo resolver não são promovidos ao
+  `execution_context`;
+- valores não serializáveis e floats não finitos são rejeitados antes de
+  persistência/resolução;
+- raw `identity`, `tenant_id` e `execution_context` são removidos da
+  observabilidade;
+- contexto confiável não é promovido ao prompt da IA;
+- falhas do resolver são auditáveis sem persistir sua mensagem bruta;
+- `bindIdentity()` e `handle()` da mesma sessão compartilham lock exclusivo;
+- concorrência entre sessões diferentes permanece independente.
+
+### External integrations
+
+- Chatwoot utiliza `account_id`, `inbox_id` e `conversation_id` como identity
+  de referência;
+- a session ID do exemplo Chatwoot é opaca e estável por conversa;
+- mensagens Chatwoot outgoing/private são rejeitadas no adapter de
+  referência;
+- autenticação/verificação de requests externos permanece responsabilidade
+  do host, antes de `bindIdentity()`.
+
+### Compatibility
+
+- mudança SemVer minor e aditiva;
+- `ToolInterface` permanece inalterada;
+- Tools legadas continuam sem exigir contexto multi-tenant;
+- `ContextStoreInterface` permanece inalterada;
+- Public: 32 símbolos;
+- Experimental: 11 símbolos;
+- Internal: 14 símbolos;
+- SHA-256 da API pública:
+  `fa76a663dcb6afdd10dee53913a50fc6686ef88ce4f9618411967bc7168b4c52`.
+
+### Validation
+
+- 222 testes na suíte completa da Fase 05;
+- regressão focada v1.3: 75 testes / 389 assertions;
+- PHPStan sem erros;
+- cobertura de linhas/statements: 75,69%;
+- threshold mínimo: 70%;
+- concorrência multiprocesso validada para binding idempotente, conflito,
+  bind/handle e isolamento entre sessões;
+- API pública v1 e freeze experimental preservados.
+
 ## [1.2.0] - 2026-10-15
 
 ### Added

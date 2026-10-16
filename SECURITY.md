@@ -37,6 +37,10 @@ The project treats the following as release-blocking invariants:
 - session-bound `execution_context.identity` cannot be switched after binding;
 - a resolved `tenant_id` cannot be switched for the same session;
 - tenant identity comes from trusted runtime context, not from AI-generated Tool arguments;
+- external identity must be authenticated/validated by the host before `bindIdentity()` is called;
+- raw `identity`, `tenant_id` and `execution_context` must not be emitted to runtime observability;
+- trusted execution context must not be promoted into AI instructions/messages;
+- `bindIdentity()` and `handle()` for the same session are serialized by the same session lock;
 - ContextAware Tools fail closed before side effects when session/tenant context is unavailable;
 - CI does not require repository secrets to execute the quality gate.
 

@@ -103,6 +103,27 @@ SHA-256 da API pública:
 As adições são compatíveis com SemVer da linha v1.x. O contrato original
 de `ToolInterface` e `ContextStoreInterface` não foi quebrado.
 
+## Decisão para v1.3.0
+
+A v1.3.0 adiciona `Guiche::bindIdentity()` à classe pública `Guiche`.
+
+A mudança é aditiva e compatível com SemVer. Nenhum símbolo público é
+removido e nenhuma assinatura pública anterior é alterada.
+
+Contagem congelada:
+
+- Public: 32;
+- Experimental: 11;
+- Internal: 14.
+
+SHA-256 da API pública congelada para v1.3.0:
+
+`fa76a663dcb6afdd10dee53913a50fc6686ef88ce4f9618411967bc7168b4c52`
+
+A partir da v1.3, `bindIdentity()` é o caminho público recomendado para hosts
+externos. `ExecutionContextSeeder` permanece disponível por compatibilidade,
+mas consumidores normais não precisam utilizá-lo diretamente.
+
 ## API experimental
 
 | Símbolo | Tipo | Motivo |
