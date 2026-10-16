@@ -9,6 +9,7 @@ use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
 use Asmpkg\Guiche\Contracts\ContextStoreInterface;
 use Asmpkg\Guiche\Contracts\RuntimeEventSinkInterface;
 use Asmpkg\Guiche\Contracts\TenantResolverInterface;
+use Asmpkg\Guiche\Execution\ExecutionContextSeeder;
 use Asmpkg\Guiche\Execution\ToolExecutionContext;
 use Asmpkg\Guiche\Observability\NullRuntimeEventSink;
 use Asmpkg\Guiche\Observability\RuntimeEventFactory;
@@ -150,6 +151,32 @@ final class Guiche
     public function context(string $sessionId): array
     {
         return $this->context->load($sessionId);
+    }
+
+    /**
+     * Vincula à sessão uma identidade externa confiável fornecida
+     * pela aplicação host, fora do conteúdo controlado pela IA.
+     *
+     * @param array<mixed> $identity
+     */
+    public function bindIdentity(
+        string $sessionId,
+        array $identity
+    ): ToolExecutionContext {
+        $bound = (new ExecutionContextSeeder(
+            $this->context
+        ))->seed(
+            $sessionId,
+            ['identity' => $identity]
+        );
+
+        if ($this->tenantResolution === null) {
+            return $bound;
+        }
+
+        return $this->tenantResolution->resolve(
+            $bound->sessionId()
+        );
     }
 
     public function reset(string $sessionId): void
