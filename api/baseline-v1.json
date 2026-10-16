@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "fa76a663dcb6afdd10dee53913a50fc6686ef88ce4f9618411967bc7168b4c52",
+    "public_api_sha256": "b11aeeadf3bf05f7a09ec1df2b43996701659ea8a552279bc25b80a14241de08",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -981,6 +981,36 @@
                         {
                             "name": "builder",
                             "type": "Asmpkg\\Guiche\\GuicheBuilder",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Contracts\\PromptResolverInterface": {
+            "kind": "interface",
+            "final": false,
+            "abstract": true,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "resolve": {
+                    "name": "resolve",
+                    "static": false,
+                    "final": false,
+                    "abstract": true,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": [
+                        {
+                            "name": "context",
+                            "type": "Asmpkg\\Guiche\\Prompt\\PromptContext",
                             "by_reference": false,
                             "variadic": false,
                             "optional": false,
@@ -3426,6 +3456,117 @@
                             "has_default": false
                         }
                     ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Prompt\\PromptContext": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "sessionId",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "values",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": []
+                        }
+                    ]
+                },
+                "all": {
+                    "name": "all",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "array",
+                    "parameters": []
+                },
+                "get": {
+                    "name": "get",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "mixed",
+                    "parameters": [
+                        {
+                            "name": "key",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "default",
+                            "type": "mixed",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
+                        }
+                    ]
+                },
+                "has": {
+                    "name": "has",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "bool",
+                    "parameters": [
+                        {
+                            "name": "key",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "sessionId": {
+                    "name": "sessionId",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": []
+                },
+                "tenantId": {
+                    "name": "tenantId",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string|int|null",
+                    "parameters": []
                 }
             },
             "properties": [],
