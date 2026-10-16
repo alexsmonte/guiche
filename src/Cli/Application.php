@@ -90,6 +90,10 @@ TXT;
         $promptTarget = $this->projectRoot
             . '/'
             . PromptResolver::PROJECT_PROMPT_FILE;
+        $compositionRootSource = $this->packageRoot
+            . '/resources/guiche.php';
+        $compositionRootTarget = $this->projectRoot
+            . '/guiche.php';
         $storage = $this->storagePath();
 
         if (!is_file($source)) {
@@ -104,8 +108,15 @@ TXT;
             );
         }
 
+        if (!is_file($compositionRootSource)) {
+            throw new RuntimeException(
+                'Template guiche.php do pacote não foi encontrado.'
+            );
+        }
+
         $createdEnv = false;
         $createdPrompt = false;
+        $createdCompositionRoot = false;
 
         if (!is_file($target)) {
             if (!copy($source, $target)) {
@@ -127,6 +138,19 @@ TXT;
             $createdPrompt = true;
         }
 
+        if (!is_file($compositionRootTarget)) {
+            if (!copy(
+                $compositionRootSource,
+                $compositionRootTarget
+            )) {
+                throw new RuntimeException(
+                    'Não foi possível criar guiche.php.'
+                );
+            }
+
+            $createdCompositionRoot = true;
+        }
+
         if (
             !is_dir($storage)
             && !mkdir($storage, 0775, true)
@@ -144,6 +168,9 @@ TXT;
         echo $createdPrompt
             ? "  [OK] guiche.prompt.md criado" . PHP_EOL
             : "  [OK] guiche.prompt.md existente preservado" . PHP_EOL;
+        echo $createdCompositionRoot
+            ? "  [OK] guiche.php criado como Composition Root" . PHP_EOL
+            : "  [OK] guiche.php existente preservado" . PHP_EOL;
         echo "  [OK] storage/conversations disponível" . PHP_EOL;
         echo PHP_EOL;
         echo "Próximo passo: configure AI_API_KEY no .env e execute:" . PHP_EOL;
@@ -400,8 +427,49 @@ TXT;
         return 0;
     }
 
+    private function buildFromCompositionRoot(): ?Guiche
+    {
+        $file = $this->projectRoot
+            . '/guiche.php';
+
+        if (!is_file($file)) {
+            return null;
+        }
+
+        $factory = require $file;
+
+        if (!is_callable($factory)) {
+            throw new RuntimeException(
+                'guiche.php precisa retornar uma factory callable.'
+            );
+        }
+
+        $overrides = [];
+
+        if ($this->aiProvider !== null) {
+            $overrides['ai_provider'] =
+                $this->aiProvider;
+        }
+
+        $guiche = $factory($overrides);
+
+        if (!$guiche instanceof Guiche) {
+            throw new RuntimeException(
+                'A factory de guiche.php precisa retornar Asmpkg\\Guiche\\Guiche.'
+            );
+        }
+
+        return $guiche;
+    }
+
     private function buildGuiche(): Guiche
     {
+        $composed = $this->buildFromCompositionRoot();
+
+        if ($composed !== null) {
+            return $composed;
+        }
+
         $storage = $this->storagePath();
 
         if (
