@@ -192,6 +192,20 @@ final class RuntimeEventFactory
                 continue;
             }
 
+            if (
+                in_array(
+                    $normalizedKey,
+                    [
+                        'identity',
+                        'tenant_id',
+                        'execution_context',
+                    ],
+                    true
+                )
+            ) {
+                continue;
+            }
+
             $result[$key] = self::sanitize(
                 $item
             );

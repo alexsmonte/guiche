@@ -163,20 +163,256 @@ final class Guiche
         string $sessionId,
         array $identity
     ): ToolExecutionContext {
-        $bound = (new ExecutionContextSeeder(
-            $this->context
-        ))->seed(
+        $interactionId = 'identity-bind-'
+            . bin2hex(random_bytes(8));
+
+        $identityFingerprint =
+            $this->trustedIdentityFingerprint(
+                $identity
+            );
+
+        $existingIdentityFingerprint = null;
+        $normalizedSessionId = trim($sessionId);
+
+        if ($normalizedSessionId !== '') {
+            try {
+                $storedBefore = $this->context->load(
+                    $normalizedSessionId
+                );
+
+                $existingIdentity =
+                    $storedBefore['execution_context']
+                        ['identity']
+                    ?? null;
+
+                if (
+                    is_array($existingIdentity)
+                    && $existingIdentity !== []
+                    && !array_is_list($existingIdentity)
+                ) {
+                    $existingIdentityFingerprint =
+                        $this->trustedIdentityFingerprint(
+                            $existingIdentity
+                        );
+                }
+            } catch (Throwable) {
+                /*
+                 * A leitura real feita pelo seeder continuará
+                 * responsável por falhar fechada. Esta leitura
+                 * auxiliar existe somente para enriquecer auditoria.
+                 */
+            }
+        }
+
+        $this->recordTrustedIdentityEvent(
             $sessionId,
-            ['identity' => $identity]
+            $interactionId,
+            [
+                'type' =>
+                    'trusted_identity_binding_started',
+                'identity_fingerprint' =>
+                    $identityFingerprint,
+                'existing_binding' =>
+                    $existingIdentityFingerprint !== null,
+                'resolver_configured' =>
+                    $this->tenantResolution !== null,
+            ]
+        );
+
+        try {
+            $bound = (new ExecutionContextSeeder(
+                $this->context
+            ))->seed(
+                $sessionId,
+                ['identity' => $identity]
+            );
+        } catch (Throwable $exception) {
+            $reason = (
+                $existingIdentityFingerprint !== null
+                && !hash_equals(
+                    $existingIdentityFingerprint,
+                    $identityFingerprint
+                )
+            )
+                ? 'identity_conflict'
+                : 'binding_failed';
+
+            $this->recordTrustedIdentityEvent(
+                $sessionId,
+                $interactionId,
+                [
+                    'type' =>
+                        'trusted_identity_binding_failed',
+                    'identity_fingerprint' =>
+                        $identityFingerprint,
+                    'reason' => $reason,
+                    'exception_class' =>
+                        $exception::class,
+                ]
+            );
+
+            throw $exception;
+        }
+
+        $this->recordTrustedIdentityEvent(
+            $sessionId,
+            $interactionId,
+            [
+                'type' => 'trusted_identity_bound',
+                'identity_fingerprint' =>
+                    $identityFingerprint,
+                'idempotent' => (
+                    $existingIdentityFingerprint !== null
+                    && hash_equals(
+                        $existingIdentityFingerprint,
+                        $identityFingerprint
+                    )
+                ),
+            ]
         );
 
         if ($this->tenantResolution === null) {
             return $bound;
         }
 
-        return $this->tenantResolution->resolve(
-            $bound->sessionId()
+        try {
+            $resolved =
+                $this->tenantResolution->resolve(
+                    $bound->sessionId()
+                );
+        } catch (Throwable $exception) {
+            $this->recordTrustedIdentityEvent(
+                $sessionId,
+                $interactionId,
+                [
+                    'type' =>
+                        'trusted_tenant_resolution_failed',
+                    'identity_fingerprint' =>
+                        $identityFingerprint,
+                    'exception_class' =>
+                        $exception::class,
+                ]
+            );
+
+            throw $exception;
+        }
+
+        $tenantId = $resolved->tenantId();
+
+        $this->recordTrustedIdentityEvent(
+            $sessionId,
+            $interactionId,
+            [
+                'type' =>
+                    'trusted_tenant_resolution_succeeded',
+                'identity_fingerprint' =>
+                    $identityFingerprint,
+                'tenant_fingerprint' =>
+                    $tenantId === null
+                        ? null
+                        : hash(
+                            'sha256',
+                            serialize($tenantId)
+                        ),
+            ]
         );
+
+        return $resolved;
+    }
+
+    /**
+     * @param array<mixed> $identity
+     */
+    private function trustedIdentityFingerprint(
+        array $identity
+    ): string {
+        return hash(
+            'sha256',
+            serialize(
+                $this->canonicalizeTrustedIdentityForFingerprint(
+                    $identity
+                )
+            )
+        );
+    }
+
+    private function canonicalizeTrustedIdentityForFingerprint(
+        mixed $value
+    ): mixed {
+        if (!is_array($value)) {
+            if (is_object($value)) {
+                return [
+                    '__unsupported_type' =>
+                        get_debug_type($value),
+                ];
+            }
+
+            if (is_resource($value)) {
+                return [
+                    '__unsupported_type' =>
+                        get_resource_type($value),
+                ];
+            }
+
+            if (
+                is_float($value)
+                && !is_finite($value)
+            ) {
+                return [
+                    '__unsupported_float' =>
+                        (string) $value,
+                ];
+            }
+
+            return $value;
+        }
+
+        if (array_is_list($value)) {
+            foreach ($value as $index => $item) {
+                $value[$index] =
+                    $this->canonicalizeTrustedIdentityForFingerprint(
+                        $item
+                    );
+            }
+
+            return $value;
+        }
+
+        ksort($value, SORT_STRING);
+
+        foreach ($value as $key => $item) {
+            $value[$key] =
+                $this->canonicalizeTrustedIdentityForFingerprint(
+                    $item
+                );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<mixed> $event
+     */
+    private function recordTrustedIdentityEvent(
+        string $sessionId,
+        string $interactionId,
+        array $event
+    ): void {
+        try {
+            $this->eventSink->record(
+                RuntimeEventFactory::fromLegacy(
+                    $sessionId,
+                    $interactionId,
+                    $event
+                )
+            );
+        } catch (Throwable) {
+            /*
+             * Observabilidade é best-effort.
+             * Uma falha do sink nunca pode alterar o resultado
+             * do binding ou da resolução de tenant.
+             */
+        }
     }
 
     public function reset(string $sessionId): void
