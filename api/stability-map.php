@@ -51,6 +51,7 @@ return array (
   'Asmpkg\\Guiche\\Plugin\\PresentedTool' => 'internal',
   'Asmpkg\\Guiche\\Plugin\\ToolRegistration' => 'public',
   'Asmpkg\\Guiche\\PresenterRegistry' => 'public',
+  'Asmpkg\\Guiche\\Prompt\\CallbackPromptResolver' => 'public',
   'Asmpkg\\Guiche\\Prompt\\PromptContext' => 'public',
   'Asmpkg\\Guiche\\Providers\\OpenAiResponsesProvider' => 'internal',
   'Asmpkg\\Guiche\\Providers\\TerminalToolOutputAiProvider' => 'internal',

@@ -7,12 +7,14 @@ namespace Asmpkg\Guiche;
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
 use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
 use Asmpkg\Guiche\Contracts\ContextStoreInterface;
+use Asmpkg\Guiche\Contracts\PromptResolverInterface;
 use Asmpkg\Guiche\Contracts\RuntimeEventSinkInterface;
 use Asmpkg\Guiche\Contracts\TenantResolverInterface;
 use Asmpkg\Guiche\Execution\ExecutionContextSeeder;
 use Asmpkg\Guiche\Execution\ToolExecutionContext;
 use Asmpkg\Guiche\Observability\NullRuntimeEventSink;
 use Asmpkg\Guiche\Observability\RuntimeEventFactory;
+use Asmpkg\Guiche\Prompt\PromptContext;
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use Asmpkg\Guiche\Tenant\TenantResolutionService;
 use Asmpkg\Guiche\Safety\ToolBlockedException;
@@ -52,7 +54,8 @@ final class Guiche
         private readonly int $maxToolRounds = 5,
         private readonly array $aiToolResultIncludePaths = [],
         ?RuntimeEventSinkInterface $eventSink = null,
-        ?TenantResolverInterface $tenantResolver = null
+        ?TenantResolverInterface $tenantResolver = null,
+        private readonly ?PromptResolverInterface $promptResolver = null
     ) {
         $this->eventSink = $eventSink ?? new NullRuntimeEventSink();
         $this->tenantResolution = $tenantResolver !== null
@@ -463,6 +466,14 @@ final class Guiche
             throw new RuntimeException('A mensagem não pode estar vazia.');
         }
 
+        /*
+         * O prompt dinâmico é resolvido exatamente uma vez por turno,
+         * antes de StateManager e antes da persistência da mensagem.
+         * Assim, conteúdo controlado pelo usuário não participa da
+         * seleção da configuração operacional do agente.
+         */
+        $resolvedPrompt = $this->resolvedPromptForSession($sessionId);
+
         $interactionStartedAt = hrtime(true);
         $interactionId = bin2hex(random_bytes(8));
         $events = [
@@ -492,7 +503,7 @@ final class Guiche
         ];
 
         $response = $this->observedAiRespond($sessionId, $interactionId, $interactionStartedAt, $events,
-            $this->buildInstructions($context),
+            $this->buildInstructions($context, $resolvedPrompt),
             $this->messagesForAi($context),
             $this->toolDefinitionsForContext($context)
         );
@@ -758,7 +769,7 @@ final class Guiche
 
             $response = $this->observedAiContinue($sessionId, $interactionId, $interactionStartedAt, $events,
                 $response['id'],
-                $this->buildInstructions($context),
+                $this->buildInstructions($context, $resolvedPrompt),
                 $outputs,
                 $this->toolDefinitionsForContext($context)
             );
@@ -1123,11 +1134,63 @@ final class Guiche
         ];
     }
 
+    private function resolvedPromptForSession(
+        string $sessionId
+    ): ?string {
+        if ($this->promptResolver === null) {
+            return null;
+        }
+
+        $prompt = trim(
+            $this->promptResolver->resolve(
+                $this->promptContextForSession($sessionId)
+            )
+        );
+
+        if ($prompt === '') {
+            throw new RuntimeException(
+                'PromptResolver retornou um prompt vazio.'
+            );
+        }
+
+        return $prompt;
+    }
+
+    private function promptContextForSession(
+        string $sessionId
+    ): PromptContext {
+        if ($this->tenantResolution !== null) {
+            $executionContext =
+                $this->tenantResolution->resolve($sessionId);
+
+            return new PromptContext(
+                $executionContext->sessionId(),
+                $executionContext->all()
+            );
+        }
+
+        $stored = $this->context->load($sessionId);
+        $values = $stored['execution_context'] ?? [];
+
+        if (!is_array($values)) {
+            throw new RuntimeException(
+                'execution_context persistido é inválido.'
+            );
+        }
+
+        return new PromptContext(
+            $sessionId,
+            $values
+        );
+    }
+
     /**
      * @param array<mixed> $context
      */
-    private function buildInstructions(array $context): string
-    {
+    private function buildInstructions(
+        array $context,
+        ?string $resolvedPrompt = null
+    ): string {
         $runtime = $this->runtime?->current() ?? [];
 
         $structured = [
@@ -1153,7 +1216,26 @@ REGRAS DE DATA/HORA DO SISTEMA
 TEXT;
         }
 
-        return trim($this->instructions . $runtimeInstruction)
+        $instructionSegments = [];
+
+        if ($resolvedPrompt !== null) {
+            $resolvedPrompt = trim($resolvedPrompt);
+
+            if ($resolvedPrompt !== '') {
+                $instructionSegments[] = $resolvedPrompt;
+            }
+        }
+
+        if ($this->instructions !== '') {
+            $instructionSegments[] = $this->instructions;
+        }
+
+        $baseInstructions = implode(
+            PHP_EOL . PHP_EOL,
+            $instructionSegments
+        );
+
+        return trim($baseInstructions . $runtimeInstruction)
             . "\n\nCONTEXTO ESTRUTURADO ATUAL DO GUICHÊ:\n"
             . json_encode(
                 $structured,

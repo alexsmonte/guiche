@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "b11aeeadf3bf05f7a09ec1df2b43996701659ea8a552279bc25b80a14241de08",
+    "public_api_sha256": "6ab98aa386984fa650f28692c59869e8c9b4b964be421b34f6398ef5ddea7473",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -2391,6 +2391,15 @@
                             "optional": true,
                             "has_default": true,
                             "default": null
+                        },
+                        {
+                            "name": "promptResolver",
+                            "type": "?Asmpkg\\Guiche\\Contracts\\PromptResolverInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": true,
+                            "has_default": true,
+                            "default": null
                         }
                     ]
                 },
@@ -3101,6 +3110,24 @@
                         }
                     ]
                 },
+                "withPromptResolver": {
+                    "name": "withPromptResolver",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "resolver",
+                            "type": "Asmpkg\\Guiche\\Contracts\\PromptResolverInterface|Closure",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
                 "withReusableTools": {
                     "name": "withReusableTools",
                     "static": false,
@@ -3450,6 +3477,56 @@
                         {
                             "name": "presenter",
                             "type": "Asmpkg\\Guiche\\Contracts\\ResultPresenterInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Prompt\\CallbackPromptResolver": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [
+                "Asmpkg\\Guiche\\Contracts\\PromptResolverInterface"
+            ],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "resolver",
+                            "type": "callable",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "resolve": {
+                    "name": "resolve",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": [
+                        {
+                            "name": "context",
+                            "type": "Asmpkg\\Guiche\\Prompt\\PromptContext",
                             "by_reference": false,
                             "variadic": false,
                             "optional": false,

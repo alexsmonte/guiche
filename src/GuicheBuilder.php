@@ -7,6 +7,7 @@ namespace Asmpkg\Guiche;
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
 use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
 use Asmpkg\Guiche\Contracts\PluginInterface;
+use Asmpkg\Guiche\Contracts\PromptResolverInterface;
 use Asmpkg\Guiche\Contracts\ResultPresenterInterface;
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use Asmpkg\Guiche\Contracts\TenantResolverInterface;
@@ -14,6 +15,8 @@ use Asmpkg\Guiche\Contracts\ToolInterface;
 use Asmpkg\Guiche\Plugin\ContextAwarePresentedTool;
 use Asmpkg\Guiche\Plugin\PresentedTool;
 use Asmpkg\Guiche\Plugin\ToolRegistration;
+use Asmpkg\Guiche\Prompt\CallbackPromptResolver;
+use Closure;
 use InvalidArgumentException;
 use LogicException;
 use Throwable;
@@ -46,6 +49,7 @@ final class GuicheBuilder
     private ?StateManagerInterface $stateManager = null;
     private ?ToolPolicy $toolPolicy = null;
     private ?TenantResolverInterface $tenantResolver = null;
+    private ?PromptResolverInterface $promptResolver = null;
 
     private string $instructions = '';
 
@@ -332,6 +336,16 @@ final class GuicheBuilder
         return $this;
     }
 
+    public function withPromptResolver(
+        PromptResolverInterface|Closure $resolver
+    ): self {
+        $this->promptResolver = $resolver instanceof Closure
+            ? new CallbackPromptResolver($resolver)
+            : $resolver;
+
+        return $this;
+    }
+
     /**
      * @param array<mixed> $agentContext
      */
@@ -480,7 +494,8 @@ final class GuicheBuilder
             aiToolResultIncludePaths:
                 $this->compiledToolResultIncludePaths(),
             eventSink: $this->runtimeEventSink,
-            tenantResolver: $this->tenantResolver
+            tenantResolver: $this->tenantResolver,
+            promptResolver: $this->promptResolver
         );
 
         if ($this->toolPolicy !== null) {
