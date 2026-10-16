@@ -112,6 +112,11 @@ final class ExecutionContextSeeder
             }
         }
 
+        $values['identity'] = $this->normalizeIdentityValue(
+            $identity,
+            'execution_context.identity'
+        );
+
         if (array_key_exists('tenant_id', $values)) {
             $tenantId = $values['tenant_id'];
 
@@ -129,6 +134,46 @@ final class ExecutionContextSeeder
         }
 
         return $values;
+    }
+
+    private function normalizeIdentityValue(
+        mixed $value,
+        string $path
+    ): mixed {
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $childPath = $path
+                    . '.'
+                    . (string) $key;
+
+                $value[$key] = $this->normalizeIdentityValue(
+                    $item,
+                    $childPath
+                );
+            }
+
+            return $value;
+        }
+
+        if (is_float($value) && !is_finite($value)) {
+            throw new InvalidArgumentException(
+                "{$path} contém float não finito."
+            );
+        }
+
+        if (
+            $value === null
+            || is_string($value)
+            || is_int($value)
+            || is_float($value)
+            || is_bool($value)
+        ) {
+            return $value;
+        }
+
+        throw new InvalidArgumentException(
+            "{$path} contém valor não serializável."
+        );
     }
 
     /**

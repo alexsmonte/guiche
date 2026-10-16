@@ -10,6 +10,7 @@ use Asmpkg\Guiche\Execution\ExecutionContextSeeder;
 use Asmpkg\Guiche\Execution\ToolExecutionContext;
 use InvalidArgumentException;
 use RuntimeException;
+use Throwable;
 
 final class TenantResolutionService
 {
@@ -74,7 +75,15 @@ final class TenantResolutionService
          * State, mensagens, argumentos de Tool e qualquer conteúdo
          * produzido pela IA ficam fora da fronteira de resolução.
          */
-        $resolved = $this->resolver->resolve($identity);
+        try {
+            $resolved = $this->resolver->resolve($identity);
+        } catch (Throwable $exception) {
+            throw new RuntimeException(
+                "Falha ao resolver tenant para a sessão {$sessionId}.",
+                0,
+                $exception
+            );
+        }
 
         if (!array_key_exists('tenant_id', $resolved)) {
             throw new RuntimeException(
