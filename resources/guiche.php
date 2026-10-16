@@ -12,7 +12,9 @@ use Asmpkg\Guiche\Contracts\ToolInterface;
 use Asmpkg\Guiche\Guiche;
 use Asmpkg\Guiche\GuicheBuilder;
 use Asmpkg\Guiche\Plugin\ToolRegistration;
+use Asmpkg\Guiche\Prompt\FilePromptResolver;
 use Asmpkg\Guiche\Prompt\PromptContext;
+use Asmpkg\Guiche\Prompt\StaticPromptResolver;
 use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Asmpkg\Guiche\RuntimeContext;
 
@@ -157,47 +159,26 @@ return static function (array $app = []): Guiche {
      *     ↓
      * <projeto>/guiche.prompt.md
      *
-     * O arquivo é lido em cada turno, permitindo atualização do prompt
-     * sem reconstruir o objeto Guiche.
+     * A implementação usa as fontes públicas do Core.
      */
     $promptResolver = $app['prompt_resolver']
-        ?? static function (
-            PromptContext $context
-        ) use (
-            $root,
-            $env
-        ): string {
-            $configuredFile = trim((string)(
-                $env(
-                    'GUICHE_PROMPT_FILE',
-                    ''
-                )
-            ));
+        ?? null;
 
-            if ($configuredFile !== '') {
-                $isAbsolute = str_starts_with(
+    if ($promptResolver === null) {
+        $configuredFile = trim((string)(
+            $env(
+                'GUICHE_PROMPT_FILE',
+                ''
+            )
+        ));
+
+        if ($configuredFile !== '') {
+            $promptResolver =
+                new FilePromptResolver(
                     $configuredFile,
-                    '/'
-                ) || preg_match(
-                    '/^[A-Za-z]:[\\\\\/]/',
-                    $configuredFile
-                ) === 1;
-
-                $path = $isAbsolute
-                    ? $configuredFile
-                    : $root
-                        . '/'
-                        . ltrim(
-                            $configuredFile,
-                            '/\\'
-                        );
-
-                return readGuichePrompt(
-                    $path,
-                    'GUICHE_PROMPT_FILE'
+                    $root
                 );
-            }
-
+        } else {
             $inline = trim((string)(
                 $env(
                     'GUICHE_PROMPT',
@@ -205,15 +186,16 @@ return static function (array $app = []): Guiche {
                 )
             ));
 
-            if ($inline !== '') {
-                return $inline;
-            }
-
-            return readGuichePrompt(
-                $root . '/guiche.prompt.md',
-                'guiche.prompt.md'
-            );
-        };
+            $promptResolver = $inline !== ''
+                ? new StaticPromptResolver(
+                    $inline
+                )
+                : new FilePromptResolver(
+                    'guiche.prompt.md',
+                    $root
+                );
+        }
+    }
 
     if (
         !$promptResolver instanceof PromptResolverInterface
@@ -378,35 +360,3 @@ return static function (array $app = []): Guiche {
 
     return $builder->build();
 };
-
-/**
- * Lê um prompt de forma fail-closed.
- */
-function readGuichePrompt(
-    string $path,
-    string $source
-): string {
-    if (!is_file($path)) {
-        throw new \RuntimeException(
-            "Prompt não encontrado em {$source}: {$path}"
-        );
-    }
-
-    $content = file_get_contents($path);
-
-    if ($content === false) {
-        throw new \RuntimeException(
-            "Não foi possível ler o prompt em {$source}: {$path}"
-        );
-    }
-
-    $content = trim($content);
-
-    if ($content === '') {
-        throw new \RuntimeException(
-            "Prompt vazio em {$source}: {$path}"
-        );
-    }
-
-    return $content;
-}
