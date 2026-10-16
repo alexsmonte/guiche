@@ -4,6 +4,38 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.4.0] - 2026-10-16
+
+### Added
+
+- `PromptResolverInterface`, `PromptContext` e `withPromptResolver()`;
+- Callback/Static/File/Fallback PromptResolver;
+- resolução dinâmica uma vez por turno;
+- `guiche.php` Composition Root criado pelo `init`;
+- exemplos de fontes e integração com frameworks.
+
+### Security
+
+- PromptContext deriva de contexto confiável;
+- mensagem/state/Tool args não selecionam tenant;
+- rebinding conflitante continua fail-closed;
+- fallback não mascara exceptions;
+- concorrência sem cross-tenant prompt leak.
+
+### Compatibility
+
+- SemVer minor aditiva;
+- `withInstructions()` permanece compatível;
+- Public: 38; Experimental: 11; Internal: 14;
+- SHA-256: `00af77a63fd4273fac60231169a9fc043a2429d4cc4b610cfcdcea1508de4f00`.
+
+### Validation
+
+- 253 testes / 1507 assertions;
+- PHPStan sem erros;
+- coverage 76,13% (threshold 70%);
+- clean install Composer externo validado na Fase 06.
+
 ## [1.3.0] - 2026-10-16
 
 ### Added

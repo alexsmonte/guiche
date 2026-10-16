@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.3.0 — Stable**
+> Versão documentada: **v1.4.0 — Stable**
 ## Requisitos
 
 - PHP `^8.4`;
@@ -31,14 +31,14 @@ composer install
 
 ## Quick Start — primeira conversa
 
-Na v1.3.0 você não precisa copiar nem criar `chat.php` para começar.
+Na v1.4.0 você não precisa copiar nem criar `chat.php` para começar.
 
 ### 1. Crie um projeto vazio
 
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^1.3
+composer require asmpkg/guiche:^1.4
 ```
 
 ### 2. Inicialize o projeto
@@ -52,6 +52,7 @@ O comando cria, sem sobrescrever arquivos existentes:
 ```text
 .env
 guiche.prompt.md
+guiche.php
 storage/conversations/
 ```
 
@@ -83,8 +84,6 @@ GUICHE_PROMPT_FILE
 GUICHE_PROMPT
         ↓
 guiche.prompt.md
-        ↓
-prompt padrão do pacote
 ```
 
 ### 5. Verifique o ambiente
@@ -272,6 +271,35 @@ Veja:
 - `examples/chatwoot/`;
 - `examples/external-host/`.
 
+### Prompt dinâmico e Composition Root — v1.4
+
+A v1.4 adiciona `PromptResolverInterface`, `PromptContext` e resolução de
+prompt em runtime por sessão/tenant, preservando `withInstructions()`.
+
+`vendor/bin/guiche init` passa a criar também `guiche.php`, o Composition Root
+do projeto consumidor:
+
+```php
+$factory = require __DIR__ . '/guiche.php';
+$guiche = $factory();
+```
+
+Fontes públicas: `StaticPromptResolver`, `FilePromptResolver`,
+`CallbackPromptResolver` e `FallbackPromptResolver`.
+
+Fluxo confiável:
+
+```text
+SESSION → bindIdentity() → TenantResolver → tenant_id
+→ PromptContext → PromptResolver → prompt
+```
+
+Mensagem do usuário, state e argumentos livres de Tool não são fonte de
+autoridade para selecionar tenant/prompt.
+
+Veja `docs/dynamic-prompts.md`, `docs/migration-v1.3-to-v1.4.md`,
+`examples/prompt-sources/` e `examples/framework-integration/`.
+
 ### Safety Layer
 
 A execução de Tools passa por regras estruturadas de segurança. O runtime suporta, entre outros mecanismos:
@@ -351,6 +379,7 @@ A documentação pública da linha v1 é organizada em:
 - Plugins: `docs/plugins.md`;
 - State: `docs/state.md`;
 - contexto multi-tenant: `docs/multitenancy.md`;
+- prompts dinâmicos: `docs/dynamic-prompts.md`;
 - migração v1.0 → v1.1: `docs/migration-v1.0-to-v1.1.md`;
 - migração v1.1 → v1.2: `docs/migration-v1.1-to-v1.2.md`;
 - segurança: `docs/security.md`.
@@ -359,7 +388,7 @@ A política de estabilidade da API e suporte PHP complementa essa documentação
 
 ## Status
 
-A v1.0.0 estabeleceu a primeira linha estável do Guichê. A v1.1.0 adicionou contexto dinâmico multi-tenant para Tools e a v1.1.1 corrigiu o carregamento de ambiente. A v1.2.0 adiciona a CLI pública `vendor/bin/guiche`, bootstrap automático, `doctor`, `usage`, chat sem `chat.php` manual e resolução configurável de prompt.
+A v1.0 estabeleceu a linha estável; a v1.1 adicionou contexto multi-tenant; a v1.2 adicionou CLI/bootstrap; a v1.3 tornou `bindIdentity()` o caminho recomendado para identidade externa; e a v1.4 adiciona Composition Root e prompts dinâmicos por sessão/tenant.
 
 O compromisso da linha v1 inclui:
 
@@ -445,6 +474,7 @@ Documentação da linha v1:
 - [Migração v0.9 → v1.0](docs/migration-v0.9-to-v1.0.md)
 - [Release v1.0.0](docs/releases/v1.0.0.md)
 - [Release v1.2.0](docs/releases/v1.2.0.md)
+- [Release v1.4.0](docs/releases/v1.4.0.md)
 
 Os exemplos permanecem separados do Core: `examples/basic/` para início rápido e `examples/clinica-piloto/` como exemplo avançado de domínio.
 <!-- guiche-v1-stable:end -->

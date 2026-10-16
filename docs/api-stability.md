@@ -10,7 +10,7 @@ Este documento define a política oficial de estabilidade da API do Guichê para
 
 O mapa canônico está em `api/stability-map.php`. O snapshot estrutural congelado está em `api/baseline-v1.json`.
 
-Hash SHA-256 da API pública congelada na v1.1.0: `f4328ccc4724f0e097e0d9369329a6bb3bbfe27bca5cddc8d452f43a63130c41`.
+Hash SHA-256 da API pública congelada na v1.4.0: `00af77a63fd4273fac60231169a9fc043a2429d4cc4b610cfcdcea1508de4f00`.
 
 ## Política de SemVer
 
@@ -62,6 +62,12 @@ GUICHE_ALLOW_API_BASELINE_UPDATE=1 php8.4 tools/api-snapshot.php --write-baselin
 | `Asmpkg\Guiche\Observability\NullRuntimeEventSink` | `class` | sink público padrão |
 | `Asmpkg\Guiche\Plugin\ToolRegistration` | `class` | tipo exposto transitivamente por API pública |
 | `Asmpkg\Guiche\PresenterRegistry` | `class` | tipo exposto transitivamente por API pública |
+| `Asmpkg\\Guiche\\Contracts\\PromptResolverInterface` | `interface` | resolução dinâmica de prompt |
+| `Asmpkg\\Guiche\\Prompt\\PromptContext` | `class` | contexto imutável do resolver |
+| `Asmpkg\\Guiche\\Prompt\\CallbackPromptResolver` | `class` | adapter Closure/repository/API |
+| `Asmpkg\\Guiche\\Prompt\\FallbackPromptResolver` | `class` | composição explícita fail-closed |
+| `Asmpkg\\Guiche\\Prompt\\FilePromptResolver` | `class` | prompt em arquivo |
+| `Asmpkg\\Guiche\\Prompt\\StaticPromptResolver` | `class` | prompt estático |
 | `Asmpkg\Guiche\RuntimeContext` | `class` | tipo exposto transitivamente por API pública |
 | `Asmpkg\Guiche\Safety\ToolBlockedException` | `class` | exceção observável pelo consumidor |
 | `Asmpkg\Guiche\ToolPolicy` | `class` | política pública configurável |
@@ -123,6 +129,22 @@ SHA-256 da API pública congelada para v1.3.0:
 A partir da v1.3, `bindIdentity()` é o caminho público recomendado para hosts
 externos. `ExecutionContextSeeder` permanece disponível por compatibilidade,
 mas consumidores normais não precisam utilizá-lo diretamente.
+
+## Decisão para v1.4.0
+
+A v1.4 adiciona seis símbolos públicos de prompt e
+`GuicheBuilder::withPromptResolver()` de forma aditiva.
+
+- Public: 38;
+- Experimental: 11;
+- Internal: 14.
+
+SHA-256 da API pública congelada:
+
+`00af77a63fd4273fac60231169a9fc043a2429d4cc4b610cfcdcea1508de4f00`
+
+`withInstructions()` permanece suportado e o Conversation Runtime continua
+experimental.
 
 ## API experimental
 
