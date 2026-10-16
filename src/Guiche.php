@@ -25,6 +25,8 @@ final class Guiche
     private readonly RuntimeEventSinkInterface $eventSink;
     private readonly ?TenantResolutionService $tenantResolution;
     private ?ToolPolicy $toolPolicy = null;
+    /** @var array<string, int> */
+    private static array $activeSessionTurnLocks = [];
     /**
      * @param array<mixed> $agentContext
      * @param array<mixed> $aiStateExcludePaths
@@ -159,6 +161,17 @@ final class Guiche
      * @return array<mixed>
      */
     public function handle(string $sessionId, string $message): array
+    {
+        return $this->withSessionTurnLock(
+            $sessionId,
+            fn (): array => $this->handleUnlocked($sessionId, $message)
+        );
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function handleUnlocked(string $sessionId, string $message): array
     {
         if ($this->ai === null) {
             throw new RuntimeException('Nenhum provider de IA foi configurado no Guichê.');
@@ -533,6 +546,72 @@ final class Guiche
             'runtime' => $this->runtime?->current() ?? [],
             'context' => $this->context->load($sessionId),
         ];
+    }
+
+    private function withSessionTurnLock(
+        string $sessionId,
+        callable $callback
+    ): mixed {
+        $lockDirectory = sys_get_temp_dir()
+            . DIRECTORY_SEPARATOR
+            . 'asmpkg-guiche-turn-locks-'
+            . substr(hash('sha256', __DIR__), 0, 16);
+
+        if (
+            !is_dir($lockDirectory)
+            && !mkdir($lockDirectory, 0775, true)
+            && !is_dir($lockDirectory)
+        ) {
+            throw new RuntimeException(
+                'Não foi possível criar o diretório de locks de turno.'
+            );
+        }
+
+        $lockFile = $lockDirectory
+            . DIRECTORY_SEPARATOR
+            . hash('sha256', $sessionId)
+            . '.lock';
+
+        if (isset(self::$activeSessionTurnLocks[$lockFile])) {
+            self::$activeSessionTurnLocks[$lockFile]++;
+
+            try {
+                return $callback();
+            } finally {
+                self::$activeSessionTurnLocks[$lockFile]--;
+
+                if (self::$activeSessionTurnLocks[$lockFile] === 0) {
+                    unset(self::$activeSessionTurnLocks[$lockFile]);
+                }
+            }
+        }
+
+        $handle = fopen($lockFile, 'c+');
+
+        if ($handle === false) {
+            throw new RuntimeException(
+                "Não foi possível abrir lock de turno da sessão {$sessionId}."
+            );
+        }
+
+        try {
+            if (!flock($handle, LOCK_EX)) {
+                throw new RuntimeException(
+                    "Não foi possível adquirir lock de turno da sessão {$sessionId}."
+                );
+            }
+
+            self::$activeSessionTurnLocks[$lockFile] = 1;
+
+            try {
+                return $callback();
+            } finally {
+                unset(self::$activeSessionTurnLocks[$lockFile]);
+            }
+        } finally {
+            flock($handle, LOCK_UN);
+            fclose($handle);
+        }
     }
 
     private function toolExecutionContextFor(
