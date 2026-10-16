@@ -163,6 +163,23 @@ final class Guiche
         string $sessionId,
         array $identity
     ): ToolExecutionContext {
+        return $this->withSessionTurnLock(
+            $sessionId,
+            fn (): ToolExecutionContext =>
+                $this->bindIdentityUnlocked(
+                    $sessionId,
+                    $identity
+                )
+        );
+    }
+
+    /**
+     * @param array<mixed> $identity
+     */
+    private function bindIdentityUnlocked(
+        string $sessionId,
+        array $identity
+    ): ToolExecutionContext {
         $interactionId = 'identity-bind-'
             . bin2hex(random_bytes(8));
 
