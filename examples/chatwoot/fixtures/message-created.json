@@ -1,0 +1,21 @@
+{
+    "event": "message_created",
+    "id": 987654,
+    "content": "Olá, gostaria de atendimento.",
+    "message_type": "incoming",
+    "private": false,
+    "inbox": {
+        "id": 20,
+        "name": "WhatsApp"
+    },
+    "conversation": {
+        "id": 30,
+        "inbox_id": 20,
+        "account_id": 10,
+        "status": "open"
+    },
+    "account": {
+        "id": 10,
+        "name": "Empresa de exemplo"
+    }
+}
