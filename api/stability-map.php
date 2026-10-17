@@ -9,6 +9,7 @@ return array (
   'Asmpkg\\Guiche\\Clock\\SystemClock' => 'internal',
   'Asmpkg\\Guiche\\Cli\\Application' => 'internal',
   'Asmpkg\\Guiche\\Cli\\PromptResolver' => 'internal',
+  'Asmpkg\\Guiche\\Container\\ClassResolver' => 'internal',
   'Asmpkg\\Guiche\\Container\\ServiceRegistry' => 'internal',
   'Asmpkg\\Guiche\\ContextStore' => 'public',
   'Asmpkg\\Guiche\\Contracts\\AiProviderInterface' => 'public',
