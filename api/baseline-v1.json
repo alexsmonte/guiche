@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "00af77a63fd4273fac60231169a9fc043a2429d4cc4b610cfcdcea1508de4f00",
+    "public_api_sha256": "4714c7bac8c932941f90e0f9dd1519aa70a098c396c6ee7b51805ca94238ebfa",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -2682,6 +2682,42 @@
                     "return_type": "array",
                     "parameters": []
                 },
+                "getService": {
+                    "name": "getService",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "object",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "hasService": {
+                    "name": "hasService",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "bool",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
                 "instructionFragments": {
                     "name": "instructionFragments",
                     "static": false,
@@ -2866,6 +2902,32 @@
                     "returns_reference": false,
                     "return_type": "array",
                     "parameters": []
+                },
+                "setService": {
+                    "name": "setService",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        },
+                        {
+                            "name": "service",
+                            "type": "object",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
                 },
                 "stateManager": {
                     "name": "stateManager",

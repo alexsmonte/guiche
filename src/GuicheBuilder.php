@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Asmpkg\Guiche;
 
+use Asmpkg\Guiche\Container\ServiceRegistry;
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
 use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
 use Asmpkg\Guiche\Contracts\PluginInterface;
@@ -41,6 +42,7 @@ final class GuicheBuilder
 {
     private ToolRegistry $tools;
     private PresenterRegistry $presenters;
+    private ServiceRegistry $services;
 
     private ?ContextStoreInterface $context = null;
     private ?RuntimeEventSinkInterface $runtimeEventSink = null;
@@ -101,8 +103,25 @@ final class GuicheBuilder
     ) {
         $this->tools = $tools ?? new ToolRegistry();
         $this->presenters = $presenters ?? new PresenterRegistry();
+        $this->services = new ServiceRegistry();
     }
 
+    public function setService(string $id, object $service): self
+    {
+        $this->services->set($id, $service);
+
+        return $this;
+    }
+
+    public function hasService(string $id): bool
+    {
+        return $this->services->has($id);
+    }
+
+    public function getService(string $id): object
+    {
+        return $this->services->get($id);
+    }
     public function registerPlugin(PluginInterface $plugin): self
     {
         $id = $plugin::class;
