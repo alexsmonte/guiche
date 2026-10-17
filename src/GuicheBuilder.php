@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Asmpkg\Guiche;
 
+use Asmpkg\Guiche\Container\ClassResolver;
 use Asmpkg\Guiche\Container\ServiceRegistry;
 use Asmpkg\Guiche\Contracts\AiProviderInterface;
 use Asmpkg\Guiche\Contracts\ContextAwareToolInterface;
@@ -43,6 +44,7 @@ final class GuicheBuilder
     private ToolRegistry $tools;
     private PresenterRegistry $presenters;
     private ServiceRegistry $services;
+    private ClassResolver $classResolver;
 
     private ?ContextStoreInterface $context = null;
     private ?RuntimeEventSinkInterface $runtimeEventSink = null;
@@ -104,6 +106,7 @@ final class GuicheBuilder
         $this->tools = $tools ?? new ToolRegistry();
         $this->presenters = $presenters ?? new PresenterRegistry();
         $this->services = new ServiceRegistry();
+        $this->classResolver = new ClassResolver($this->services);
     }
 
     public function setService(string $id, object $service): self
@@ -174,6 +177,30 @@ final class GuicheBuilder
         return $this;
     }
 
+    public function loadTool(string $tool): self
+    {
+        $class = $this->resolveToolClass($tool);
+        $instance = $this->classResolver->resolve($class);
+
+        if (!$instance instanceof ToolInterface) {
+            throw new InvalidArgumentException(
+                "Classe carregada como Tool precisa implementar "
+                . ToolInterface::class
+                . ": {$class}"
+            );
+        }
+
+        return $this->registerTool($instance);
+    }
+
+    public function loadTools(string ...$tools): self
+    {
+        foreach ($tools as $tool) {
+            $this->loadTool($tool);
+        }
+
+        return $this;
+    }
     public function registerPresenter(
         string $toolName,
         ResultPresenterInterface $presenter
@@ -742,6 +769,39 @@ final class GuicheBuilder
         return $paths;
     }
 
+    /**
+     * @return class-string
+     */
+    private function resolveToolClass(string $tool): string
+    {
+        $original = $tool;
+        $tool = trim($tool);
+
+        if ($tool === '') {
+            throw new InvalidArgumentException(
+                'Nome da Tool não pode ser vazio.'
+            );
+        }
+
+        $class = ltrim($tool, '\\');
+
+        if (!str_contains($class, '\\')) {
+            if (!str_ends_with($class, 'Tool')) {
+                $class .= 'Tool';
+            }
+
+            $class = 'App\\Tool\\' . $class;
+        }
+
+        if (!class_exists($class)) {
+            throw new InvalidArgumentException(
+                "Tool não encontrada: {$original}. "
+                . "Classe esperada: {$class}"
+            );
+        }
+
+        return $class;
+    }
     private function normalizeId(
         string $id,
         string $capability

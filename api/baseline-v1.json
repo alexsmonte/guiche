@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "4714c7bac8c932941f90e0f9dd1519aa70a098c396c6ee7b51805ca94238ebfa",
+    "public_api_sha256": "050314105934227fc426a7fc1ef4d05987e6343bafbc50fe65eda36441ab9cad",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -2726,6 +2726,42 @@
                     "returns_reference": false,
                     "return_type": "array",
                     "parameters": []
+                },
+                "loadTool": {
+                    "name": "loadTool",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "tool",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "loadTools": {
+                    "name": "loadTools",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "tools",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": true,
+                            "optional": true,
+                            "has_default": false
+                        }
+                    ]
                 },
                 "plugins": {
                     "name": "plugins",
