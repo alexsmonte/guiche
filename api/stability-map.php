@@ -62,6 +62,7 @@ return array (
   'Asmpkg\\Guiche\\Providers\\OpenAiResponsesProvider' => 'internal',
   'Asmpkg\\Guiche\\Providers\\TerminalToolOutputAiProvider' => 'internal',
   'Asmpkg\\Guiche\\RuntimeContext' => 'public',
+  'Asmpkg\\Guiche\\Safety\\TrustedParameterBinder' => 'internal',
   'Asmpkg\\Guiche\\Safety\\ToolArgumentValidator' => 'internal',
   'Asmpkg\\Guiche\\Safety\\ToolBlockedException' => 'public',
   'Asmpkg\\Guiche\\Safety\\ToolExecutionGate' => 'internal',

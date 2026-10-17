@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Asmpkg\Guiche\Plugin;
 
 use Asmpkg\Guiche\Contracts\ToolInterface;
+use Asmpkg\Guiche\Safety\TrustedParameterBinder;
 use InvalidArgumentException;
 
 /**
@@ -25,6 +26,15 @@ final class ToolRegistration
         if (trim($this->tool->name()) === '') {
             throw new InvalidArgumentException('A ferramenta precisa possuir um nome.');
         }
+
+        /*
+         * Valida cedo a configuração de Trusted Parameters.
+         * Tool sem trusted_parameters mantém comportamento legado.
+         */
+        (new TrustedParameterBinder())->visibleParameters(
+            $this->tool->parameters(),
+            $this->metadata
+        );
     }
 
     public function tool(): ToolInterface
@@ -53,7 +63,12 @@ final class ToolRegistration
         return [
             'name' => $this->name(),
             'description' => $this->tool->description(),
-            'parameters' => $this->tool->parameters(),
+            'parameters' =>
+                (new TrustedParameterBinder())
+                    ->visibleParameters(
+                        $this->tool->parameters(),
+                        $this->metadata
+                    ),
         ];
     }
 }

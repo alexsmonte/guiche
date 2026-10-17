@@ -20,6 +20,7 @@ use Asmpkg\Guiche\Tenant\TenantResolutionService;
 use Asmpkg\Guiche\Safety\ToolBlockedException;
 use Asmpkg\Guiche\Safety\ToolExecutionGate;
 use Asmpkg\Guiche\Safety\ToolSafetyMetadata;
+use Asmpkg\Guiche\Safety\TrustedParameterBinder;
 use RuntimeException;
 use Throwable;
 
@@ -91,6 +92,16 @@ final class Guiche
             ? $this->context->load($normalizedSessionId)
             : [];
 
+        $trustedExecutionContext = null;
+
+        $arguments = $this->trustedArgumentsFor(
+            $name,
+            $arguments,
+            $normalizedSessionId,
+            $context,
+            $trustedExecutionContext
+        );
+
         $registration = $this->executionGate()->assertCanExecute(
             $name,
             $arguments,
@@ -104,7 +115,8 @@ final class Guiche
         $toolExecutionContext =
             $this->toolExecutionContextFor(
                 $name,
-                $normalizedSessionId
+                $normalizedSessionId,
+                $trustedExecutionContext
             );
 
         if ($operation === ToolSafetyMetadata::OPERATION_WRITE) {
@@ -535,14 +547,18 @@ final class Guiche
 
             foreach ($response['tool_calls'] as $toolCall) {
                 $name = (string) ($toolCall['name'] ?? '');
-                $arguments = $toolCall['arguments'] ?? [];
+                $aiArguments = $toolCall['arguments'] ?? [];
+                $aiArguments = is_array($aiArguments)
+                    ? $aiArguments
+                    : [];
+                $arguments = $aiArguments;
                 $callId = (string) ($toolCall['call_id'] ?? '');
 
                 $events[] = [
                     'type' => 'tool_call',
                     'call_id' => $callId,
                     'name' => $name,
-                    'arguments' => $arguments,
+                    'arguments' => $aiArguments,
                 ];
 
                 $cached = false;
@@ -561,6 +577,16 @@ final class Guiche
                 try {
                     $currentContext = $this->observedContextLoad($sessionId, $interactionId, $interactionStartedAt, $events, $sessionId);
 
+                    $toolExecutionContext = null;
+
+                    $arguments = $this->trustedArgumentsFor(
+                        $name,
+                        $aiArguments,
+                        $sessionId,
+                        $currentContext,
+                        $toolExecutionContext
+                    );
+
                     $registration = $this->executionGate()->assertCanExecute(
                         $name,
                         $arguments,
@@ -577,7 +603,8 @@ final class Guiche
                     $toolExecutionContext =
                         $this->toolExecutionContextFor(
                             $name,
-                            $sessionId
+                            $sessionId,
+                            $toolExecutionContext
                         );
                 } catch (ToolBlockedException $exception) {
                     $blocked = true;
@@ -609,7 +636,7 @@ final class Guiche
                             'type' => 'tool_cache_hit',
                             'call_id' => $callId,
                             'name' => $name,
-                            'arguments' => $arguments,
+                            'arguments' => $aiArguments,
                         ];
                     }
                 }
@@ -648,6 +675,16 @@ final class Guiche
                          */
                         $currentContext = $this->observedContextLoad($sessionId, $interactionId, $interactionStartedAt, $events, $sessionId);
 
+                        $toolExecutionContext = null;
+
+                        $arguments = $this->trustedArgumentsFor(
+                            $name,
+                            $aiArguments,
+                            $sessionId,
+                            $currentContext,
+                            $toolExecutionContext
+                        );
+
                         $registration = $this->executionGate()->assertCanExecute(
                             $name,
                             $arguments,
@@ -664,7 +701,8 @@ final class Guiche
                         $toolExecutionContext =
                             $this->toolExecutionContextFor(
                                 $name,
-                                $sessionId
+                                $sessionId,
+                                $toolExecutionContext
                             );
 
                         if ($isWrite) {
@@ -905,14 +943,119 @@ final class Guiche
         }
     }
 
+    /**
+     * Substitui parâmetros protegidos pelos valores confiáveis antes
+     * de autorização, fingerprint, cache/idempotência e execução.
+     *
+     * @param array<mixed> $arguments
+     * @param array<mixed> $context
+     * @return array<mixed>
+     */
+    private function trustedArgumentsFor(
+        string $name,
+        array $arguments,
+        string $sessionId,
+        array $context,
+        ?ToolExecutionContext &$trustedExecutionContext = null
+    ): array {
+        if (!$this->tools->has($name)) {
+            return $arguments;
+        }
+
+        $metadata = $this->tools->metadata($name);
+        $binder = new TrustedParameterBinder();
+
+        if (!$binder->hasBindings($metadata)) {
+            return $arguments;
+        }
+
+        if ($binder->requiresExecutionContext($metadata)) {
+            $trustedExecutionContext =
+                $this->trustedParameterExecutionContextFor(
+                    $name,
+                    $sessionId,
+                    $context
+                );
+        }
+
+        return $binder->bind(
+            $name,
+            $arguments,
+            $metadata,
+            $trustedExecutionContext,
+            $context
+        );
+    }
+
+    /**
+     * Resolve um ToolExecutionContext para Trusted Parameters mesmo
+     * quando a Tool não implementa ContextAwareToolInterface.
+     *
+     * @param array<mixed> $context
+     */
+    private function trustedParameterExecutionContextFor(
+        string $name,
+        string $sessionId,
+        array $context
+    ): ToolExecutionContext {
+        $sessionId = trim($sessionId);
+
+        if ($sessionId === '') {
+            throw new ToolBlockedException(
+                $name,
+                'trusted_context_required',
+                'Trusted Parameters de contexto exigem sessionId.'
+            );
+        }
+
+        try {
+            if ($this->tenantResolution !== null) {
+                return $this->tenantResolution->resolve(
+                    $sessionId
+                );
+            }
+
+            $values = $context['execution_context'] ?? [];
+
+            if (!is_array($values)) {
+                throw new RuntimeException(
+                    'execution_context persistido é inválido.'
+                );
+            }
+
+            return new ToolExecutionContext(
+                $sessionId,
+                $values
+            );
+        } catch (ToolBlockedException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new ToolBlockedException(
+                $name,
+                'trusted_context_unavailable',
+                'Contexto confiável indisponível para Trusted Parameters.',
+                [
+                    'exception_class' =>
+                        $exception::class,
+                ],
+                $exception
+            );
+        }
+    }
+
     private function toolExecutionContextFor(
         string $name,
-        string $sessionId
+        string $sessionId,
+        ?ToolExecutionContext $trustedContext = null
     ): ?ToolExecutionContext {
         $tool = $this->tools->get($name);
 
         if (!$tool instanceof ContextAwareToolInterface) {
             return null;
+        }
+
+        if ($trustedContext !== null) {
+            return $trustedContext;
         }
 
         $sessionId = trim($sessionId);
