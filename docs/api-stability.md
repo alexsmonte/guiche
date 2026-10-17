@@ -241,3 +241,38 @@ A mudança é aditiva. `withPromptResolver()`, `PromptResolverInterface`,
 O baseline público v1 foi atualizado explicitamente após o checker
 confirmar que somente `GuicheBuilder` e `CompositePromptResolver`
 divergiam do baseline anterior.
+
+## Revisão aditiva v1.6 — Declarative Loading
+
+A v1.6 adiciona ao `GuicheBuilder`:
+
+```php
+public function loadCapabilities(
+    array $definition
+): self
+```
+
+A superfície aceita somente:
+
+```text
+services
+tools
+plugins
+```
+
+e reutiliza os contratos públicos já existentes de loading.
+
+A mudança é aditiva. Permanecem intactos:
+
+```text
+setService()
+loadTool()
+loadTools()
+loadPlugin()
+loadPlugins()
+registerTool()
+registerPlugin()
+```
+
+O baseline público v1 foi atualizado explicitamente após o checker
+confirmar que somente `Asmpkg\Guiche\GuicheBuilder` divergia do baseline.

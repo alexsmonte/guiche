@@ -231,6 +231,154 @@ final class GuicheBuilder
 
         return $this;
     }
+    /**
+     * Carrega services, Tools e Plugins por uma declaração única.
+     *
+     * Formato:
+     *
+     * [
+     *     'services' => [Interface::class => $service],
+     *     'tools' => ['MinhaTool', MinhaTool::class],
+     *     'plugins' => ['MeuPlugin', MeuPlugin::class],
+     * ]
+     *
+     * @param array<mixed> $definition
+     */
+    public function loadCapabilities(array $definition): self
+    {
+        $normalized =
+            $this->normalizeCapabilitiesDefinition(
+                $definition
+            );
+
+        /*
+         * Preflight com ServiceRegistry temporário:
+         * dependências, classes e contratos são resolvidos antes
+         * de alterar o Builder real.
+         */
+        $stagedServices = clone $this->services;
+
+        foreach (
+            $normalized['services']
+            as $id => $service
+        ) {
+            $stagedServices->set($id, $service);
+        }
+
+        $resolver = new ClassResolver(
+            $stagedServices
+        );
+
+        $tools = [];
+
+        foreach ($normalized['tools'] as $toolName) {
+            $class = $this->resolveToolClass(
+                $toolName
+            );
+
+            $instance = $resolver->resolve(
+                $class
+            );
+
+            if (!$instance instanceof ToolInterface) {
+                throw new InvalidArgumentException(
+                    "Classe carregada como Tool precisa implementar "
+                    . ToolInterface::class
+                    . ": {$class}"
+                );
+            }
+
+            $tools[] = $instance;
+        }
+
+        $plugins = [];
+
+        foreach (
+            $normalized['plugins']
+            as $pluginName
+        ) {
+            $class = $this->resolvePluginClass(
+                $pluginName
+            );
+
+            $instance = $resolver->resolve(
+                $class
+            );
+
+            if (!$instance instanceof PluginInterface) {
+                throw new InvalidArgumentException(
+                    "Classe carregada como Plugin precisa implementar "
+                    . PluginInterface::class
+                    . ": {$class}"
+                );
+            }
+
+            $plugins[] = $instance;
+        }
+
+        /*
+         * Conflitos conhecidos também são validados antes
+         * de publicar services no Builder real.
+         */
+        $toolNames = [];
+
+        foreach ($tools as $tool) {
+            $name = $tool->name();
+
+            if (
+                $this->tools->has($name)
+                || isset($toolNames[$name])
+            ) {
+                throw new LogicException(
+                    "Conflito de ferramenta: {$name}"
+                );
+            }
+
+            $toolNames[$name] = true;
+        }
+
+        $pluginIds = [];
+
+        foreach ($plugins as $plugin) {
+            $id = $plugin::class;
+
+            if (
+                isset($this->plugins[$id])
+                || isset($pluginIds[$id])
+            ) {
+                throw new LogicException(
+                    "Plugin já registrado: {$id}"
+                );
+            }
+
+            $pluginIds[$id] = true;
+        }
+
+        /*
+         * Ordem declarativa oficial:
+         * services -> tools -> plugins.
+         */
+        foreach (
+            $normalized['services']
+            as $id => $service
+        ) {
+            $this->setService(
+                $id,
+                $service
+            );
+        }
+
+        foreach ($tools as $tool) {
+            $this->registerTool($tool);
+        }
+
+        foreach ($plugins as $plugin) {
+            $this->registerPlugin($plugin);
+        }
+
+        return $this;
+    }
+
     public function registerPresenter(
         string $toolName,
         ResultPresenterInterface $presenter
@@ -849,6 +997,128 @@ final class GuicheBuilder
         }
 
         return $paths;
+    }
+
+    /**
+     * @param array<mixed> $definition
+     * @return array{
+     *     services: array<string, object>,
+     *     tools: list<string>,
+     *     plugins: list<string>
+     * }
+     */
+    private function normalizeCapabilitiesDefinition(
+        array $definition
+    ): array {
+        $allowed = [
+            'services',
+            'tools',
+            'plugins',
+        ];
+
+        foreach (array_keys($definition) as $key) {
+            if (
+                !is_string($key)
+                || !in_array($key, $allowed, true)
+            ) {
+                $label = (string)$key;
+
+                throw new InvalidArgumentException(
+                    "Chave de capability desconhecida: {$label}"
+                );
+            }
+        }
+
+        $services = $definition['services'] ?? [];
+        $tools = $definition['tools'] ?? [];
+        $plugins = $definition['plugins'] ?? [];
+
+        if (!is_array($services)) {
+            throw new InvalidArgumentException(
+                'capabilities.services precisa ser array.'
+            );
+        }
+
+        if (!is_array($tools) || !array_is_list($tools)) {
+            throw new InvalidArgumentException(
+                'capabilities.tools precisa ser uma lista.'
+            );
+        }
+
+        if (
+            !is_array($plugins)
+            || !array_is_list($plugins)
+        ) {
+            throw new InvalidArgumentException(
+                'capabilities.plugins precisa ser uma lista.'
+            );
+        }
+
+        $normalizedServices = [];
+
+        foreach ($services as $id => $service) {
+            if (
+                !is_string($id)
+                || trim($id) === ''
+            ) {
+                throw new InvalidArgumentException(
+                    'Cada service precisa usar um identificador string não vazio.'
+                );
+            }
+
+            if (!is_object($service)) {
+                throw new InvalidArgumentException(
+                    "Service {$id} precisa ser um objeto."
+                );
+            }
+
+            $normalizedServices[
+                trim($id)
+            ] = $service;
+        }
+
+        return [
+            'services' => $normalizedServices,
+            'tools' => $this->normalizeCapabilityNames(
+                $tools,
+                'tools'
+            ),
+            'plugins' => $this->normalizeCapabilityNames(
+                $plugins,
+                'plugins'
+            ),
+        ];
+    }
+
+    /**
+     * @param list<mixed> $names
+     * @return list<string>
+     */
+    private function normalizeCapabilityNames(
+        array $names,
+        string $capability
+    ): array {
+        $normalized = [];
+
+        foreach ($names as $name) {
+            if (!is_string($name)) {
+                throw new InvalidArgumentException(
+                    "capabilities.{$capability} aceita somente strings."
+                );
+            }
+
+            $name = trim($name);
+
+            if ($name === '') {
+                throw new InvalidArgumentException(
+                    "capabilities.{$capability} não aceita nome vazio."
+                );
+            }
+
+            $normalized[] = $name;
+        }
+
+        return $normalized;
     }
 
     /**

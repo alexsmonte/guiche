@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "e4444089a82ec5118c46f9ba7952ba3d76774a7cd83869e34d5d165ca30bc93f",
+    "public_api_sha256": "21f759500406f1fa5b1479a24a4ffdbb212c60133f034ba104e18290f11a8814",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -2726,6 +2726,24 @@
                     "returns_reference": false,
                     "return_type": "array",
                     "parameters": []
+                },
+                "loadCapabilities": {
+                    "name": "loadCapabilities",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "definition",
+                            "type": "array",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
                 },
                 "loadPlugin": {
                     "name": "loadPlugin",
