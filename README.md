@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.4.0 — Stable**
+> Versão documentada: **v1.5.0 — Stable**
 ## Requisitos
 
 - PHP `^8.4`;
@@ -31,14 +31,14 @@ composer install
 
 ## Quick Start — primeira conversa
 
-Na v1.4.0 você não precisa copiar nem criar `chat.php` para começar.
+Na v1.5.0 você não precisa copiar nem criar `chat.php` para começar.
 
 ### 1. Crie um projeto vazio
 
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^1.4
+composer require asmpkg/guiche:^1.5
 ```
 
 ### 2. Inicialize o projeto
@@ -51,10 +51,38 @@ O comando cria, sem sobrescrever arquivos existentes:
 
 ```text
 .env
-guiche.prompt.md
+guiche.prompt.md                 # compatibilidade
 guiche.php
-storage/conversations/
+prompts/
+└── comportamento.md             # prompt global v1.5
+src/
+├── Tool/
+└── Plugin/
+storage/
+└── conversations/
 ```
+
+Quando o projeto consumidor possui `composer.json`, o `init` também garante
+o mapeamento PSR-4:
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}
+```
+
+Se o `init` tiver adicionado esse prefixo, regenere o autoload uma vez:
+
+```bash
+composer dump-autoload
+```
+
+Um `App\\` já existente com outro caminho é preservado e será reportado pelo
+`doctor`, em vez de ser sobrescrito silenciosamente.
 
 ### 3. Configure o provider
 
@@ -70,30 +98,51 @@ AI_MODEL=gpt-5.6-luna
 
 ### 4. Personalize o prompt
 
-Edite:
+O padrão da v1.5 usa `TenantPromptResolver` com:
 
 ```text
-guiche.prompt.md
+prompts/comportamento.md
 ```
 
-A resolução de prompt segue esta prioridade:
+Para um tenant confiável `acme`, você pode adicionar:
 
 ```text
+prompts/acme.md
+```
+
+A composição será:
+
+```text
+prompts/comportamento.md
+        +
+prompts/acme.md
+```
+
+A resolução completa segue esta prioridade:
+
+```text
+$app['prompt_resolver']
+        ↓
 GUICHE_PROMPT_FILE
         ↓
 GUICHE_PROMPT
         ↓
-guiche.prompt.md
+prompts/comportamento.md + prompts/{tenant_id}.md
+        ↓
+guiche.prompt.md legado
 ```
 
+O `tenant_id` precisa vir do contexto confiável da sessão. Mensagem do usuário,
+state livre e argumentos de Tool não podem selecionar o arquivo de tenant.
 ### 5. Verifique o ambiente
 
 ```bash
 vendor/bin/guiche doctor
 ```
 
-O `doctor` valida PHP, extensões, `.env`, configuração de IA e
-`storage/conversations` sem fazer uma chamada de rede ao provider.
+O `doctor` valida PHP, extensões, `.env`, configuração de IA, prompt global,
+`App\\ => src/`, diretórios de loaders e `storage/conversations` sem
+fazer uma chamada de rede ao provider.
 
 ### 6. Converse
 
@@ -300,6 +349,70 @@ autoridade para selecionar tenant/prompt.
 Veja `docs/dynamic-prompts.md`, `docs/migration-v1.3-to-v1.4.md`,
 `examples/prompt-sources/` e `examples/framework-integration/`.
 
+### Loaders, DI e prompts por tenant — v1.5
+
+A v1.5 adiciona uma camada de conveniência sobre a API explícita existente.
+
+Baixo nível, preservado:
+
+```php
+$builder->registerTool(new MinhaTool());
+$builder->registerPlugin(new MeuPlugin());
+```
+
+Alto nível, por convenção:
+
+```php
+$builder
+    ->loadTools('InformacoesEmpresa', 'ConsultarPedido')
+    ->loadPlugins('Clinica');
+```
+
+Convenções:
+
+```text
+InformacoesEmpresa
+→ App\Tool\InformacoesEmpresaTool
+
+Clinica
+→ App\Plugin\ClinicaPlugin
+```
+
+FQCN também é aceito. Não existe scanning de diretório, `glob`, `require`
+dinâmico ou autowiring recursivo.
+
+Dependências de construtor precisam ser registradas explicitamente:
+
+```php
+$builder
+    ->setService(MinhaConexao::class, $conexao)
+    ->loadTool('InformacoesEmpresa');
+```
+
+No Composition Root:
+
+```php
+$guiche = $factory([
+    'services' => [
+        MinhaConexao::class => $conexao,
+    ],
+    'tools' => [
+        'InformacoesEmpresa',
+        $toolLegada,
+    ],
+    'plugins' => [
+        'Clinica',
+        $pluginLegado,
+    ],
+]);
+```
+
+Os nomes enviados a `loadTool()` e `loadPlugin()` são configuração de bootstrap
+confiável. **Nunca** use mensagem, saída da IA ou argumentos livres do usuário
+para escolher classe a carregar.
+
+Migração: `docs/migration-v1.4-to-v1.5.md`.
+
 ### Safety Layer
 
 A execução de Tools passa por regras estruturadas de segurança. O runtime suporta, entre outros mecanismos:
@@ -380,6 +493,7 @@ A documentação pública da linha v1 é organizada em:
 - State: `docs/state.md`;
 - contexto multi-tenant: `docs/multitenancy.md`;
 - prompts dinâmicos: `docs/dynamic-prompts.md`;
+- migração v1.4 → v1.5: `docs/migration-v1.4-to-v1.5.md`;
 - migração v1.0 → v1.1: `docs/migration-v1.0-to-v1.1.md`;
 - migração v1.1 → v1.2: `docs/migration-v1.1-to-v1.2.md`;
 - segurança: `docs/security.md`.
@@ -388,7 +502,7 @@ A política de estabilidade da API e suporte PHP complementa essa documentação
 
 ## Status
 
-A v1.0 estabeleceu a linha estável; a v1.1 adicionou contexto multi-tenant; a v1.2 adicionou CLI/bootstrap; a v1.3 tornou `bindIdentity()` o caminho recomendado para identidade externa; e a v1.4 adiciona Composition Root e prompts dinâmicos por sessão/tenant.
+A v1.0 estabeleceu a linha estável; a v1.1 adicionou contexto multi-tenant; a v1.2 adicionou CLI/bootstrap; a v1.3 tornou `bindIdentity()` o caminho recomendado para identidade externa; e a v1.4 adicionou Composition Root e prompts dinâmicos por sessão/tenant; e a v1.5 adiciona loaders por convenção, DI explícita e prompt multi-tenant baseado em arquivos.
 
 O compromisso da linha v1 inclui:
 
@@ -475,6 +589,7 @@ Documentação da linha v1:
 - [Release v1.0.0](docs/releases/v1.0.0.md)
 - [Release v1.2.0](docs/releases/v1.2.0.md)
 - [Release v1.4.0](docs/releases/v1.4.0.md)
+- [Release v1.5.0](docs/releases/v1.5.0.md)
 
 Os exemplos permanecem separados do Core: `examples/basic/` para início rápido e `examples/clinica-piloto/` como exemplo avançado de domínio.
 <!-- guiche-v1-stable:end -->

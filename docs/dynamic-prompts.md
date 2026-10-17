@@ -80,3 +80,72 @@ $guiche = $factory(['prompt_resolver' => $resolver]);
 ```
 
 Veja `examples/prompt-sources/` e `examples/framework-integration/`.
+
+<!-- guiche-v15-tenant-prompt:start -->
+## TenantPromptResolver — v1.5
+
+A v1.5 inclui uma implementação pública para o layout:
+
+```text
+prompts/
+├── comportamento.md
+├── empresa-42.md
+└── empresa-99.md
+```
+
+Uso:
+
+```php
+use Asmpkg\Guiche\Prompt\TenantPromptResolver;
+
+$resolver = new TenantPromptResolver(__DIR__);
+```
+
+O arquivo global é obrigatório e não pode estar vazio.
+
+Sem tenant:
+
+```text
+comportamento.md
+```
+
+Com `tenant_id=empresa-42`:
+
+```text
+comportamento.md
+
+empresa-42.md
+```
+
+O arquivo de tenant é opcional. Se não existir ou estiver vazio, somente o
+global é usado.
+
+O conteúdo é relido em cada `resolve()`, permitindo atualização sem manter
+prompt antigo em memória.
+
+### Sanitização
+
+A chave do tenant é transformada com uma whitelist equivalente a:
+
+```text
+A-Z a-z 0-9 . _ -
+```
+
+outros caracteres são substituídos por `_`.
+
+Isso evita usar `tenant_id` como caminho arbitrário. O tenant continua vindo do
+`PromptContext` confiável; sanitização de filename não substitui a regra de
+autoridade.
+
+### Prioridade no Composition Root
+
+```text
+$app['prompt_resolver']
+→ GUICHE_PROMPT_FILE
+→ GUICHE_PROMPT
+→ TenantPromptResolver quando prompts/comportamento.md existe
+→ guiche.prompt.md legado
+```
+
+Assim a v1.5 adota o layout novo sem quebrar consumidores da v1.4.
+<!-- guiche-v15-tenant-prompt:end -->

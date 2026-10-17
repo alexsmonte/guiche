@@ -327,3 +327,59 @@ Ao criar uma Tool:
 8. não coloque segredo em descrição ou resultado;
 9. evite side effects escondidos em Tools declaradas READ;
 10. teste autorização e bloqueio antes de testar apenas o caminho feliz.
+
+<!-- guiche-v15-loaders:start -->
+## Loaders por convenção — v1.5
+
+Além de `registerTool()`, a v1.5 oferece:
+
+```php
+$builder->loadTool('InformacoesEmpresa');
+
+$builder->loadTools(
+    'InformacoesEmpresa',
+    'ConsultarPedido'
+);
+```
+
+Convenção:
+
+```text
+InformacoesEmpresa
+→ App\Tool\InformacoesEmpresaTool
+```
+
+Se o nome já termina em `Tool`, o sufixo não é duplicado. FQCN também é aceito.
+
+O loader:
+
+1. resolve a classe pelo Composer/PSR-4;
+2. instancia via `ClassResolver`;
+3. valida `ToolInterface`;
+4. passa pelo registro normal do Builder.
+
+Ele não usa scanning, `glob`, `require` ou `include`.
+
+### Dependências
+
+Dependências de construtor precisam ser registradas explicitamente:
+
+```php
+$builder
+    ->setService(MinhaConexao::class, $conexao)
+    ->loadTool('InformacoesEmpresa');
+```
+
+A resolução usa o tipo exato registrado. Não existe autowiring recursivo
+irrestrito.
+
+### Segurança
+
+O nome passado a `loadTool()` é configuração de bootstrap.
+
+Não use mensagem do usuário, resposta da IA, state livre ou argumentos de Tool
+para decidir qual classe será carregada.
+
+`loadTool()` melhora Developer Experience; ele não é um mecanismo de dispatch
+controlado pelo modelo.
+<!-- guiche-v15-loaders:end -->

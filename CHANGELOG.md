@@ -4,6 +4,56 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.5.0] - 2026-10-16
+
+### Added
+
+- `ServiceRegistry` mínimo no `GuicheBuilder`;
+- `ClassResolver` interno via Reflection, sem autowiring recursivo;
+- `loadTool()` / `loadTools()` com convenção `App\Tool\{Nome}Tool`;
+- `loadPlugin()` / `loadPlugins()` com convenção `App\Plugin\{Nome}Plugin`;
+- suporte a FQCN nos loaders;
+- `TenantPromptResolver`;
+- composição `prompts/comportamento.md + prompts/{tenant_id}.md`;
+- `services`, Tools por string e Plugins por string no Composition Root;
+- `init` com `prompts/`, `src/Tool`, `src/Plugin` e PSR-4 `App\\ => src/`;
+- `doctor` com diagnóstico do prompt global e PSR-4 do consumidor.
+
+### Developer Experience
+
+- `registerTool()` / `registerPlugin()` continuam disponíveis como API explícita;
+- loaders usam Composer/PSR-4, sem scanning, `glob`, `require` ou `include`;
+- dependências de construtor podem ser fornecidas por `setService()`;
+- instalações antigas com `guiche.prompt.md` permanecem compatíveis;
+- `init` não sobrescreve um mapeamento `App\\` conflitante.
+
+### Security
+
+- nomes de Tool/Plugin são configuração de bootstrap confiável, nunca input da IA;
+- `tenant_id` continua vindo somente do contexto confiável da sessão;
+- nome do tenant é sanitizado antes de formar `prompts/{tenant_id}.md`;
+- ausência do prompt global novo falha fechado quando `TenantPromptResolver` é usado;
+- dependências não registradas falham explicitamente em vez de autowiring irrestrito.
+
+### Compatibility
+
+- release SemVer minor e aditiva;
+- `registerTool()` e `registerPlugin()` preservados;
+- `ToolInterface`, `PluginInterface`, `ContextStoreInterface` e `AiProviderInterface` inalterados;
+- `withInstructions()` e resolvers v1.4 preservados;
+- Public: 39;
+- Experimental: 11;
+- Internal: 16;
+- SHA-256 da API pública:
+  `303ae72227aaf805d7fe98f469d7e0d4eb1ec4d54de7593b8bbf537a8e30b8dc`.
+
+### Validation
+
+- 331 testes / 1715 assertions no fechamento da Fase 07;
+- PHPStan sem erros;
+- coverage 77,71% (threshold 70%);
+- clean install Composer externo e smoke multi-tenant validados na Fase 08;
+- API pública v1 e freeze experimental preservados.
 ## [1.4.0] - 2026-10-16
 
 ### Added

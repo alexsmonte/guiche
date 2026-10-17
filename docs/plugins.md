@@ -213,3 +213,49 @@ Antes de considerar um Plugin pronto:
 9. projections minimizam retorno;
 10. testes cobrem registro, conflitos e execução;
 11. falha de registro não deixa configuração parcial.
+
+<!-- guiche-v15-loaders:start -->
+## Loader por convenção — v1.5
+
+Além de `registerPlugin()`, a v1.5 oferece:
+
+```php
+$builder->loadPlugin('Clinica');
+
+$builder->loadPlugins(
+    'Clinica',
+    'Catalogo'
+);
+```
+
+Convenção:
+
+```text
+Clinica
+→ App\Plugin\ClinicaPlugin
+```
+
+Se o nome já termina em `Plugin`, o sufixo não é duplicado. FQCN também é
+aceito.
+
+O Plugin carregado continua passando pelo mesmo `registerPlugin()`, preservando
+validação, proteção de duplicidade e atomicidade.
+
+### DI
+
+Construtores podem receber serviços registrados explicitamente:
+
+```php
+$builder
+    ->setService(MinhaDependencia::class, $dependencia)
+    ->loadPlugin('Clinica');
+```
+
+### Segurança
+
+Nomes de Plugins são configuração confiável da aplicação.
+
+Nunca converta texto do usuário ou saída da IA diretamente em nome para
+`loadPlugin()`. O modelo pode pedir uma capacidade registrada; ele não escolhe
+classes PHP para o processo carregar.
+<!-- guiche-v15-loaders:end -->

@@ -214,3 +214,76 @@ Para a menor experiência funcional, use `vendor/bin/guiche init` e `vendor/bin/
 - declare Safety metadata;
 - monte tudo via `GuicheBuilder`;
 - execute seus testes de domínio sem modificar o Core.
+
+<!-- guiche-v15-consumer:start -->
+## 10. Convenções de projeto na v1.5
+
+Para usar os loaders curtos no projeto consumidor:
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}
+```
+
+Depois de adicionar esse prefixo pela primeira vez:
+
+```bash
+composer dump-autoload
+```
+
+Estrutura recomendada:
+
+```text
+src/
+├── Tool/
+│   └── InformacoesEmpresaTool.php
+└── Plugin/
+    └── ClinicaPlugin.php
+```
+
+O Composition Root aceita simultaneamente a forma antiga e a nova:
+
+```php
+$guiche = $factory([
+    'services' => [
+        MinhaDependencia::class => $dependencia,
+    ],
+    'tools' => [
+        'InformacoesEmpresa',
+        $toolEmInstancia,
+    ],
+    'plugins' => [
+        'Clinica',
+        $pluginEmInstancia,
+    ],
+]);
+```
+
+`services` são registrados antes dos loaders.
+
+O nome curto nunca deve vir da IA ou de input livre. Ele pertence à configuração
+do host.
+
+## 11. Prompt multi-tenant em arquivos
+
+O `init` da v1.5 cria:
+
+```text
+prompts/comportamento.md
+```
+
+e você pode acrescentar:
+
+```text
+prompts/{tenant_id}.md
+```
+
+O tenant é derivado de `bindIdentity()` + `TenantResolver`, não da mensagem.
+
+Instalações antigas que ainda usam `guiche.prompt.md` continuam compatíveis.
+<!-- guiche-v15-consumer:end -->
