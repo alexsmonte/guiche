@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "050314105934227fc426a7fc1ef4d05987e6343bafbc50fe65eda36441ab9cad",
+    "public_api_sha256": "06b8bd2c21aaae9fdff58de9ee729d3f53fa393f4da54c586facb76ff9d02270",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -2726,6 +2726,42 @@
                     "returns_reference": false,
                     "return_type": "array",
                     "parameters": []
+                },
+                "loadPlugin": {
+                    "name": "loadPlugin",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "plugin",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "loadPlugins": {
+                    "name": "loadPlugins",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "plugins",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": true,
+                            "optional": true,
+                            "has_default": false
+                        }
+                    ]
                 },
                 "loadTool": {
                     "name": "loadTool",

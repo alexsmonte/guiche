@@ -169,6 +169,30 @@ final class GuicheBuilder
         return $this;
     }
 
+    public function loadPlugin(string $plugin): self
+    {
+        $class = $this->resolvePluginClass($plugin);
+        $instance = $this->classResolver->resolve($class);
+
+        if (!$instance instanceof PluginInterface) {
+            throw new InvalidArgumentException(
+                "Classe carregada como Plugin precisa implementar "
+                . PluginInterface::class
+                . ": {$class}"
+            );
+        }
+
+        return $this->registerPlugin($instance);
+    }
+
+    public function loadPlugins(string ...$plugins): self
+    {
+        foreach ($plugins as $plugin) {
+            $this->loadPlugin($plugin);
+        }
+
+        return $this;
+    }
     public function registerTool(
         ToolInterface|ToolRegistration $tool
     ): self {
@@ -769,6 +793,39 @@ final class GuicheBuilder
         return $paths;
     }
 
+    /**
+     * @return class-string
+     */
+    private function resolvePluginClass(string $plugin): string
+    {
+        $original = $plugin;
+        $plugin = trim($plugin);
+
+        if ($plugin === '') {
+            throw new InvalidArgumentException(
+                'Nome do Plugin não pode ser vazio.'
+            );
+        }
+
+        $class = ltrim($plugin, '\\');
+
+        if (!str_contains($class, '\\')) {
+            if (!str_ends_with($class, 'Plugin')) {
+                $class .= 'Plugin';
+            }
+
+            $class = 'App\\Plugin\\' . $class;
+        }
+
+        if (!class_exists($class)) {
+            throw new InvalidArgumentException(
+                "Plugin não encontrado: {$original}. "
+                . "Classe esperada: {$class}"
+            );
+        }
+
+        return $class;
+    }
     /**
      * @return class-string
      */
