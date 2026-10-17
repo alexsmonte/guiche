@@ -12,6 +12,7 @@ return array (
   'Asmpkg\\Guiche\\Container\\ClassResolver' => 'internal',
   'Asmpkg\\Guiche\\Container\\ServiceRegistry' => 'internal',
   'Asmpkg\\Guiche\\Cache\\ToolReusePolicy' => 'internal',
+  'Asmpkg\\Guiche\\Session\\SessionLifecycleManager' => 'internal',
   'Asmpkg\\Guiche\\ContextStore' => 'public',
   'Asmpkg\\Guiche\\Contracts\\AiProviderInterface' => 'public',
   'Asmpkg\\Guiche\\Contracts\\ContextAwareToolInterface' => 'public',

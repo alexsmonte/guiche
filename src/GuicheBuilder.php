@@ -18,6 +18,7 @@ use Asmpkg\Guiche\Plugin\ContextAwarePresentedTool;
 use Asmpkg\Guiche\Plugin\PresentedTool;
 use Asmpkg\Guiche\Plugin\ToolRegistration;
 use Asmpkg\Guiche\Prompt\CallbackPromptResolver;
+use Asmpkg\Guiche\Session\SessionLifecycleManager;
 use Closure;
 use InvalidArgumentException;
 use LogicException;
@@ -98,6 +99,7 @@ final class GuicheBuilder
      */
     private array $aiToolResultIncludePaths = [];
     private int $maxToolRounds = 5;
+    private ?int $sessionTtlSeconds = null;
 
     public function __construct(
         ?ToolRegistry $tools = null,
@@ -148,6 +150,7 @@ final class GuicheBuilder
             'instruction_fragments' => $this->instructionFragments,
             'completion_guards' => $this->completionGuards,
             'result_projections' => $this->resultProjections,
+            'session_ttl_seconds' => $this->sessionTtlSeconds,
         ];
 
         try {
@@ -162,6 +165,8 @@ final class GuicheBuilder
             $this->instructionFragments = $before['instruction_fragments'];
             $this->completionGuards = $before['completion_guards'];
             $this->resultProjections = $before['result_projections'];
+            $this->sessionTtlSeconds =
+                $before['session_ttl_seconds'];
 
             throw $exception;
         }
@@ -417,6 +422,25 @@ final class GuicheBuilder
     }
 
     /**
+     * Configura o TTL conversacional em segundos.
+     *
+     * Sem esta chamada, o Session Lifecycle permanece desabilitado
+     * e o comportamento legado do Guichê é preservado.
+     */
+    public function withSessionTtl(int $seconds): self
+    {
+        if ($seconds < 1) {
+            throw new InvalidArgumentException(
+                'Session TTL precisa ser maior ou igual a 1 segundo.'
+            );
+        }
+
+        $this->sessionTtlSeconds = $seconds;
+
+        return $this;
+    }
+
+    /**
      * @param array<mixed> $agentContext
      */
     public function withAgentContext(array $agentContext): self
@@ -571,6 +595,13 @@ final class GuicheBuilder
         if ($this->toolPolicy !== null) {
             $guiche->setToolPolicy(
                 $this->toolPolicy
+            );
+        }
+
+        if ($this->sessionTtlSeconds !== null) {
+            SessionLifecycleManager::configure(
+                $guiche,
+                $this->sessionTtlSeconds
             );
         }
 

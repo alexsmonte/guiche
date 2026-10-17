@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "303ae72227aaf805d7fe98f469d7e0d4eb1ec4d54de7593b8bbf537a8e30b8dc",
+    "public_api_sha256": "847825cd302b2aa70b864794e786d0de377210a748fb43457a3284ec842aeb60",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -3309,6 +3309,24 @@
                         {
                             "name": "sink",
                             "type": "Asmpkg\\Guiche\\Contracts\\RuntimeEventSinkInterface",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "withSessionTtl": {
+                    "name": "withSessionTtl",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "self",
+                    "parameters": [
+                        {
+                            "name": "seconds",
+                            "type": "int",
                             "by_reference": false,
                             "variadic": false,
                             "optional": false,

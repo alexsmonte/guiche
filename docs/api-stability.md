@@ -180,3 +180,27 @@ experimental.
 | `Asmpkg\Guiche\Safety\ToolArgumentValidator` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Safety\ToolExecutionGate` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Safety\ToolSafetyMetadata` | `class` | detalhe de implementação não necessário à integração pública |
+
+## Revisão aditiva v1.6 — Session Lifecycle
+
+A v1.6 adiciona ao `GuicheBuilder` o método público:
+
+```php
+$builder->withSessionTtl(86400);
+```
+
+A revisão é **aditiva e retrocompatível**:
+
+- nenhum método público anterior foi removido;
+- nenhuma assinatura pública anterior foi modificada;
+- `withSessionTtl()` é opt-in;
+- sem a chamada, o comportamento legado permanece inalterado;
+- o construtor público de `Guiche` permanece congelado.
+
+O runtime interno usado por essa capacidade é:
+
+| Símbolo | Tipo | Classificação |
+| --- | --- | --- |
+| `Asmpkg\Guiche\Session\SessionLifecycleManager` | `class` | `internal` |
+
+A atualização de `api/baseline-v1.json` nesta fase é uma revisão explícita do freeze para registrar somente essa adição compatível.

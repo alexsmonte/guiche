@@ -22,6 +22,7 @@ use Asmpkg\Guiche\Safety\ToolBlockedException;
 use Asmpkg\Guiche\Safety\ToolExecutionGate;
 use Asmpkg\Guiche\Safety\ToolSafetyMetadata;
 use Asmpkg\Guiche\Safety\TrustedParameterBinder;
+use Asmpkg\Guiche\Session\SessionLifecycleManager;
 use RuntimeException;
 use Throwable;
 
@@ -88,6 +89,12 @@ final class Guiche
         $normalizedSessionId = $sessionId !== null
             ? trim($sessionId)
             : '';
+
+        if ($normalizedSessionId !== '') {
+            $this->beginSessionLifecycle(
+                $normalizedSessionId
+            );
+        }
 
         $context = $normalizedSessionId !== ''
             ? $this->context->load($normalizedSessionId)
@@ -479,6 +486,9 @@ final class Guiche
             throw new RuntimeException('A mensagem não pode estar vazia.');
         }
 
+        $sessionLifecycle =
+            $this->beginSessionLifecycle($sessionId);
+
         /*
          * O prompt dinâmico é resolvido exatamente uma vez por turno,
          * antes de StateManager e antes da persistência da mensagem.
@@ -494,6 +504,30 @@ final class Guiche
                 'type' => 'interaction_started',
             ],
         ];
+
+        if ($sessionLifecycle !== null) {
+            $events[] = [
+                'type' => 'session_lifecycle',
+                'status' =>
+                    $sessionLifecycle['status'],
+                'is_first_message' =>
+                    $sessionLifecycle[
+                        'is_first_message'
+                    ],
+                'is_new_cycle' =>
+                    $sessionLifecycle[
+                        'is_new_cycle'
+                    ],
+                'was_expired' =>
+                    $sessionLifecycle[
+                        'was_expired'
+                    ],
+                'cycle' =>
+                    $sessionLifecycle['cycle'],
+                'ttl_seconds' =>
+                    $sessionLifecycle['ttl_seconds'],
+            ];
+        }
 
         $contextBefore = $this->observedContextLoad($sessionId, $interactionId, $interactionStartedAt, $events, $sessionId);
 
@@ -1082,6 +1116,30 @@ final class Guiche
     }
 
     /**
+     * Inicia/continua o lifecycle somente quando configurado
+     * pelo GuicheBuilder::withSessionTtl().
+     *
+     * @return array<string, mixed>|null
+     */
+    private function beginSessionLifecycle(
+        string $sessionId
+    ): ?array {
+        $ttl =
+            SessionLifecycleManager::configuredTtl(
+                $this
+            );
+
+        if ($ttl === null) {
+            return null;
+        }
+
+        return (new SessionLifecycleManager(
+            $this->context,
+            $ttl
+        ))->beginTurn($sessionId);
+    }
+
+    /**
      * Substitui parâmetros protegidos pelos valores confiáveis antes
      * de autorização, fingerprint, cache/idempotência e execução.
      *
@@ -1484,6 +1542,26 @@ final class Guiche
                 ),
             ],
         ];
+
+        $session = $context['session'] ?? null;
+
+        if (is_array($session) && $session !== []) {
+            $structured['session'] = [
+                'status' => $session['status'] ?? null,
+                'is_first_message' =>
+                    (bool) ($session['is_first_message'] ?? false),
+                'is_new_cycle' =>
+                    (bool) ($session['is_new_cycle'] ?? false),
+                'was_expired' =>
+                    (bool) ($session['was_expired'] ?? false),
+                'cycle' =>
+                    (int) ($session['cycle'] ?? 1),
+                'ttl_seconds' =>
+                    (int) ($session['ttl_seconds'] ?? 0),
+                'started_at' =>
+                    $session['started_at'] ?? null,
+            ];
+        }
 
         $runtimeInstruction = '';
 
