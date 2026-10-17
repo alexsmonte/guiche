@@ -6,7 +6,7 @@
         "experimental": "no BC commitment until promoted to public",
         "internal": "implementation detail"
     },
-    "public_api_sha256": "06b8bd2c21aaae9fdff58de9ee729d3f53fa393f4da54c586facb76ff9d02270",
+    "public_api_sha256": "303ae72227aaf805d7fe98f469d7e0d4eb1ec4d54de7593b8bbf537a8e30b8dc",
     "public_symbols": {
         "Asmpkg\\Guiche\\ContextStore": {
             "kind": "class",
@@ -3912,6 +3912,56 @@
                     "parameters": [
                         {
                             "name": "prompt",
+                            "type": "string",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                },
+                "resolve": {
+                    "name": "resolve",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": "string",
+                    "parameters": [
+                        {
+                            "name": "context",
+                            "type": "Asmpkg\\Guiche\\Prompt\\PromptContext",
+                            "by_reference": false,
+                            "variadic": false,
+                            "optional": false,
+                            "has_default": false
+                        }
+                    ]
+                }
+            },
+            "properties": [],
+            "constants": []
+        },
+        "Asmpkg\\Guiche\\Prompt\\TenantPromptResolver": {
+            "kind": "class",
+            "final": true,
+            "abstract": false,
+            "readonly": false,
+            "parent": null,
+            "interfaces": [
+                "Asmpkg\\Guiche\\Contracts\\PromptResolverInterface"
+            ],
+            "methods": {
+                "__construct": {
+                    "name": "__construct",
+                    "static": false,
+                    "final": false,
+                    "abstract": false,
+                    "returns_reference": false,
+                    "return_type": null,
+                    "parameters": [
+                        {
+                            "name": "projectRoot",
                             "type": "string",
                             "by_reference": false,
                             "variadic": false,

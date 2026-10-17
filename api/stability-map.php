@@ -57,6 +57,7 @@ return array (
   'Asmpkg\\Guiche\\Prompt\\FallbackPromptResolver' => 'public',
   'Asmpkg\\Guiche\\Prompt\\FilePromptResolver' => 'public',
   'Asmpkg\\Guiche\\Prompt\\StaticPromptResolver' => 'public',
+  'Asmpkg\\Guiche\\Prompt\\TenantPromptResolver' => 'public',
   'Asmpkg\\Guiche\\Prompt\\PromptContext' => 'public',
   'Asmpkg\\Guiche\\Providers\\OpenAiResponsesProvider' => 'internal',
   'Asmpkg\\Guiche\\Providers\\TerminalToolOutputAiProvider' => 'internal',
