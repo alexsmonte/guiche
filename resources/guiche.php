@@ -15,6 +15,7 @@ use Asmpkg\Guiche\Plugin\ToolRegistration;
 use Asmpkg\Guiche\Prompt\FilePromptResolver;
 use Asmpkg\Guiche\Prompt\PromptContext;
 use Asmpkg\Guiche\Prompt\StaticPromptResolver;
+use Asmpkg\Guiche\Prompt\TenantPromptResolver;
 use Asmpkg\Guiche\Providers\OpenAiResponsesProvider;
 use Asmpkg\Guiche\RuntimeContext;
 
@@ -37,6 +38,7 @@ use Asmpkg\Guiche\RuntimeContext;
  *         'context_store' => $store,
  *         'tenant_resolver' => $tenantResolver,
  *         'prompt_resolver' => $promptResolver,
+ *         'services' => [...],
  *         'tools' => [...],
  *         'plugins' => [...],
  *     ]);
@@ -151,15 +153,20 @@ return static function (array $app = []): Guiche {
     }
 
     /*
-     * Resolver padrão:
+     * Prioridade do resolver:
      *
+     * $app['prompt_resolver']
+     *     ↓
      * GUICHE_PROMPT_FILE
      *     ↓
      * GUICHE_PROMPT
      *     ↓
-     * <projeto>/guiche.prompt.md
+     * prompts/comportamento.md + {tenant_id}.md
+     *     ↓
+     * guiche.prompt.md legado
      *
-     * A implementação usa as fontes públicas do Core.
+     * O layout multi-tenant só é ativado automaticamente quando
+     * prompts/comportamento.md existe, preservando instalações antigas.
      */
     $promptResolver = $app['prompt_resolver']
         ?? null;
@@ -186,17 +193,30 @@ return static function (array $app = []): Guiche {
                 )
             ));
 
-            $promptResolver = $inline !== ''
-                ? new StaticPromptResolver(
-                    $inline
-                )
-                : new FilePromptResolver(
-                    'guiche.prompt.md',
+            if ($inline !== '') {
+                $promptResolver =
+                    new StaticPromptResolver(
+                        $inline
+                    );
+            } elseif (
+                is_file(
                     $root
-                );
+                    . '/prompts/comportamento.md'
+                )
+            ) {
+                $promptResolver =
+                    new TenantPromptResolver(
+                        $root
+                    );
+            } else {
+                $promptResolver =
+                    new FilePromptResolver(
+                        'guiche.prompt.md',
+                        $root
+                    );
+            }
         }
     }
-
     if (
         !$promptResolver instanceof PromptResolverInterface
         && !$promptResolver instanceof \Closure
@@ -294,10 +314,58 @@ return static function (array $app = []): Guiche {
     }
 
     /*
-     * Tools e Plugins podem ser fornecidos pela aplicação/framework.
+     * Services precisam ser registrados antes dos loaders para permitir
+     * injeção explícita de dependências por ClassResolver.
      *
-     * Em projetos simples, também é possível editar este arquivo e
-     * preencher diretamente estas listas.
+     * Exemplo:
+     *
+     * 'services' => [
+     *     Connection::class => $connection,
+     * ],
+     */
+    $services = $app['services'] ?? [];
+
+    if (!is_array($services)) {
+        throw new \RuntimeException(
+            'services precisa ser array.'
+        );
+    }
+
+    foreach ($services as $id => $service) {
+        if (
+            !is_string($id)
+            || trim($id) === ''
+        ) {
+            throw new \RuntimeException(
+                'Cada service precisa possuir um id string não vazio.'
+            );
+        }
+
+        if (!is_object($service)) {
+            throw new \RuntimeException(
+                "Service '{$id}' precisa ser object."
+            );
+        }
+
+        $builder->setService(
+            $id,
+            $service
+        );
+    }
+
+    /*
+     * Compatibilidade:
+     *
+     * tools:
+     * - ToolInterface / ToolRegistration => registerTool()
+     * - string => loadTool()
+     *
+     * plugins:
+     * - PluginInterface => registerPlugin()
+     * - string => loadPlugin()
+     *
+     * Assim instalações antigas continuam válidas e projetos novos
+     * podem usar as convenções App\Tool e App\Plugin.
      */
     $tools = $app['tools'] ?? [];
     $plugins = $app['plugins'] ?? [];
@@ -315,12 +383,18 @@ return static function (array $app = []): Guiche {
     }
 
     foreach ($tools as $tool) {
+        if (is_string($tool)) {
+            $builder->loadTool($tool);
+
+            continue;
+        }
+
         if (
             !$tool instanceof ToolInterface
             && !$tool instanceof ToolRegistration
         ) {
             throw new \RuntimeException(
-                'Cada item de tools precisa ser ToolInterface ou ToolRegistration.'
+                'Cada item de tools precisa ser string, ToolInterface ou ToolRegistration.'
             );
         }
 
@@ -328,9 +402,15 @@ return static function (array $app = []): Guiche {
     }
 
     foreach ($plugins as $plugin) {
+        if (is_string($plugin)) {
+            $builder->loadPlugin($plugin);
+
+            continue;
+        }
+
         if (!$plugin instanceof PluginInterface) {
             throw new \RuntimeException(
-                'Cada item de plugins precisa implementar PluginInterface.'
+                'Cada item de plugins precisa ser string ou implementar PluginInterface.'
             );
         }
 
@@ -338,7 +418,6 @@ return static function (array $app = []): Guiche {
             $plugin
         );
     }
-
     /*
      * Escape hatch framework-agnostic.
      *
