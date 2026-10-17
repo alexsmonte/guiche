@@ -24,6 +24,16 @@ final class ClinicStateManager implements StateManagerInterface
             'unset_state' => [],
         ];
 
+        /*
+         * Fatos inequívocos podem ser registrados antes de existir uma
+         * etapa clínica, sem transformar o StateManager em Tool ou prompt.
+         */
+        $this->applyExplicitUserFacts(
+            $state,
+            $message,
+            $patch
+        );
+
         if ($stage === 'aguardando_horario') {
             $time = $this->extractTime($message);
 
@@ -437,7 +447,11 @@ final class ClinicStateManager implements StateManagerInterface
     ): array {
         $state = $context['state'] ?? [];
 
-        $newStart = (string) ($arguments['data_inicio'] ?? '');
+        $newStart = (string) (
+            $arguments['data_inicio']
+            ?? $arguments['data_inicial']
+            ?? ''
+        );
         $newEnd = (string) ($arguments['data_final'] ?? '');
         $page = (int) ($arguments['pagina'] ?? 1);
 
@@ -566,6 +580,75 @@ final class ClinicStateManager implements StateManagerInterface
         }
 
         return $patch;
+    }
+
+    /**
+     * Registra somente fatos inequívocos presentes na mensagem.
+     *
+     * Não inventa IDs, não consulta dados externos e não escolhe Tool.
+     *
+     * @param array<mixed> $state
+     * @param array<mixed> $patch
+     */
+    private function applyExplicitUserFacts(
+        array $state,
+        string $message,
+        array &$patch
+    ): void {
+        $text = $this->normalize($message);
+
+        if (
+            preg_match(
+                '/\b(?:reagendar|remarcar)\b/u',
+                $text
+            ) === 1
+        ) {
+            $patch['intent'] = 'reagendamento';
+        } elseif (
+            preg_match(
+                '/\b(?:cancelar|desmarcar)\b/u',
+                $text
+            ) === 1
+        ) {
+            $patch['intent'] = 'cancelamento';
+        } elseif (
+            preg_match(
+                '/\b(?:agendar|marcar)\b/u',
+                $text
+            ) === 1
+        ) {
+            $patch['intent'] = 'agendamento';
+        }
+
+        $particular =
+            str_contains($text, 'sem convenio')
+            || str_contains($text, 'nao tenho convenio')
+            || preg_match('/\bparticular\b/u', $text) === 1;
+
+        if (!$particular) {
+            return;
+        }
+
+        $oldConvenio = trim(
+            (string)($state['convenio']['nome'] ?? '')
+        );
+
+        if (
+            $oldConvenio !== ''
+            && !$this->sameText(
+                $oldConvenio,
+                'Particular'
+            )
+        ) {
+            $patch['unset_state'] = array_merge(
+                $patch['unset_state'] ?? [],
+                $this->downstreamStateKeys()
+            );
+        }
+
+        $patch['state']['convenio'] = [
+            'nome' => 'Particular',
+        ];
     }
 
     private function extractCpf(string $message): ?string
