@@ -137,7 +137,26 @@ final class ClinicStateManager implements StateManagerInterface
                 $result
             ),
 
+            'AgendarConsulta',
+            'agendarConsulta' => $this->afterCompatibleBooking(
+                $context,
+                $arguments,
+                $result
+            ),
+
             'ConsultarPaciente' => $this->afterPatient(
+                $context,
+                $arguments,
+                $result
+            ),
+
+            'ConsultaPaciente' => $this->afterLegacyPatient(
+                $context,
+                $arguments,
+                $result
+            ),
+
+            'CadastrarPaciente' => $this->afterPatientRegistration(
                 $context,
                 $arguments,
                 $result
@@ -211,16 +230,36 @@ final class ClinicStateManager implements StateManagerInterface
             && $patientId !== '';
 
         if (!$found) {
+            $cpf = preg_replace(
+                '/\D+/',
+                '',
+                (string)(
+                    $data['cpf']
+                    ?? $arguments['cpf']
+                    ?? ''
+                )
+            );
+
+            $missingState = [
+                'etapa' => 'aguardando_cpf',
+                'paciente_nao_encontrado' => true,
+                'paciente_cadastrado' => false,
+                'status' => 'paciente_nao_cadastrado',
+            ];
+
+            if (is_string($cpf) && strlen($cpf) === 11) {
+                $missingState['cpf'] = $cpf;
+            }
+
             return $this->cleanPatch([
-                'state' => [
-                    'etapa' => 'aguardando_cpf',
-                    'paciente_nao_encontrado' => true,
-                ],
+                'state' => $missingState,
                 'unset_state' => [
-                    'cpf',
                     'paciente_id',
                     'paciente_nome',
                     'paciente_validado',
+                    'agendamento_id',
+                    'agendamento_existente',
+                    'agendamentos_existentes',
                     'confirmado_pelo_usuario',
                 ],
             ]);
@@ -258,6 +297,7 @@ final class ClinicStateManager implements StateManagerInterface
                     ? (int)$patientId
                     : $patientId,
                 'paciente_validado' => true,
+                'paciente_cadastrado' => true,
                 'agendamento_id' => $existingBookingId,
                 'agendamento_existente' => true,
                 'agendamentos_existentes' => $appointments,
@@ -304,6 +344,7 @@ final class ClinicStateManager implements StateManagerInterface
                     ? (int)$patientId
                     : $patientId,
                 'paciente_validado' => true,
+                'paciente_cadastrado' => true,
             ],
             'unset_state' => [
                 'paciente_nao_encontrado',
@@ -324,6 +365,295 @@ final class ClinicStateManager implements StateManagerInterface
         }
 
         return $this->cleanPatch($patch);
+    }
+
+    /**
+     * Compatibilidade com a Tool externa/histórica ConsultaPaciente.
+     *
+     * Formato observado:
+     * data[0].resposta_ia =
+     * "paciente_id: 123\nNome do paciente: Nome..."
+     *
+     * @param array<mixed> $context
+     * @param array<mixed> $arguments
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
+    private function afterLegacyPatient(
+        array $context,
+        array $arguments,
+        array $result
+    ): array {
+        $row = $this->firstDataRow($result);
+        $response = trim(
+            (string)($row['resposta_ia'] ?? '')
+        );
+
+        $cpf = preg_replace(
+            '/\D+/',
+            '',
+            (string)($arguments['cpf'] ?? '')
+        );
+
+        $normalized = $this->normalize($response);
+
+        if (
+            $response === ''
+            || str_contains(
+                $normalized,
+                'paciente nao tem cadastro'
+            )
+            || str_contains(
+                $normalized,
+                'nao encontrei cadastro'
+            )
+        ) {
+            $state = [
+                'paciente_cadastrado' => false,
+                'paciente_nao_encontrado' => true,
+                'status' => 'paciente_nao_cadastrado',
+            ];
+
+            if (is_string($cpf) && strlen($cpf) === 11) {
+                $state['cpf'] = $cpf;
+            }
+
+            return $this->cleanPatch([
+                'state' => $state,
+                'unset_state' => [
+                    'paciente_id',
+                    'paciente_nome',
+                    'paciente_validado',
+                    'agendamento_id',
+                    'agendamento_existente',
+                    'agendamentos_existentes',
+                    'confirmado_pelo_usuario',
+                ],
+            ]);
+        }
+
+        if (
+            preg_match(
+                '/paciente_id:\s*(\d+)/i',
+                $response,
+                $patientMatch
+            ) !== 1
+        ) {
+            return [];
+        }
+
+        $patientId = (int)$patientMatch[1];
+
+        $state = [
+            'paciente_id' => $patientId,
+            'paciente_validado' => true,
+            'paciente_cadastrado' => true,
+            'etapa' => 'aguardando_confirmacao',
+        ];
+
+        if (is_string($cpf) && strlen($cpf) === 11) {
+            $state['cpf'] = $cpf;
+        }
+
+        if (
+            preg_match(
+                '/Nome do paciente:\s*([^\r\n]+)/i',
+                $response,
+                $nameMatch
+            ) === 1
+        ) {
+            $state['paciente_nome'] = trim(
+                $nameMatch[1]
+            );
+        }
+
+        if (
+            preg_match(
+                '/agendamento_id:\s*(\d+)/i',
+                $response,
+                $bookingMatch
+            ) === 1
+        ) {
+            $state['agendamento_id'] =
+                (int)$bookingMatch[1];
+
+            $state['agendamento_existente'] = true;
+            $state['etapa'] = 'agendado';
+        }
+
+        return $this->cleanPatch([
+            'state' => $state,
+            'unset_state' => [
+                'paciente_nao_encontrado',
+                'confirmado_pelo_usuario',
+            ],
+        ]);
+    }
+
+    /**
+     * Resultado de CadastrarPaciente vindo de uma Tool externa.
+     *
+     * O StateManager não cadastra paciente; apenas persiste fatos
+     * retornados por uma Tool já executada.
+     *
+     * @param array<mixed> $context
+     * @param array<mixed> $arguments
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
+    private function afterPatientRegistration(
+        array $context,
+        array $arguments,
+        array $result
+    ): array {
+        $row = $this->firstDataRow($result);
+
+        $patientId =
+            $row['novo_paciente_id']
+            ?? $row['paciente_id']
+            ?? $row['id']
+            ?? null;
+
+        if ($patientId === null || $patientId === '') {
+            return [];
+        }
+
+        $cpf = preg_replace(
+            '/\D+/',
+            '',
+            (string)(
+                $arguments['cpf']
+                ?? $context['state']['cpf']
+                ?? ''
+            )
+        );
+
+        $name = trim(
+            (string)(
+                $row['nome']
+                ?? $row['nome_completo']
+                ?? $arguments['nome_completo']
+                ?? $arguments['nome']
+                ?? ''
+            )
+        );
+
+        $state = [
+            'paciente_id' => is_numeric($patientId)
+                ? (int)$patientId
+                : $patientId,
+            'paciente_validado' => true,
+            'paciente_cadastrado' => true,
+            'status' => 'paciente_cadastrado',
+            'etapa' => 'aguardando_confirmacao',
+        ];
+
+        if (is_string($cpf) && strlen($cpf) === 11) {
+            $state['cpf'] = $cpf;
+        }
+
+        if ($name !== '') {
+            $state['paciente_nome'] = $name;
+        }
+
+        return $this->cleanPatch([
+            'state' => $state,
+            'unset_state' => [
+                'paciente_nao_encontrado',
+                'agendamento_id',
+                'agendamento_existente',
+                'agendamentos_existentes',
+                'confirmado_pelo_usuario',
+            ],
+        ]);
+    }
+
+    /**
+     * Compatibilidade de resultado com AgendarConsulta/agendarConsulta.
+     *
+     * Não registra uma segunda WRITE no ClinicPlugin. A Safety Layer
+     * e a idempotência atuais de CriarAgendamento permanecem intactas.
+     *
+     * @param array<mixed> $context
+     * @param array<mixed> $arguments
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
+    private function afterCompatibleBooking(
+        array $context,
+        array $arguments,
+        array $result
+    ): array {
+        $row = $this->firstDataRow($result);
+
+        $bookingId =
+            $row['agendamento_id']
+            ?? $row['id_agendamento']
+            ?? $row['id']
+            ?? null;
+
+        if ($bookingId === null || $bookingId === '') {
+            return [];
+        }
+
+        $state = [
+            'etapa' => 'agendado',
+            'status' => 'agendado',
+            'agendamento_id' => is_numeric($bookingId)
+                ? (int)$bookingId
+                : $bookingId,
+        ];
+
+        $date = trim(
+            (string)(
+                $row['data_inicio']
+                ?? $arguments['data_inicio']
+                ?? $arguments['data_escolhida']
+                ?? ''
+            )
+        );
+
+        if ($date !== '') {
+            $state['data_agendamento'] = $date;
+        }
+
+        $time = trim(
+            (string)(
+                $row['hora_inicio']
+                ?? $arguments['hora_inicio']
+                ?? $arguments['hora_escolhida']
+                ?? ''
+            )
+        );
+
+        if ($time !== '') {
+            $state['horario'] = $time;
+        }
+
+        return $this->cleanPatch([
+            'state' => $state,
+        ]);
+    }
+
+    /**
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
+    private function firstDataRow(array $result): array
+    {
+        $data = $result['data'] ?? [];
+
+        if (!is_array($data) || $data === []) {
+            return [];
+        }
+
+        if (array_is_list($data)) {
+            return is_array($data[0] ?? null)
+                ? $data[0]
+                : [];
+        }
+
+        return $data;
     }
 
     /**
