@@ -12,6 +12,7 @@
         "Asmpkg\\Guiche\\Conversation\\ConversationKey",
         "Asmpkg\\Guiche\\Conversation\\ConversationRuntime",
         "Asmpkg\\Guiche\\Conversation\\ConversationTurn",
+        "Asmpkg\\Guiche\\Conversation\\FollowUpRuntime",
         "Asmpkg\\Guiche\\Conversation\\FollowUpScheduler",
         "Asmpkg\\Guiche\\Conversation\\IncomingEvent",
         "Asmpkg\\Guiche\\Conversation\\IncomingEventRecorder",

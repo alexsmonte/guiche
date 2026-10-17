@@ -33,6 +33,7 @@ return array (
   'Asmpkg\\Guiche\\Conversation\\ConversationRuntime' => 'experimental',
   'Asmpkg\\Guiche\\Conversation\\ConversationTurn' => 'experimental',
   'Asmpkg\\Guiche\\Conversation\\FollowUpScheduler' => 'experimental',
+  'Asmpkg\\Guiche\\Conversation\\FollowUpRuntime' => 'experimental',
   'Asmpkg\\Guiche\\Conversation\\IncomingEvent' => 'experimental',
   'Asmpkg\\Guiche\\Conversation\\IncomingEventRecorder' => 'experimental',
   'Asmpkg\\Guiche\\Conversation\\JsonConversationStore' => 'experimental',

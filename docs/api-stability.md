@@ -204,3 +204,21 @@ O runtime interno usado por essa capacidade é:
 | `Asmpkg\Guiche\Session\SessionLifecycleManager` | `class` | `internal` |
 
 A atualização de `api/baseline-v1.json` nesta fase é uma revisão explícita do freeze para registrar somente essa adição compatível.
+
+## Revisão Experimental v1.6 — Follow-up DX
+
+A v1.6 adiciona:
+
+```text
+Asmpkg\Guiche\Conversation\FollowUpRuntime
+```
+
+Classificação:
+
+```text
+experimental
+```
+
+A classe é uma facade de composição sobre o runtime de conversação já existente. Ela não amplia o compromisso BC da API pública estável v1.x.
+
+O freeze `api/experimental-v1.json` foi atualizado explicitamente para registrar o novo símbolo experimental.
