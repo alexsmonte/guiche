@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Asmpkg\Guiche\Plugin;
 
+use Asmpkg\Guiche\Cache\ToolReusePolicy;
 use Asmpkg\Guiche\Contracts\ToolInterface;
 use Asmpkg\Guiche\Safety\TrustedParameterBinder;
 use InvalidArgumentException;
@@ -33,6 +34,14 @@ final class ToolRegistration
          */
         (new TrustedParameterBinder())->visibleParameters(
             $this->tool->parameters(),
+            $this->metadata
+        );
+
+        /*
+         * Reuso contextual também é validado no registro.
+         * Ausência de metadata reuse preserva semântica legada.
+         */
+        (new ToolReusePolicy())->dependencyPaths(
             $this->metadata
         );
     }

@@ -17,6 +17,7 @@ use Asmpkg\Guiche\Observability\RuntimeEventFactory;
 use Asmpkg\Guiche\Prompt\PromptContext;
 use Asmpkg\Guiche\Contracts\StateManagerInterface;
 use Asmpkg\Guiche\Tenant\TenantResolutionService;
+use Asmpkg\Guiche\Cache\ToolReusePolicy;
 use Asmpkg\Guiche\Safety\ToolBlockedException;
 use Asmpkg\Guiche\Safety\ToolExecutionGate;
 use Asmpkg\Guiche\Safety\ToolSafetyMetadata;
@@ -567,6 +568,7 @@ final class Guiche
                 $previousWrite = null;
                 $result = null;
                 $toolExecutionContext = null;
+                $reuseDependencyFingerprint = null;
 
                 /*
                  * Gate 1:
@@ -600,6 +602,21 @@ final class Guiche
                     $isWrite = $operation
                         === ToolSafetyMetadata::OPERATION_WRITE;
 
+                    if (
+                        !$isWrite
+                        && in_array(
+                            $name,
+                            $this->reusableTools,
+                            true
+                        )
+                    ) {
+                        $reuseDependencyFingerprint =
+                            $this->reuseDependencyFingerprintFor(
+                                $name,
+                                $currentContext
+                            );
+                    }
+
                     $toolExecutionContext =
                         $this->toolExecutionContextFor(
                             $name,
@@ -624,11 +641,15 @@ final class Guiche
                     && !$isWrite
                     && in_array($name, $this->reusableTools, true)
                 ) {
-                    $result = $this->context->findSuccessfulToolResult(
-                        $sessionId,
-                        $name,
-                        $arguments
-                    );
+                    $cacheLookup =
+                        $this->reusableToolResult(
+                            $sessionId,
+                            $name,
+                            $arguments,
+                            $reuseDependencyFingerprint
+                        );
+
+                    $result = $cacheLookup['result'];
 
                     if ($result !== null) {
                         $cached = true;
@@ -637,6 +658,17 @@ final class Guiche
                             'call_id' => $callId,
                             'name' => $name,
                             'arguments' => $aiArguments,
+                        ];
+                    } elseif (
+                        $cacheLookup['reason'] !== null
+                    ) {
+                        $events[] = [
+                            'type' =>
+                                'tool_cache_invalidated',
+                            'call_id' => $callId,
+                            'name' => $name,
+                            'reason' =>
+                                $cacheLookup['reason'],
                         ];
                     }
                 }
@@ -697,6 +729,21 @@ final class Guiche
 
                         $isWrite = $operation
                             === ToolSafetyMetadata::OPERATION_WRITE;
+
+                        if (
+                            !$isWrite
+                            && in_array(
+                                $name,
+                                $this->reusableTools,
+                                true
+                            )
+                        ) {
+                            $reuseDependencyFingerprint =
+                                $this->reuseDependencyFingerprintFor(
+                                    $name,
+                                    $currentContext
+                                );
+                        }
 
                         $toolExecutionContext =
                             $this->toolExecutionContextFor(
@@ -765,11 +812,26 @@ final class Guiche
                             && $previousWrite !== null
                         )
                     ) {
+                        $historyResult =
+                            $this->reusableToolHistoryResult(
+                                $result,
+                                (
+                                    !$isWrite
+                                    && in_array(
+                                        $name,
+                                        $this->reusableTools,
+                                        true
+                                    )
+                                )
+                                    ? $reuseDependencyFingerprint
+                                    : null
+                            );
+
                         $this->observedAddToolExecution($interactionId, $events, $callId,
                             $sessionId,
                             $name,
                             $arguments,
-                            $result
+                            $historyResult
                         );
                     }
                 }
@@ -941,6 +1003,82 @@ final class Guiche
             flock($handle, LOCK_UN);
             fclose($handle);
         }
+    }
+
+    /**
+     * Calcula a assinatura do contexto apenas quando a Tool declarou
+     * reuse.depends_on. Sem dependências, retorna null e mantém o
+     * comportamento legado de reusable_tools.
+     *
+     * @param array<mixed> $context
+     */
+    private function reuseDependencyFingerprintFor(
+        string $name,
+        array $context
+    ): ?string {
+        if (!$this->tools->has($name)) {
+            return null;
+        }
+
+        return (new ToolReusePolicy())
+            ->dependencyFingerprint(
+                $this->tools->metadata($name),
+                $context
+            );
+    }
+
+    /**
+     * Consulta o último resultado bem-sucedido já conhecido e valida
+     * a assinatura contextual, quando configurada.
+     *
+     * A busca continua deliberadamente limitada ao último resultado
+     * bem-sucedido do fingerprint de argumentos. Se o estado mudou
+     * A -> B -> A, uma entrada antiga A não é ressuscitada atrás da
+     * entrada B: ocorre nova execução, privilegiando segurança.
+     *
+     * @param array<mixed> $arguments
+     * @return array{result: array<mixed>|null, reason: string|null}
+     */
+    private function reusableToolResult(
+        string $sessionId,
+        string $name,
+        array $arguments,
+        ?string $dependencyFingerprint
+    ): array {
+        $candidate =
+            $this->context->findSuccessfulToolResult(
+                $sessionId,
+                $name,
+                $arguments
+            );
+
+        if ($candidate === null) {
+            return [
+                'result' => null,
+                'reason' => null,
+            ];
+        }
+
+        return (new ToolReusePolicy())
+            ->validateCachedResult(
+                $candidate,
+                $dependencyFingerprint
+            );
+    }
+
+    /**
+     * @param array<mixed> $result
+     * @return array<mixed>
+     */
+    private function reusableToolHistoryResult(
+        array $result,
+        ?string $dependencyFingerprint
+    ): array {
+        return (new ToolReusePolicy())
+            ->resultForHistory(
+                $result,
+                $dependencyFingerprint
+            );
     }
 
     /**

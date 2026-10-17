@@ -176,6 +176,7 @@ experimental.
 | `Asmpkg\Guiche\Providers\OpenAiResponsesProvider` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Providers\TerminalToolOutputAiProvider` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Safety\TrustedParameterBinder` | `class` | compilação e binding interno de parâmetros protegidos |
+| `Asmpkg\Guiche\Cache\ToolReusePolicy` | `class` | validade contextual interna do cache de Tools READ |
 | `Asmpkg\Guiche\Safety\ToolArgumentValidator` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Safety\ToolExecutionGate` | `class` | detalhe de implementação não necessário à integração pública |
 | `Asmpkg\Guiche\Safety\ToolSafetyMetadata` | `class` | detalhe de implementação não necessário à integração pública |
