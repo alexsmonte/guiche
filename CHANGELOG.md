@@ -4,6 +4,39 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
 O formato segue a ideia de **Keep a Changelog** e o versionamento do projeto segue **Semantic Versioning**.
 
+## [1.6.0] - 2026-10-17
+
+### Added
+
+- Operational State estruturado e interoperabilidade no exemplo clínico;
+- Trusted Parameter Binding;
+- cache/reuso contextual de Tools READ;
+- `withSessionTtl()` e lifecycle `new`, `active` e `expired`;
+- `FollowUpRuntime` experimental;
+- `CompositePromptResolver` e `withPromptResolvers(...)`;
+- `loadCapabilities()` para `services`, `tools` e `plugins`.
+
+### Security
+
+- parâmetros confiáveis vinculados antes de gate/fingerprint/cache/execução;
+- cache READ invalidado por dependências declaradas;
+- expiração de sessão preserva `execution_context` confiável;
+- follow-up incerto permanece `indeterminate`, sem retry cego;
+- loading declarativo é estrito e faz preflight.
+
+### Compatibility
+
+- release SemVer minor e aditiva;
+- Public: 40; Experimental: 12; Internal: 19;
+- SHA-256 API pública: `21f759500406f1fa5b1479a24a4ffdbb212c60133f034ba104e18290f11a8814`.
+
+### Validation
+
+- 391 testes / 1959 assertions;
+- PHPStan sem erros;
+- coverage de linhas 78,50% (threshold 70%);
+- clean consumer Composer + CLI + smoke externo v1.6 validados.
+
 ## [1.5.0] - 2026-10-16
 
 ### Added

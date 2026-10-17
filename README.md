@@ -4,7 +4,7 @@
 
 O projeto evoluiu de um piloto clínico para uma biblioteca reutilizável. O domínio clínico deixa de definir a arquitetura do Core e passa a ser apenas uma integração construída sobre os mesmos contratos públicos disponíveis para qualquer outro domínio.
 
-> Versão documentada: **v1.5.0 — Stable**
+> Versão documentada: **v1.6.0 — Stable**
 ## Requisitos
 
 - PHP `^8.4`;
@@ -31,14 +31,14 @@ composer install
 
 ## Quick Start — primeira conversa
 
-Na v1.5.0 você não precisa copiar nem criar `chat.php` para começar.
+Na v1.6.0 você não precisa copiar nem criar `chat.php` para começar.
 
 ### 1. Crie um projeto vazio
 
 ```bash
 mkdir meu-guiche
 cd meu-guiche
-composer require asmpkg/guiche:^1.5
+composer require asmpkg/guiche:^1.6
 ```
 
 ### 2. Inicialize o projeto
@@ -179,6 +179,18 @@ Também é possível consultar usage fora do chat:
 ```bash
 vendor/bin/guiche usage --session=cliente-123
 ```
+
+## Novidades da v1.6
+
+A v1.6 consolida **Operational State & Runtime DX** sem quebrar os contratos estáveis da linha v1.
+
+- Trusted Parameter Binding para parâmetros confiáveis de Tools;
+- cache/reuso de READ com dependências explícitas do contexto;
+- `GuicheBuilder::withSessionTtl()` e lifecycle `new/active/expired`;
+- `FollowUpRuntime` experimental sobre o scheduler durável;
+- `CompositePromptResolver` e `withPromptResolvers(...)`;
+- `GuicheBuilder::loadCapabilities()` para `services`, `tools` e `plugins`;
+- Operational State e interoperabilidade no exemplo clínico.
 
 ## Exemplo básico com Tool
 
