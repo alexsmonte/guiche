@@ -18,6 +18,7 @@ use Asmpkg\Guiche\Plugin\ContextAwarePresentedTool;
 use Asmpkg\Guiche\Plugin\PresentedTool;
 use Asmpkg\Guiche\Plugin\ToolRegistration;
 use Asmpkg\Guiche\Prompt\CallbackPromptResolver;
+use Asmpkg\Guiche\Prompt\CompositePromptResolver;
 use Asmpkg\Guiche\Session\SessionLifecycleManager;
 use Closure;
 use InvalidArgumentException;
@@ -421,6 +422,32 @@ final class GuicheBuilder
         return $this;
     }
 
+
+    /**
+     * Compõe múltiplas fontes de prompt em ordem.
+     */
+    public function withPromptResolvers(
+        PromptResolverInterface|Closure ...$resolvers
+    ): self {
+        if ($resolvers === []) {
+            throw new InvalidArgumentException(
+                'withPromptResolvers exige ao menos um resolver.'
+            );
+        }
+
+        $normalized = [];
+
+        foreach ($resolvers as $resolver) {
+            $normalized[] = $resolver instanceof Closure
+                ? new CallbackPromptResolver($resolver)
+                : $resolver;
+        }
+
+        $this->promptResolver =
+            new CompositePromptResolver(...$normalized);
+
+        return $this;
+    }
     /**
      * Configura o TTL conversacional em segundos.
      *

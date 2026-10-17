@@ -222,3 +222,22 @@ experimental
 A classe é uma facade de composição sobre o runtime de conversação já existente. Ela não amplia o compromisso BC da API pública estável v1.x.
 
 O freeze `api/experimental-v1.json` foi atualizado explicitamente para registrar o novo símbolo experimental.
+
+## Revisão aditiva v1.6 — Multiple Prompts
+
+A v1.6 adiciona:
+
+```php
+Asmpkg\Guiche\Prompt\CompositePromptResolver
+
+GuicheBuilder::withPromptResolvers(
+    PromptResolverInterface|Closure ...$resolvers
+): self
+```
+
+A mudança é aditiva. `withPromptResolver()`, `PromptResolverInterface`,
+`FallbackPromptResolver` e `TenantPromptResolver` permanecem intactos.
+
+O baseline público v1 foi atualizado explicitamente após o checker
+confirmar que somente `GuicheBuilder` e `CompositePromptResolver`
+divergiam do baseline anterior.

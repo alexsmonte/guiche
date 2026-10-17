@@ -57,6 +57,7 @@ return array (
   'Asmpkg\\Guiche\\Plugin\\ToolRegistration' => 'public',
   'Asmpkg\\Guiche\\PresenterRegistry' => 'public',
   'Asmpkg\\Guiche\\Prompt\\CallbackPromptResolver' => 'public',
+  'Asmpkg\\Guiche\\Prompt\\CompositePromptResolver' => 'public',
   'Asmpkg\\Guiche\\Prompt\\FallbackPromptResolver' => 'public',
   'Asmpkg\\Guiche\\Prompt\\FilePromptResolver' => 'public',
   'Asmpkg\\Guiche\\Prompt\\StaticPromptResolver' => 'public',
