@@ -87,14 +87,22 @@ TXT;
         $target = $this->projectRoot . '/.env';
         $promptSource = $this->packageRoot
             . '/resources/guiche.prompt.md';
-        $promptTarget = $this->projectRoot
+        $legacyPromptTarget = $this->projectRoot
             . '/'
             . PromptResolver::PROJECT_PROMPT_FILE;
+        $promptDirectory = $this->projectRoot
+            . '/prompts';
+        $globalPromptTarget = $promptDirectory
+            . '/comportamento.md';
         $compositionRootSource = $this->packageRoot
             . '/resources/guiche.php';
         $compositionRootTarget = $this->projectRoot
             . '/guiche.php';
         $storage = $this->storagePath();
+        $toolDirectory = $this->projectRoot
+            . '/src/Tool';
+        $pluginDirectory = $this->projectRoot
+            . '/src/Plugin';
 
         if (!is_file($source)) {
             throw new RuntimeException(
@@ -114,8 +122,26 @@ TXT;
             );
         }
 
+        $this->ensureDirectory(
+            $promptDirectory,
+            'prompts'
+        );
+        $this->ensureDirectory(
+            $toolDirectory,
+            'src/Tool'
+        );
+        $this->ensureDirectory(
+            $pluginDirectory,
+            'src/Plugin'
+        );
+        $this->ensureDirectory(
+            $storage,
+            'storage/conversations'
+        );
+
         $createdEnv = false;
-        $createdPrompt = false;
+        $createdLegacyPrompt = false;
+        $createdGlobalPrompt = false;
         $createdCompositionRoot = false;
 
         if (!is_file($target)) {
@@ -128,14 +154,34 @@ TXT;
             $createdEnv = true;
         }
 
-        if (!is_file($promptTarget)) {
-            if (!copy($promptSource, $promptTarget)) {
+        /*
+         * Mantido por compatibilidade com instalações anteriores.
+         * O Composition Root novo prioriza prompts/comportamento.md.
+         */
+        if (!is_file($legacyPromptTarget)) {
+            if (!copy(
+                $promptSource,
+                $legacyPromptTarget
+            )) {
                 throw new RuntimeException(
                     'Não foi possível criar guiche.prompt.md.'
                 );
             }
 
-            $createdPrompt = true;
+            $createdLegacyPrompt = true;
+        }
+
+        if (!is_file($globalPromptTarget)) {
+            if (!copy(
+                $promptSource,
+                $globalPromptTarget
+            )) {
+                throw new RuntimeException(
+                    'Não foi possível criar prompts/comportamento.md.'
+                );
+            }
+
+            $createdGlobalPrompt = true;
         }
 
         if (!is_file($compositionRootTarget)) {
@@ -151,27 +197,44 @@ TXT;
             $createdCompositionRoot = true;
         }
 
-        if (
-            !is_dir($storage)
-            && !mkdir($storage, 0775, true)
-            && !is_dir($storage)
-        ) {
-            throw new RuntimeException(
-                'Não foi possível criar storage/conversations.'
-            );
-        }
+        $composerStatus =
+            $this->ensureProjectPsr4();
 
         echo "Guichê inicializado." . PHP_EOL;
         echo $createdEnv
             ? "  [OK] .env criado a partir de .env.example" . PHP_EOL
             : "  [OK] .env existente preservado" . PHP_EOL;
-        echo $createdPrompt
-            ? "  [OK] guiche.prompt.md criado" . PHP_EOL
+        echo $createdGlobalPrompt
+            ? "  [OK] prompts/comportamento.md criado" . PHP_EOL
+            : "  [OK] prompts/comportamento.md existente preservado" . PHP_EOL;
+        echo $createdLegacyPrompt
+            ? "  [OK] guiche.prompt.md legado criado para compatibilidade" . PHP_EOL
             : "  [OK] guiche.prompt.md existente preservado" . PHP_EOL;
         echo $createdCompositionRoot
             ? "  [OK] guiche.php criado como Composition Root" . PHP_EOL
             : "  [OK] guiche.php existente preservado" . PHP_EOL;
+        echo "  [OK] src/Tool disponível" . PHP_EOL;
+        echo "  [OK] src/Plugin disponível" . PHP_EOL;
         echo "  [OK] storage/conversations disponível" . PHP_EOL;
+
+        match ($composerStatus) {
+            'added' => print(
+                "  [OK] composer.json atualizado com App\\\\ => src/" . PHP_EOL
+            ),
+            'ok' => print(
+                "  [OK] composer.json já possui App\\\\ => src/" . PHP_EOL
+            ),
+            'missing' => print(
+                "  [WARN] composer.json não encontrado; App\\\\ => src/ não configurado" . PHP_EOL
+            ),
+            'conflict' => print(
+                "  [WARN] composer.json já possui App\\\\ com outro caminho; mapeamento preservado" . PHP_EOL
+            ),
+            default => throw new RuntimeException(
+                'Status inesperado ao configurar PSR-4.'
+            ),
+        };
+
         echo PHP_EOL;
         echo "Próximo passo: configure AI_API_KEY no .env e execute:" . PHP_EOL;
         echo "  vendor/bin/guiche doctor" . PHP_EOL;
@@ -179,7 +242,6 @@ TXT;
 
         return 0;
     }
-
     private function doctor(): int
     {
         $this->loadEnvironment();
@@ -257,13 +319,138 @@ TXT;
             $failures++;
         }
 
+        $globalPrompt = $this->projectRoot
+            . '/prompts/comportamento.md';
+        $legacyPrompt = $this->projectRoot
+            . '/'
+            . PromptResolver::PROJECT_PROMPT_FILE;
+
+        if (is_file($globalPrompt)) {
+            $content = file_get_contents(
+                $globalPrompt
+            );
+            $promptOk = is_string($content)
+                && trim($content) !== '';
+
+            $this->doctorLine(
+                $promptOk ? 'OK' : 'FAIL',
+                'prompts/comportamento.md',
+                $promptOk
+                    ? 'prompt global disponível'
+                    : 'arquivo vazio ou ilegível'
+            );
+
+            if (!$promptOk) {
+                $failures++;
+            }
+        } elseif (is_file($legacyPrompt)) {
+            $content = file_get_contents(
+                $legacyPrompt
+            );
+            $legacyOk = is_string($content)
+                && trim($content) !== '';
+
+            $this->doctorLine(
+                $legacyOk ? 'WARN' : 'FAIL',
+                'prompt global',
+                $legacyOk
+                    ? 'usando guiche.prompt.md legado'
+                    : 'guiche.prompt.md legado vazio ou ilegível'
+            );
+
+            if ($legacyOk) {
+                $warnings++;
+            } else {
+                $failures++;
+            }
+        } else {
+            $this->doctorLine(
+                'FAIL',
+                'prompt global',
+                'prompts/comportamento.md e guiche.prompt.md ausentes'
+            );
+            $failures++;
+        }
+
+        foreach (
+            [
+                'src/Tool' =>
+                    $this->projectRoot . '/src/Tool',
+                'src/Plugin' =>
+                    $this->projectRoot . '/src/Plugin',
+            ] as $label => $directory
+        ) {
+            $exists = is_dir($directory);
+
+            $this->doctorLine(
+                $exists ? 'OK' : 'WARN',
+                $label,
+                $exists
+                    ? 'disponível'
+                    : 'ausente; loaders por convenção podem não funcionar'
+            );
+
+            if (!$exists) {
+                $warnings++;
+            }
+        }
+
+        try {
+            $composerStatus =
+                $this->inspectProjectPsr4();
+        } catch (RuntimeException $exception) {
+            $composerStatus = 'invalid';
+
+            $this->doctorLine(
+                'FAIL',
+                'composer PSR-4',
+                $exception->getMessage()
+            );
+            $failures++;
+        }
+
+        if ($composerStatus === 'ok') {
+            $this->doctorLine(
+                'OK',
+                'composer PSR-4',
+                'App\\\\ => src/'
+            );
+        } elseif ($composerStatus === 'missing') {
+            $this->doctorLine(
+                'WARN',
+                'composer PSR-4',
+                'composer.json não encontrado'
+            );
+            $warnings++;
+        } elseif ($composerStatus === 'missing_mapping') {
+            $this->doctorLine(
+                'FAIL',
+                'composer PSR-4',
+                'App\\\\ => src/ ausente'
+            );
+            $failures++;
+        } elseif ($composerStatus === 'conflict') {
+            $this->doctorLine(
+                'FAIL',
+                'composer PSR-4',
+                'App\\\\ existe, mas não aponta para src/'
+            );
+            $failures++;
+        } elseif ($composerStatus !== 'invalid') {
+            throw new RuntimeException(
+                'Status inesperado ao validar PSR-4.'
+            );
+        }
         $storage = $this->storagePath();
-        $storageOk = is_dir($storage) && is_writable($storage);
+        $storageOk = is_dir($storage)
+            && is_writable($storage);
 
         $this->doctorLine(
             $storageOk ? 'OK' : 'FAIL',
             'storage/conversations',
-            $storageOk ? 'gravável' : 'ausente ou sem permissão de escrita'
+            $storageOk
+                ? 'gravável'
+                : 'ausente ou sem permissão de escrita'
         );
 
         if (!$storageOk) {
@@ -279,12 +466,13 @@ TXT;
         }
 
         echo "Diagnóstico: ambiente pronto";
-        echo $warnings > 0 ? " com {$warnings} aviso(s)." : ".";
+        echo $warnings > 0
+            ? " com {$warnings} aviso(s)."
+            : ".";
         echo PHP_EOL;
 
         return 0;
     }
-
     /**
      * @param array<int, string> $arguments
      */
@@ -602,6 +790,234 @@ TXT;
             : 'gpt-5.6-luna';
     }
 
+    private function ensureDirectory(
+        string $directory,
+        string $label
+    ): void {
+        if (
+            is_dir($directory)
+            || (
+                mkdir(
+                    $directory,
+                    0775,
+                    true
+                )
+                && is_dir($directory)
+            )
+        ) {
+            return;
+        }
+
+        throw new RuntimeException(
+            "Não foi possível criar {$label}."
+        );
+    }
+
+    private function ensureProjectPsr4(): string
+    {
+        $status = $this->inspectProjectPsr4();
+
+        if (
+            $status === 'missing'
+            || $status === 'ok'
+            || $status === 'conflict'
+        ) {
+            return $status;
+        }
+
+        if ($status !== 'missing_mapping') {
+            throw new RuntimeException(
+                'Status inesperado do composer.json.'
+            );
+        }
+
+        $path = $this->projectRoot
+            . '/composer.json';
+        $contents = file_get_contents($path);
+
+        if ($contents === false) {
+            throw new RuntimeException(
+                'Não foi possível ler composer.json.'
+            );
+        }
+
+        try {
+            $composer = json_decode(
+                $contents,
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+        } catch (\JsonException $exception) {
+            throw new RuntimeException(
+                'composer.json contém JSON inválido.',
+                0,
+                $exception
+            );
+        }
+
+        if (!is_array($composer)) {
+            throw new RuntimeException(
+                'composer.json precisa conter um objeto JSON.'
+            );
+        }
+
+        $autoload = $composer['autoload'] ?? [];
+
+        if (!is_array($autoload)) {
+            throw new RuntimeException(
+                'composer.json: autoload precisa ser objeto.'
+            );
+        }
+
+        $psr4 = $autoload['psr-4'] ?? [];
+
+        if (!is_array($psr4)) {
+            throw new RuntimeException(
+                'composer.json: autoload.psr-4 precisa ser objeto.'
+            );
+        }
+
+        $psr4['App\\'] = 'src/';
+        $autoload['psr-4'] = $psr4;
+        $composer['autoload'] = $autoload;
+
+        $encoded = json_encode(
+            $composer,
+            JSON_PRETTY_PRINT
+            | JSON_UNESCAPED_SLASHES
+            | JSON_UNESCAPED_UNICODE
+            | JSON_THROW_ON_ERROR
+        );
+
+        $temporary = $path
+            . '.guiche.'
+            . bin2hex(random_bytes(6))
+            . '.tmp';
+
+        if (
+            file_put_contents(
+                $temporary,
+                $encoded . PHP_EOL,
+                LOCK_EX
+            ) === false
+        ) {
+            throw new RuntimeException(
+                'Não foi possível preparar atualização de composer.json.'
+            );
+        }
+
+        if (!rename($temporary, $path)) {
+            @unlink($temporary);
+
+            throw new RuntimeException(
+                'Não foi possível atualizar composer.json.'
+            );
+        }
+
+        return 'added';
+    }
+
+    private function inspectProjectPsr4(): string
+    {
+        $path = $this->projectRoot
+            . '/composer.json';
+
+        if (!is_file($path)) {
+            return 'missing';
+        }
+
+        $contents = file_get_contents($path);
+
+        if ($contents === false) {
+            throw new RuntimeException(
+                'composer.json não pôde ser lido.'
+            );
+        }
+
+        try {
+            $composer = json_decode(
+                $contents,
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+        } catch (\JsonException $exception) {
+            throw new RuntimeException(
+                'composer.json contém JSON inválido.',
+                0,
+                $exception
+            );
+        }
+
+        if (!is_array($composer)) {
+            throw new RuntimeException(
+                'composer.json precisa conter um objeto JSON.'
+            );
+        }
+
+        $autoload = $composer['autoload'] ?? [];
+
+        if (!is_array($autoload)) {
+            throw new RuntimeException(
+                'composer.json: autoload precisa ser objeto.'
+            );
+        }
+
+        $psr4 = $autoload['psr-4'] ?? [];
+
+        if (!is_array($psr4)) {
+            throw new RuntimeException(
+                'composer.json: autoload.psr-4 precisa ser objeto.'
+            );
+        }
+
+        if (!array_key_exists('App\\', $psr4)) {
+            return 'missing_mapping';
+        }
+
+        return $this->psr4PointsToSrc(
+            $psr4['App\\']
+        )
+            ? 'ok'
+            : 'conflict';
+    }
+
+    private function psr4PointsToSrc(
+        mixed $mapping
+    ): bool {
+        if (is_string($mapping)) {
+            return $this->normalizePsr4Path(
+                $mapping
+            ) === 'src';
+        }
+
+        if (!is_array($mapping)) {
+            return false;
+        }
+
+        foreach ($mapping as $path) {
+            if (
+                is_string($path)
+                && $this->normalizePsr4Path(
+                    $path
+                ) === 'src'
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function normalizePsr4Path(
+        string $path
+    ): string {
+        return rtrim(
+            str_replace('\\', '/', trim($path)),
+            '/'
+        );
+    }
     private function storagePath(): string
     {
         return $this->projectRoot
